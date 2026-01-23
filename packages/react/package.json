@@ -1,0 +1,66 @@
+{
+  "name": "@asyncflowstate/react",
+  "version": "1.0.0",
+  "description": "React hooks and helpers for AsyncFlowState - elegant async UI behavior management",
+  "keywords": [
+    "react",
+    "hooks",
+    "async",
+    "state",
+    "loading",
+    "error-handling",
+    "ux",
+    "useFlow"
+  ],
+  "author": "AsyncFlowState Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asyncflowstate/asyncflowstate.git",
+    "directory": "packages/react"
+  },
+  "bugs": "https://github.com/asyncflowstate/asyncflowstate/issues",
+  "homepage": "https://github.com/asyncflowstate/asyncflowstate#readme",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@asyncflowstate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

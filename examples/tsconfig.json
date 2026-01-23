@@ -1,0 +1,24 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@asyncflowstate/core": ["../packages/core/src/index.ts"],
+      "@asyncflowstate/react": ["../packages/react/src/index.ts"]
+    },
+    "skipLibCheck": true,
+    "noEmit": true,
+    "rootDir": ".."
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../packages/core/src/index.ts",
+    "../packages/core/src/flow.ts",
+    "../packages/react/src/index.ts",
+    "../packages/react/src/useFlow.tsx"
+  ]
+}
