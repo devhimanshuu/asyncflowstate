@@ -6,7 +6,12 @@ import React, {
   type ButtonHTMLAttributes,
   type MouseEvent,
 } from "react";
-import { Flow, type FlowAction, type FlowOptions, type FlowState } from "@asyncflowstate/core";
+import {
+  Flow,
+  type FlowAction,
+  type FlowOptions,
+  type FlowState,
+} from "@asyncflowstate/core";
 import { useFlowContext, mergeFlowOptions } from "./FlowProvider";
 
 /**
@@ -61,7 +66,8 @@ export interface A11yOptions<TData, TError> {
 export interface ReactFlowOptions<
   TData = any,
   TError = any,
-> extends FlowOptions<TData, TError> {
+  TArgs extends any[] = any[],
+> extends FlowOptions<TData, TError, TArgs> {
   /** Accessibility configuration for automatic announcements. */
   a11y?: A11yOptions<TData, TError>;
 }
@@ -73,17 +79,56 @@ export interface ReactFlowOptions<
  * @param action The asynchronous function to manage.
  * @param options Configuration for the flow behavior and accessibility.
  * @returns An object containing the flow state and interaction helpers.
+ *
+ * @example Basic usage
+ * ```tsx
+ * const flow = useFlow(async (userId: string) => {
+ *   return await api.fetchUser(userId);
+ * });
+ *
+ * return (
+ *   <button {...flow.button()}>
+ *     {flow.loading ? 'Loading...' : 'Fetch User'}
+ *   </button>
+ * );
+ * ```
+ *
+ * @example With timeout and retry
+ * ```tsx
+ * const flow = useFlow(fetchData, {
+ *   timeout: 5000, // Cancel after 5 seconds
+ *   retry: { maxAttempts: 3, backoff: 'exponential' },
+ *   onError: (error) => {
+ *     if (error.type === FlowErrorType.TIMEOUT) {
+ *       toast.error('Request timed out');
+ *     }
+ *   }
+ * });
+ * ```
+ *
+ * @example Optimistic updates with rollback
+ * ```tsx
+ * const flow = useFlow(likePost, {
+ *   optimisticResult: (prevData, [postId]) => ({
+ *     ...prevData,
+ *     likes: prevData.likes + 1,
+ *     isLiked: true
+ *   }),
+ *   rollbackOnError: true,
+ *   onError: () => toast.error('Like failed, changes reverted')
+ * });
+ * ```
  */
 export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   action: FlowAction<TData, TArgs>,
-  options: ReactFlowOptions<TData, TError> = {},
+  options: ReactFlowOptions<TData, TError, TArgs> = {},
 ) {
   // Get global configuration from FlowProvider
   const globalConfig = useFlowContext();
 
   // Persist the action and options to avoid re-creation effects
   const actionRef = useRef(action);
-  const optionsRef = useRef<ReactFlowOptions<TData, TError>>(options);
+  const optionsRef = useRef<ReactFlowOptions<TData, TError, TArgs>>(options);
 
   useEffect(() => {
     actionRef.current = action;

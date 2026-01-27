@@ -7,7 +7,8 @@ import { type FlowOptions } from "@asyncflowstate/core";
 export interface FlowProviderConfig<
   TData = any,
   TError = any,
-> extends FlowOptions<TData, TError> {
+  TArgs extends any[] = any[],
+> extends FlowOptions<TData, TError, TArgs> {
   /**
    * If true, local flow options will completely override global options.
    * If false (default), local options will be merged with global options,
@@ -73,10 +74,14 @@ export function useFlowContext() {
  * @param localOptions Local options passed to useFlow
  * @returns Merged options
  */
-export function mergeFlowOptions<TData = any, TError = any>(
+export function mergeFlowOptions<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+>(
   globalConfig: FlowProviderConfig | null,
-  localOptions: FlowOptions<TData, TError>,
-): FlowOptions<TData, TError> {
+  localOptions: FlowOptions<TData, TError, TArgs>,
+): FlowOptions<TData, TError, TArgs> {
   if (!globalConfig) {
     return localOptions;
   }
@@ -88,7 +93,9 @@ export function mergeFlowOptions<TData = any, TError = any>(
   }
 
   // Deep merge for nested options
-  const merged: FlowOptions<TData, TError> = { ...globalOptions };
+  const merged: FlowOptions<TData, TError, TArgs> = {
+    ...globalOptions,
+  } as FlowOptions<TData, TError, TArgs>;
 
   // Merge retry options
   if (globalOptions.retry || localOptions.retry) {
@@ -132,6 +139,22 @@ export function mergeFlowOptions<TData = any, TError = any>(
 
   if (localOptions.optimisticResult !== undefined) {
     merged.optimisticResult = localOptions.optimisticResult;
+  }
+
+  if (localOptions.rollbackOnError !== undefined) {
+    merged.rollbackOnError = localOptions.rollbackOnError;
+  }
+
+  if (localOptions.timeout !== undefined) {
+    merged.timeout = localOptions.timeout;
+  }
+
+  if (localOptions.debounce !== undefined) {
+    merged.debounce = localOptions.debounce;
+  }
+
+  if (localOptions.throttle !== undefined) {
+    merged.throttle = localOptions.throttle;
   }
 
   return merged;

@@ -96,7 +96,11 @@ export interface LoadingOptions {
 /**
  * Configuration options for a Flow instance.
  */
-export interface FlowOptions<TData = any, TError = any> {
+export interface FlowOptions<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+> {
   /** Callback fired on successful execution */
   onSuccess?: (data: TData) => void;
   /** Callback fired on terminal error after retries */
@@ -122,8 +126,48 @@ export interface FlowOptions<TData = any, TError = any> {
    * If provided, calls to execute() will be throttled by this many milliseconds.
    */
   throttle?: number;
-  /** If provided, the flow instantly transitions to success with this data before the real action completes. */
-  optimisticResult?: TData;
+  /**
+   * Maximum time in milliseconds to wait for the action to complete.
+   * If the action exceeds this time, it will be automatically cancelled
+   * and the flow will transition to an error state with FlowErrorType.TIMEOUT.
+   *
+   * @example
+   * ```ts
+   * timeout: 5000 // Cancel after 5 seconds
+   * ```
+   */
+  timeout?: number;
+  /**
+   * Optimistic update configuration.
+   * - Static value: Immediately set this as the result
+   * - Function: Calculate optimistic result from previous data and arguments
+   *
+   * @example Static optimistic result
+   * ```ts
+   * optimisticResult: { status: 'pending', id: '123' }
+   * ```
+   *
+   * @example Dynamic optimistic result
+   * ```ts
+   * optimisticResult: (prevData, [itemId, quantity]) => ({
+   *   ...prevData,
+   *   items: prevData.items.map(item =>
+   *     item.id === itemId ? { ...item, quantity } : item
+   *   )
+   * })
+   * ```
+   */
+  optimisticResult?: TData | ((prevData: TData | null, args: TArgs) => TData);
+  /**
+   * Whether to automatically rollback optimistic updates on error.
+   * Default: true
+   *
+   * @example
+   * ```ts
+   * rollbackOnError: true // Automatically revert to previous data on error
+   * ```
+   */
+  rollbackOnError?: boolean;
 }
 
 /**
@@ -170,6 +214,31 @@ export interface FlowOptions<TData = any, TError = any> {
  *   onError: () => alert('Update failed, reverting...')
  * });
  * ```
+ *
+ * @example Dynamic optimistic updates with rollback
+ * ```ts
+ * const flow = new Flow(likePost, {
+ *   optimisticResult: (prevData, [postId]) => ({
+ *     ...prevData,
+ *     likes: prevData.likes + 1,
+ *     isLiked: true
+ *   }),
+ *   rollbackOnError: true,
+ *   onError: () => toast.error('Like failed, changes reverted')
+ * });
+ * ```
+ *
+ * @example Timeout handling
+ * ```ts
+ * const flow = new Flow(fetchDataFromSlowAPI, {
+ *   timeout: 5000, // Cancel after 5 seconds
+ *   onError: (error) => {
+ *     if (error.type === FlowErrorType.TIMEOUT) {
+ *       toast.error('Request timed out, please try again');
+ *     }
+ *   }
+ * });
+ * ```
  */
 export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   // --- Core State ---
@@ -203,6 +272,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private pendingThrottleArgs: TArgs | null = null;
   private pendingThrottleResolvers: ((data: TData | undefined) => void)[] = [];
 
+  // --- Optimistic Update Management ---
+  private previousDataSnapshot: TData | null = null;
+
+  // --- Timeout Management ---
+  private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
+  private isTimeout = false;
+
   /**
    * Creates a new Flow instance.
    *
@@ -219,7 +295,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    */
   constructor(
     private action: FlowAction<TData, TArgs>,
-    private options: FlowOptions<TData, TError> = {},
+    private options: FlowOptions<TData, TError, TArgs> = {},
   ) {}
 
   /**
@@ -236,7 +312,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * });
    * ```
    */
-  public setOptions(options: FlowOptions<TData, TError>): void {
+  public setOptions(options: FlowOptions<TData, TError, TArgs>): void {
     this.options = { ...this.options, ...options };
   }
 
@@ -442,11 +518,45 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.abortController = new AbortController();
     const currentSignal = this.abortController.signal;
 
+    // Set up timeout if configured
+    if (this.options.timeout && this.options.timeout > 0) {
+      this.isTimeout = false;
+      this.timeoutTimer = setTimeout(() => {
+        if (this.abortController) {
+          this.isTimeout = true;
+          this.abortController.abort();
+          // The runAction method will handle the aborted signal
+        }
+      }, this.options.timeout);
+    }
+
     // Optimistic Update Handling
     if (this.options.optimisticResult !== undefined) {
+      // Store previous data for potential rollback
+      this.previousDataSnapshot = this._state.data;
+
+      // Calculate optimistic data (static or dynamic)
+      let optimisticData: TData;
+      const optimisticConfig = this.options.optimisticResult;
+
+      // Check if it's a function by verifying it's callable
+      if (
+        typeof optimisticConfig === "function" &&
+        "call" in optimisticConfig
+      ) {
+        // It's a function - call it with prevData and args
+        optimisticData = (optimisticConfig as Function)(
+          this._state.data,
+          args,
+        ) as TData;
+      } else {
+        // It's a static value
+        optimisticData = optimisticConfig as TData;
+      }
+
       this.setState({
         status: "success",
-        data: this.options.optimisticResult,
+        data: optimisticData,
         error: null,
         progress: PROGRESS.INITIAL,
       });
@@ -488,19 +598,64 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.options.retry?.maxAttempts ?? DEFAULT_RETRY.MAX_ATTEMPTS;
 
     while (attempt < maxAttempts) {
-      if (signal.aborted) return;
+      if (signal.aborted) {
+        // Check if this was a timeout abort
+        if (this.isTimeout) {
+          // Timeout occurred - create timeout error
+          const timeoutError = this.createTimeoutError() as TError;
+          await this.waitMinDuration();
+
+          // Handle rollback for optimistic updates
+          const shouldRollback =
+            this.options.rollbackOnError !== false &&
+            this.previousDataSnapshot !== undefined;
+
+          this.setState({
+            status: "error",
+            data: shouldRollback ? this.previousDataSnapshot : this._state.data,
+            error: timeoutError,
+            progress: PROGRESS.INITIAL,
+          });
+
+          if (shouldRollback) {
+            this.previousDataSnapshot = null;
+          }
+
+          this.options.onError?.(timeoutError);
+          this.finalizeLoading();
+          this.processEnqueuedTasks();
+        }
+        return;
+      }
 
       attempt++;
       try {
-        const data = await this.action(...args);
+        // Race the action against abort signal
+        const data = await Promise.race([
+          this.action(...args),
+          new Promise<never>((_, reject) => {
+            if (signal.aborted) {
+              reject(new Error("Aborted"));
+            }
+            signal.addEventListener("abort", () => {
+              reject(new Error("Aborted"));
+            });
+          }),
+        ]);
 
         if (signal.aborted) return;
 
         // Ensure minimum duration for UX if configured
         await this.waitMinDuration();
 
+        // Clear timeout timer on success
+        this.clearTimer("timeoutTimer");
+
         this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
         this.options.onSuccess?.(data);
+
+        // Clear snapshot on successful completion
+        this.previousDataSnapshot = null;
 
         this.finalizeLoading();
         this.scheduleAutoReset();
@@ -508,6 +663,33 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         return data;
       } catch (error) {
+        // Check if this was a timeout abort
+        if (signal.aborted && this.isTimeout) {
+          const timeoutError = this.createTimeoutError() as TError;
+          await this.waitMinDuration();
+
+          // Handle rollback for optimistic updates
+          const shouldRollback =
+            this.options.rollbackOnError !== false &&
+            this.previousDataSnapshot !== undefined;
+
+          this.setState({
+            status: "error",
+            data: shouldRollback ? this.previousDataSnapshot : this._state.data,
+            error: timeoutError,
+            progress: PROGRESS.INITIAL,
+          });
+
+          if (shouldRollback) {
+            this.previousDataSnapshot = null;
+          }
+
+          this.options.onError?.(timeoutError);
+          this.finalizeLoading();
+          this.processEnqueuedTasks();
+          return;
+        }
+
         if (signal.aborted) return;
 
         const typedError = error as TError;
@@ -515,11 +697,24 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         if (!shouldRetry) {
           await this.waitMinDuration();
+
+          // Handle rollback for optimistic updates
+          const shouldRollback =
+            this.options.rollbackOnError !== false &&
+            this.previousDataSnapshot !== undefined;
+
           this.setState({
             status: "error",
+            data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: typedError,
             progress: PROGRESS.INITIAL,
           });
+
+          // Clear snapshot after rollback
+          if (shouldRollback) {
+            this.previousDataSnapshot = null;
+          }
+
           this.options.onError?.(typedError);
 
           this.finalizeLoading();
@@ -681,6 +876,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private finalizeLoading(): void {
     this.abortController = null;
     this.clearTimer("loadingDelayTimer");
+    this.clearTimer("timeoutTimer");
     this._isDelayingLoading = false;
   }
 
@@ -689,7 +885,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       | "loadingDelayTimer"
       | "autoResetTimer"
       | "debounceTimer"
-      | "throttleTimer",
+      | "throttleTimer"
+      | "timeoutTimer",
   ): void {
     const timer = this[key];
     if (timer) {
@@ -703,6 +900,22 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.clearTimer("autoResetTimer");
     this.clearTimer("debounceTimer");
     this.clearTimer("throttleTimer");
+    this.clearTimer("timeoutTimer");
     this._isDelayingLoading = false;
+    this.isTimeout = false;
+  }
+
+  /**
+   * Creates a timeout error with FlowErrorType.TIMEOUT.
+   * @private
+   * @returns Timeout error object
+   */
+  private createTimeoutError(): FlowError {
+    return {
+      type: FlowErrorType.TIMEOUT,
+      message: `Action timed out after ${this.options.timeout}ms`,
+      originalError: new Error("Timeout"),
+      isRetryable: true,
+    };
   }
 }

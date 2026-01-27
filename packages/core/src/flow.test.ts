@@ -84,6 +84,160 @@ describe("Flow Core", () => {
     expect(flow.state.data).toBe("real");
   });
 
+  it("should support functional optimistic updates", async () => {
+    interface CartData {
+      items: Array<{ id: string; quantity: number }>;
+      total: number;
+    }
+
+    const initialData: CartData = {
+      items: [{ id: "item1", quantity: 1 }],
+      total: 10,
+    };
+
+    const flow = new Flow<CartData, Error, [string, number]>(
+      async (itemId, quantity) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return {
+          items: [{ id: itemId, quantity }],
+          total: quantity * 10,
+        };
+      },
+      {
+        optimisticResult: (prevData, [itemId, quantity]) => ({
+          ...prevData,
+          items: prevData
+            ? prevData.items.map((item) =>
+                item.id === itemId ? { ...item, quantity } : item,
+              )
+            : [{ id: itemId, quantity }],
+          total: prevData
+            ? prevData.total + (quantity - 1) * 10
+            : quantity * 10,
+        }),
+      },
+    );
+
+    // Set initial data
+    (flow as any)._state.data = initialData;
+
+    const promise = flow.execute("item1", 3);
+
+    // Should immediately have optimistic data
+    expect(flow.state.data?.items[0].quantity).toBe(3);
+    expect(flow.state.data?.total).toBe(30);
+
+    // After completion, should have real data
+    await promise;
+    expect(flow.state.data?.items[0].quantity).toBe(3);
+    expect(flow.state.data?.total).toBe(30);
+  });
+
+  it("should rollback optimistic updates on error by default", async () => {
+    interface UserData {
+      name: string;
+      email: string;
+    }
+
+    const initialData: UserData = {
+      name: "John",
+      email: "john@example.com",
+    };
+
+    const flow = new Flow<UserData, Error, [Partial<UserData>]>(
+      async () => {
+        await new Promise((r) => setTimeout(r, 10));
+        throw new Error("Update failed");
+      },
+      {
+        optimisticResult: (prevData, [updates]) => ({
+          ...(prevData || { name: "", email: "" }),
+          ...updates,
+        }),
+      },
+    );
+
+    // Set initial data
+    (flow as any)._state.data = initialData;
+
+    const promise = flow.execute({ name: "Jane" });
+
+    // Should immediately have optimistic update
+    expect(flow.state.data?.name).toBe("Jane");
+    expect(flow.state.data?.email).toBe("john@example.com");
+
+    // After error, should rollback to previous data
+    await promise;
+    expect(flow.state.status).toBe("error");
+    expect(flow.state.data?.name).toBe("John"); // Rolled back!
+    expect(flow.state.data?.email).toBe("john@example.com");
+  });
+
+  it("should not rollback when rollbackOnError is false", async () => {
+    const initialData = { count: 5 };
+
+    const flow = new Flow<{ count: number }, Error, []>(
+      async () => {
+        await new Promise((r) => setTimeout(r, 10));
+        throw new Error("Failed");
+      },
+      {
+        optimisticResult: (prevData, args) => ({
+          count: (prevData?.count || 0) + 1,
+        }),
+        rollbackOnError: false, // Disable rollback
+      },
+    );
+
+    // Set initial data
+    (flow as any)._state.data = initialData;
+
+    await flow.execute();
+
+    // Should keep optimistic data even after error
+    expect(flow.state.status).toBe("error");
+    expect(flow.state.data?.count).toBe(6); // Not rolled back
+  });
+
+  it("should clear snapshot after successful completion", async () => {
+    const flow = new Flow<string, Error, []>(
+      async () => {
+        await new Promise((r) => setTimeout(r, 10));
+        return "success";
+      },
+      {
+        optimisticResult: (prevData, args) => prevData || "optimistic",
+      },
+    );
+
+    await flow.execute();
+
+    // Snapshot should be cleared
+    expect((flow as any).previousDataSnapshot).toBe(null);
+  });
+
+  it("should handle optimistic updates with null prevData", async () => {
+    const flow = new Flow<{ value: number }, Error, [number]>(
+      async (value) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return { value };
+      },
+      {
+        optimisticResult: (prevData, [value]) => ({
+          value: (prevData?.value || 0) + value,
+        }),
+      },
+    );
+
+    const promise = flow.execute(10);
+
+    // Should handle null prevData gracefully
+    expect(flow.state.data?.value).toBe(10);
+
+    await promise;
+    expect(flow.state.data?.value).toBe(10);
+  });
+
   it("should prevent double submission with concurrency=keep", async () => {
     let callCount = 0;
     const flow = new Flow(
@@ -357,6 +511,174 @@ describe("Flow Core", () => {
       await promise.catch(() => {});
 
       expect(flow.status).toBe("error");
+    });
+  });
+
+  describe("Timeout", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("should timeout action after specified duration", async () => {
+      const action = vi.fn().mockImplementation(async () => {
+        // Simulate a slow action that takes 10 seconds
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        return "data";
+      });
+
+      const onError = vi.fn();
+      const flow = new Flow(action, {
+        timeout: 2000, // 2 second timeout
+        onError,
+      });
+
+      const promise = flow.execute();
+
+      // Advance only the timeout timer (2000ms), not the action timer (10000ms)
+      await vi.advanceTimersByTimeAsync(2000);
+      // Give time for the abort to be processed
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Should be in error state
+      expect(flow.status).toBe("error");
+      expect(flow.error).toBeDefined();
+      expect((flow.error as any).type).toBe("TIMEOUT");
+      expect((flow.error as any).message).toContain("timed out");
+      expect((flow.error as any).message).toContain("2000ms");
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it("should not timeout if action completes in time", async () => {
+      const action = vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return "success";
+      });
+
+      const flow = new Flow(action, {
+        timeout: 2000,
+      });
+
+      const promise = flow.execute();
+
+      // Fast-forward to complete the action
+      await vi.advanceTimersByTimeAsync(600);
+      await promise;
+
+      // Should succeed
+      expect(flow.status).toBe("success");
+      expect(flow.data).toBe("success");
+      expect(flow.error).toBeNull();
+    });
+
+    it("should rollback optimistic updates on timeout", async () => {
+      interface CartData {
+        items: number;
+        total: number;
+      }
+
+      const initialData: CartData = { items: 1, total: 10 };
+
+      const action = vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        return { items: 2, total: 20 };
+      });
+
+      const flow = new Flow<CartData, Error, []>(action, {
+        timeout: 1000,
+        optimisticResult: (prevData, args) => ({
+          items: (prevData?.items || 0) + 1,
+          total: (prevData?.total || 0) + 10,
+        }),
+        rollbackOnError: true,
+      });
+
+      // Set initial data
+      (flow as any)._state.data = initialData;
+
+      const promise = flow.execute();
+
+      // Should immediately have optimistic update
+      expect(flow.data?.items).toBe(2);
+      expect(flow.data?.total).toBe(20);
+
+      // Fast-forward past timeout (1000ms), but not the action (10000ms)
+      await vi.advanceTimersByTimeAsync(1000);
+      // Give time for the abort to be processed
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Should rollback to initial data
+      expect(flow.status).toBe("error");
+      expect(flow.data?.items).toBe(1);
+      expect(flow.data?.total).toBe(10);
+    });
+
+    it("should mark timeout errors as retryable", async () => {
+      const action = vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        return "data";
+      });
+
+      const flow = new Flow(action, {
+        timeout: 1000,
+      });
+
+      const promise = flow.execute();
+
+      // Advance only the timeout timer (1000ms), not the action timer (5000ms)
+      await vi.advanceTimersByTimeAsync(1000);
+      // Give time for the abort to be processed
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(flow.error).toBeDefined();
+      expect((flow.error as any).isRetryable).toBe(true);
+    });
+
+    it("should not timeout when timeout is not configured", async () => {
+      const action = vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        return "success";
+      });
+
+      const flow = new Flow(action); // No timeout
+
+      const promise = flow.execute();
+
+      await vi.advanceTimersByTimeAsync(3500);
+      await promise;
+
+      expect(flow.status).toBe("success");
+      expect(flow.data).toBe("success");
+    });
+
+    it("should clear timeout timer on manual cancel", async () => {
+      const action = vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        return "data";
+      });
+
+      const flow = new Flow(action, {
+        timeout: 3000,
+      });
+
+      flow.execute();
+
+      // Cancel manually before timeout
+      await vi.advanceTimersByTimeAsync(1000);
+      flow.cancel();
+
+      // Fast-forward past timeout
+      await vi.advanceTimersByTimeAsync(3000);
+
+      // Should be idle (manual cancel), not error (timeout)
+      expect(flow.status).toBe("idle");
+      expect(flow.error).toBeNull();
     });
   });
 });
