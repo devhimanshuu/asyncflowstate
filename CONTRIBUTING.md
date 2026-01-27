@@ -27,7 +27,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ```bash
 # Clone the repository
-git clone https://github.com/asyncflowstate/asyncflowstate.git
+git clone https://github.com/devhimanshuu/asyncflowstate.git
 cd asyncflowstate
 
 # Install dependencies
