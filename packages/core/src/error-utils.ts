@@ -1,4 +1,4 @@
-import { FlowError, FlowErrorType } from "./flow";
+import { type FlowError, FlowErrorType } from "./flow";
 
 /**
  * Utility functions for creating and handling FlowError instances.

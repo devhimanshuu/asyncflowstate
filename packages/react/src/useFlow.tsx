@@ -3,10 +3,10 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  ButtonHTMLAttributes,
-  MouseEvent,
+  type ButtonHTMLAttributes,
+  type MouseEvent,
 } from "react";
-import { Flow, FlowAction, FlowOptions, FlowState } from "@asyncflowstate/core";
+import { Flow, type FlowAction, type FlowOptions, type FlowState } from "@asyncflowstate/core";
 import { useFlowContext, mergeFlowOptions } from "./FlowProvider";
 
 /**

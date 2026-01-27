@@ -1,6 +1,7 @@
 {
   "name": "@asyncflowstate/core",
   "version": "1.0.0",
+  "private": false,
   "description": "Framework-agnostic async UI behavior engine for controlling loading, success, and error states",
   "keywords": [
     "async",

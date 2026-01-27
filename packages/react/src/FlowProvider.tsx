@@ -1,5 +1,5 @@
-import React, { createContext, useContext, ReactNode } from "react";
-import { FlowOptions } from "@asyncflowstate/core";
+import React, { createContext, useContext, type ReactNode } from "react";
+import { type FlowOptions } from "@asyncflowstate/core";
 
 /**
  * Global configuration options for all flows within a FlowProvider.

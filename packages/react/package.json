@@ -1,6 +1,7 @@
 {
   "name": "@asyncflowstate/react",
   "version": "1.0.0",
+  "private": false,
   "description": "React hooks and helpers for AsyncFlowState - elegant async UI behavior management",
   "keywords": [
     "react",
