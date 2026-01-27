@@ -130,4 +130,4 @@ console.log(flow.progress); // 50
 
 ## License
 
-MIT © [AsyncFlowState Contributors](https://github.com/asyncflowstate/asyncflowstate)
+MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowstate)
