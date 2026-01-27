@@ -1,12 +1,12 @@
 /**
  * AsyncFlowState - Before vs After Comparison
- * 
+ *
  * This file demonstrates the difference between manual async state management
  * and using @asyncflowstate/react.
  */
 
-import React, { useState, useEffect } from 'react';
-import { useFlow } from '@asyncflowstate/react';
+import React, { useState, useEffect } from "react";
+import { useFlow } from "@asyncflowstate/react";
 
 // =============================================================================
 // Scenario 1: Fetching Data on Mount
@@ -14,7 +14,7 @@ import { useFlow } from '@asyncflowstate/react';
 
 /**
  * BEFORE: Manual State Management
- * 
+ *
  * Logic is scattered across multiple hooks and requires boilerplate for
  * loading, error, and data states. Race conditions (e.g. if userId changes)
  * must be handled manually with a cleanup flag.
@@ -26,16 +26,16 @@ export function ManualDataFetcher({ userId }: { userId: string }) {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch(`/api/users/${userId}`);
-        if (!response.ok) throw new Error('Failed to fetch user');
+        if (!response.ok) throw new Error("Failed to fetch user");
         const result = await response.json();
-        
+
         if (isMounted) {
           setData(result);
         }
@@ -51,7 +51,7 @@ export function ManualDataFetcher({ userId }: { userId: string }) {
     };
 
     fetchData();
-    
+
     return () => {
       isMounted = false;
     };
@@ -66,20 +66,18 @@ export function ManualDataFetcher({ userId }: { userId: string }) {
 
 /**
  * AFTER: Using AsyncFlowState
- * 
+ *
  * Logic is encapsulated in a single hook. Loading and error states are
  * handled automatically. Race conditions are managed internally — if a new
- * execute() is called before the previous one finishes, the late result 
+ * execute() is called before the previous one finishes, the late result
  * is discarded or the flow is restarted based on strategy.
  */
 export function AsyncFlowDataFetcher({ userId }: { userId: string }) {
-  const userFlow = useFlow(
-    async () => {
-      const response = await fetch(`/api/users/${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch user');
-      return response.json();
-    }
-  );
+  const userFlow = useFlow(async () => {
+    const response = await fetch(`/api/users/${userId}`);
+    if (!response.ok) throw new Error("Failed to fetch user");
+    return response.json();
+  });
 
   // Execute when userId changes
   useEffect(() => {
@@ -87,7 +85,8 @@ export function AsyncFlowDataFetcher({ userId }: { userId: string }) {
   }, [userId]);
 
   if (userFlow.loading) return <div>Loading...</div>;
-  if (userFlow.error) return <div>Error: {(userFlow.error as Error).message}</div>;
+  if (userFlow.error)
+    return <div>Error: {(userFlow.error as Error).message}</div>;
   if (!userFlow.data) return null;
 
   return <div>User: {userFlow.data.name}</div>;
@@ -99,12 +98,12 @@ export function AsyncFlowDataFetcher({ userId }: { userId: string }) {
 
 /**
  * BEFORE: Manual Form Submission
- * 
+ *
  * Requires manual state for loading, error, and success, plus
  * manual event handling and button disabling.
  */
 export function ManualForm() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -116,15 +115,15 @@ export function ManualForm() {
     setIsSuccess(false);
 
     try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
         body: JSON.stringify({ email }),
       });
-      
-      if (!response.ok) throw new Error('Subscription failed');
-      
+
+      if (!response.ok) throw new Error("Subscription failed");
+
       setIsSuccess(true);
-      setEmail('');
+      setEmail("");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -134,13 +133,13 @@ export function ManualForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input 
-        value={email} 
-        onChange={e => setEmail(e.target.value)} 
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         disabled={isSubmitting}
       />
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+        {isSubmitting ? "Subscribing..." : "Subscribe"}
       </button>
       {error && <p className="error">{error}</p>}
       {isSuccess && <p className="success">Subscribed!</p>}
@@ -150,46 +149,51 @@ export function ManualForm() {
 
 /**
  * AFTER: Using AsyncFlowState
- * 
- * Boilerplate is eliminated. Button accessibility, auto-reset, 
+ *
+ * Boilerplate is eliminated. Button accessibility, auto-reset,
  * and form binding are handled by helper methods.
  */
 export function AsyncFlowForm() {
-  const [email, setEmail] = useState('');
-  
+  const [email, setEmail] = useState("");
+
   const subscribeFlow = useFlow(
     async (email: string) => {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
         body: JSON.stringify({ email }),
       });
-      if (!response.ok) throw new Error('Subscription failed');
+      if (!response.ok) throw new Error("Subscription failed");
       return response.json();
     },
     {
-      onSuccess: () => setEmail(''),
-      autoReset: { enabled: true, delay: 5000 }
-    }
+      onSuccess: () => setEmail(""),
+      autoReset: { enabled: true, delay: 5000 },
+    },
   );
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); subscribeFlow.execute(email); }}>
-      <input 
-        value={email} 
-        onChange={e => setEmail(e.target.value)} 
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        subscribeFlow.execute(email);
+      }}
+    >
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         disabled={subscribeFlow.loading}
       />
-      
+
       {/* The .button() helper manages aria-busy, disabled, and more */}
       <button {...subscribeFlow.button()} type="submit">
-        {subscribeFlow.loading ? 'Subscribing...' : 'Subscribe'}
+        {subscribeFlow.loading ? "Subscribing..." : "Subscribe"}
       </button>
 
       {subscribeFlow.error && (
         <p className="error">{(subscribeFlow.error as Error).message}</p>
       )}
-      
-      {subscribeFlow.status === 'success' && (
+
+      {subscribeFlow.status === "success" && (
         <p className="success">Subscribed!</p>
       )}
     </form>
@@ -202,30 +206,26 @@ export function AsyncFlowForm() {
 
 /**
  * BEFORE: Simple Loading State
- * 
- * If the API is fast, the loading spinner flashes for 50ms, 
+ *
+ * If the API is fast, the loading spinner flashes for 50ms,
  * which looks like a jarring glitch to the user.
  */
 export function ManualFlashingLoader() {
   const [loading, setLoading] = useState(false);
-  
+
   const handleAction = async () => {
     setLoading(true);
     await performFastAction(); // e.g. 50ms
     setLoading(false);
   };
 
-  return (
-    <button onClick={handleAction}>
-      {loading ? '...' : 'Click Me'}
-    </button>
-  );
+  return <button onClick={handleAction}>{loading ? "..." : "Click Me"}</button>;
 }
 
 /**
  * AFTER: Controlled Loading Duration
- * 
- * AsyncFlowState can ensure loading states stay visible long enough 
+ *
+ * AsyncFlowState can ensure loading states stay visible long enough
  * to be perceived (minDuration) or don't show at all for super fast
  * requests (delay).
  */
@@ -233,17 +233,13 @@ export function AsyncFlowPolishedLoader() {
   const flow = useFlow(performFastAction, {
     loading: {
       minDuration: 500, // Ensure spinner shows for at least 500ms
-      delay: 200,       // Don't show spinner if request finishes under 200ms
-    }
+      delay: 200, // Don't show spinner if request finishes under 200ms
+    },
   });
 
-  return (
-    <button {...flow.button()}>
-      {flow.loading ? '⌛' : 'Click Me'}
-    </button>
-  );
+  return <button {...flow.button()}>{flow.loading ? "⌛" : "Click Me"}</button>;
 }
 
 async function performFastAction() {
-  return new Promise(resolve => setTimeout(resolve, 50));
+  return new Promise((resolve) => setTimeout(resolve, 50));
 }

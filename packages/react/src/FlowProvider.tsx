@@ -1,17 +1,19 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { FlowOptions } from '@asyncflowstate/core';
+import React, { createContext, useContext, ReactNode } from "react";
+import { FlowOptions } from "@asyncflowstate/core";
 
 /**
  * Global configuration options for all flows within a FlowProvider.
  */
-export interface FlowProviderConfig<TData = any, TError = any> 
-  extends FlowOptions<TData, TError> {
+export interface FlowProviderConfig<
+  TData = any,
+  TError = any,
+> extends FlowOptions<TData, TError> {
   /**
    * If true, local flow options will completely override global options.
    * If false (default), local options will be merged with global options,
    * with local options taking precedence.
    */
-  overrideMode?: 'merge' | 'replace';
+  overrideMode?: "merge" | "replace";
 }
 
 /**
@@ -31,11 +33,11 @@ export interface FlowProviderProps {
 
 /**
  * FlowProvider allows you to set global defaults for all flows within your application.
- * 
+ *
  * @example
  * ```tsx
- * <FlowProvider 
- *   config={{ 
+ * <FlowProvider
+ *   config={{
  *     onError: (err) => toast.error(err.message),
  *     retry: { maxAttempts: 3, backoff: 'exponential' },
  *     loading: { minDuration: 300 }
@@ -56,7 +58,7 @@ export function FlowProvider({ config, children }: FlowProviderProps) {
 /**
  * Hook to access the global flow configuration.
  * Used internally by useFlow to merge global and local options.
- * 
+ *
  * @returns The global flow configuration, or null if not within a FlowProvider.
  */
 export function useFlowContext() {
@@ -66,22 +68,22 @@ export function useFlowContext() {
 /**
  * Merges global and local flow options.
  * Local options take precedence over global options.
- * 
+ *
  * @param globalConfig Global configuration from FlowProvider
  * @param localOptions Local options passed to useFlow
  * @returns Merged options
  */
 export function mergeFlowOptions<TData = any, TError = any>(
   globalConfig: FlowProviderConfig | null,
-  localOptions: FlowOptions<TData, TError>
+  localOptions: FlowOptions<TData, TError>,
 ): FlowOptions<TData, TError> {
   if (!globalConfig) {
     return localOptions;
   }
 
-  const { overrideMode = 'merge', ...globalOptions } = globalConfig;
+  const { overrideMode = "merge", ...globalOptions } = globalConfig;
 
-  if (overrideMode === 'replace' && Object.keys(localOptions).length > 0) {
+  if (overrideMode === "replace" && Object.keys(localOptions).length > 0) {
     return localOptions;
   }
 

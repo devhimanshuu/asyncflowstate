@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import React from 'react';
-import { FlowProvider, useFlowContext, mergeFlowOptions } from './FlowProvider';
-import { useFlow } from './useFlow';
+import { describe, it, expect, vi } from "vitest";
+import { renderHook, act, waitFor } from "@testing-library/react";
+import React from "react";
+import { FlowProvider, useFlowContext, mergeFlowOptions } from "./FlowProvider";
+import { useFlow } from "./useFlow";
 
-describe('FlowProvider', () => {
-  it('should provide global configuration to child components', () => {
+describe("FlowProvider", () => {
+  it("should provide global configuration to child components", () => {
     const globalConfig = {
       retry: { maxAttempts: 3 },
       loading: { minDuration: 500 },
@@ -20,12 +20,12 @@ describe('FlowProvider', () => {
     expect(result.current).toEqual(globalConfig);
   });
 
-  it('should return null when not within a FlowProvider', () => {
+  it("should return null when not within a FlowProvider", () => {
     const { result } = renderHook(() => useFlowContext());
     expect(result.current).toBeNull();
   });
 
-  it('should merge global and local options correctly', () => {
+  it("should merge global and local options correctly", () => {
     const globalConfig = {
       retry: { maxAttempts: 3, delay: 1000 },
       loading: { minDuration: 500 },
@@ -48,7 +48,7 @@ describe('FlowProvider', () => {
     expect(merged.onError).toBe(globalConfig.onError);
   });
 
-  it('should allow local onError to override global onError', () => {
+  it("should allow local onError to override global onError", () => {
     const globalOnError = vi.fn();
     const localOnError = vi.fn();
 
@@ -65,11 +65,11 @@ describe('FlowProvider', () => {
     expect(merged.onError).toBe(localOnError);
   });
 
-  it('should use replace mode when specified', () => {
+  it("should use replace mode when specified", () => {
     const globalConfig = {
       retry: { maxAttempts: 3 },
       loading: { minDuration: 500 },
-      overrideMode: 'replace' as const,
+      overrideMode: "replace" as const,
     };
 
     const localOptions = {
@@ -83,9 +83,9 @@ describe('FlowProvider', () => {
     expect(merged.loading).toBeUndefined();
   });
 
-  it('should integrate with useFlow hook', async () => {
+  it("should integrate with useFlow hook", async () => {
     const globalOnError = vi.fn();
-    const mockAction = vi.fn().mockRejectedValue(new Error('Test error'));
+    const mockAction = vi.fn().mockRejectedValue(new Error("Test error"));
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <FlowProvider
@@ -105,13 +105,13 @@ describe('FlowProvider', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.status).toBe('error');
+      expect(result.current.status).toBe("error");
     });
 
     expect(globalOnError).toHaveBeenCalledWith(expect.any(Error));
   });
 
-  it('should allow nested FlowProviders with different configs', () => {
+  it("should allow nested FlowProviders with different configs", () => {
     const outerConfig = {
       retry: { maxAttempts: 3 },
     };
@@ -146,7 +146,7 @@ describe('FlowProvider', () => {
     expect(innerResult.current?.loading?.minDuration).toBe(300);
   });
 
-  it('should handle empty global config gracefully', () => {
+  it("should handle empty global config gracefully", () => {
     const localOptions = {
       retry: { maxAttempts: 2 },
     };
@@ -156,12 +156,12 @@ describe('FlowProvider', () => {
     expect(merged).toEqual(localOptions);
   });
 
-  it('should merge all nested options correctly', () => {
+  it("should merge all nested options correctly", () => {
     const globalConfig = {
-      retry: { maxAttempts: 3, delay: 1000, backoff: 'exponential' as const },
+      retry: { maxAttempts: 3, delay: 1000, backoff: "exponential" as const },
       autoReset: { enabled: true, delay: 2000 },
       loading: { minDuration: 500, delay: 200 },
-      concurrency: 'keep' as const,
+      concurrency: "keep" as const,
     };
 
     const localOptions = {
@@ -174,10 +174,10 @@ describe('FlowProvider', () => {
     expect(merged.retry).toEqual({
       maxAttempts: 5,
       delay: 1000,
-      backoff: 'exponential',
+      backoff: "exponential",
     });
     expect(merged.autoReset).toEqual({ enabled: true, delay: 2000 });
     expect(merged.loading).toEqual({ minDuration: 300, delay: 200 });
-    expect(merged.concurrency).toBe('keep');
+    expect(merged.concurrency).toBe("keep");
   });
 });

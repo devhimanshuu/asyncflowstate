@@ -6,25 +6,20 @@ import React, {
   ButtonHTMLAttributes,
   MouseEvent,
 } from "react";
-import {
-  Flow,
-  FlowAction,
-  FlowOptions,
-  FlowState,
-} from "@asyncflowstate/core";
+import { Flow, FlowAction, FlowOptions, FlowState } from "@asyncflowstate/core";
 import { useFlowContext, mergeFlowOptions } from "./FlowProvider";
 
 /**
  * Options for the `form()` helper.
  */
 export interface FormHelperOptions<TArgs extends any[]> {
-  /** 
-   * If true, automatically extracts form data using `new FormData(form)` 
+  /**
+   * If true, automatically extracts form data using `new FormData(form)`
    * and passes it as the first argument to the action.
    */
   extractFormData?: boolean;
   /**
-   * Optional validation function. If it returns an object of errors, 
+   * Optional validation function. If it returns an object of errors,
    * the action will not be executed.
    */
   validate?: (
@@ -63,8 +58,10 @@ export interface A11yOptions<TData, TError> {
 /**
  * React-specific options for the `useFlow` hook.
  */
-export interface ReactFlowOptions<TData = any, TError = any>
-  extends FlowOptions<TData, TError> {
+export interface ReactFlowOptions<
+  TData = any,
+  TError = any,
+> extends FlowOptions<TData, TError> {
   /** Accessibility configuration for automatic announcements. */
   a11y?: A11yOptions<TData, TError>;
 }
@@ -72,7 +69,7 @@ export interface ReactFlowOptions<TData = any, TError = any>
 /**
  * useFlow is a React hook that orchestrates asynchronous actions and their UI states.
  * It provides a snapshot of the flow state and convenient helpers for buttons and forms.
- * 
+ *
  * @param action The asynchronous function to manage.
  * @param options Configuration for the flow behavior and accessibility.
  * @returns An object containing the flow state and interaction helpers.
@@ -83,41 +80,42 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
 ) {
   // Get global configuration from FlowProvider
   const globalConfig = useFlowContext();
-  
-  // Merge global and local options
-  const mergedOptions = mergeFlowOptions(globalConfig, options);
-  
+
   // Persist the action and options to avoid re-creation effects
   const actionRef = useRef(action);
-  const optionsRef = useRef(mergedOptions);
+  const optionsRef = useRef<ReactFlowOptions<TData, TError>>(options);
 
   useEffect(() => {
     actionRef.current = action;
-    optionsRef.current = mergeFlowOptions(globalConfig, options);
-  }, [action, options, globalConfig]);
+    optionsRef.current = options;
+  }, [action, options]);
+
+  // Initial merged options for the first creation
+  const initialMergedOptions = useRef(mergeFlowOptions(globalConfig, options));
 
   // Initialize Flow instance once
   const [flow] = useState(
     () =>
       new Flow<TData, TError, TArgs>(
         (...args: TArgs) => actionRef.current(...args),
-        optionsRef.current,
+        initialMergedOptions.current,
       ),
   );
 
-  // Sync React state with Flow state
+  // Sync React state with Flow state snapshot
   const [snapshot, setSnapshot] = useState<FlowState<TData, TError>>(
-    flow.state,
+    () => flow.state,
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [announcement, setAnnouncement] = useState("");
 
+  // Sync options to the flow instance when they change
   useEffect(() => {
     flow.setOptions(mergeFlowOptions(globalConfig, options));
   }, [flow, options, globalConfig]);
 
   // Accessibility: Auto-focus error when it appears
-  const errorRef = useRef<any>(null);
+  const errorRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (snapshot.status === "error" && errorRef.current) {
@@ -184,13 +182,15 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
           if (onClick) {
             onClick(e);
           } else {
+            // If TArgs allows zero arguments, this is safe.
+            // Otherwise, user should provide onClick or use execute manually.
             (flow.execute as any)();
           }
         },
         ...rest,
       };
     },
-    [flow, flow.isLoading],
+    [flow],
   );
 
   /**
@@ -236,7 +236,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
           if (onSubmit) {
             onSubmit(e);
           } else {
-            const result = await (flow.execute as any)(...args);
+            const result = await flow.execute(...args);
             if (result !== undefined && resetOnSuccess) {
               (e.currentTarget as HTMLFormElement).reset();
             }
@@ -245,20 +245,21 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
         ...rest,
       };
     },
-    [flow, flow.isLoading],
+    [flow],
   );
 
   useEffect(() => {
     return flow.subscribe(setSnapshot);
   }, [flow]);
 
+  // Memoize the return value to prevent unnecessary re-renders of consuming components
   return {
     /** The complete flow state snapshot */
     ...snapshot,
     /** Whether the flow is currently loading (respects loading.delay) */
     loading: flow.isLoading,
     /** Executes the action manually */
-    execute: flow.execute.bind(flow) as any,
+    execute: flow.execute.bind(flow),
     /** Resets the flow state to idle */
     reset: flow.reset.bind(flow),
     /** Cancels the currently running action */

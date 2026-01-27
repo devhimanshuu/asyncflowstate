@@ -1,3 +1,11 @@
+import {
+  DEFAULT_RETRY,
+  DEFAULT_LOADING,
+  DEFAULT_CONCURRENCY,
+  PROGRESS,
+  BACKOFF_MULTIPLIER,
+} from "./constants";
+
 /**
  * Status of the flow.
  * - `idle`: Initial state or after reset.
@@ -103,8 +111,17 @@ export interface FlowOptions<TData = any, TError = any> {
    * Concurrency strategy when execute() is called while already loading.
    * - `keep`: Ignore the new request and keep the current one (default).
    * - `restart`: Cancel the current request and start the new one.
+   * - `enqueue`: Queue the request and execute it after the current one finishes.
    */
-  concurrency?: "keep" | "restart";
+  concurrency?: "keep" | "restart" | "enqueue";
+  /**
+   * If provided, calls to execute() will be debounced by this many milliseconds.
+   */
+  debounce?: number;
+  /**
+   * If provided, calls to execute() will be throttled by this many milliseconds.
+   */
+  throttle?: number;
   /** If provided, the flow instantly transitions to success with this data before the real action completes. */
   optimisticResult?: TData;
 }
@@ -112,25 +129,93 @@ export interface FlowOptions<TData = any, TError = any> {
 /**
  * Flow is the core engine for orchestrating asynchronous actions and their UI states.
  * It manages loading, success/error data, retries, concurrency, and optimistic updates.
+ *
+ * Designed to be framework-agnostic, it can be used in any JavaScript environment.
+ *
+ * @template TData - The type of data returned by successful action execution
+ * @template TError - The type of error object thrown on failure
+ * @template TArgs - The tuple type of arguments passed to the action
+ *
+ * @example Basic usage
+ * ```ts
+ * const flow = new Flow(async (id: string) => {
+ *   return await api.fetchUser(id);
+ * });
+ *
+ * flow.subscribe((state) => {
+ *   console.log('Status:', state.status);
+ * });
+ *
+ * await flow.execute('user-123');
+ * console.log(flow.data); // User data
+ * ```
+ *
+ * @example With retry configuration
+ * ```ts
+ * const flow = new Flow(saveData, {
+ *   retry: {
+ *     maxAttempts: 3,
+ *     delay: 1000,
+ *     backoff: 'exponential'
+ *   },
+ *   onSuccess: (data) => console.log('Saved!', data),
+ *   onError: (err) => console.error('Failed:', err)
+ * });
+ * ```
+ *
+ * @example Optimistic UI updates
+ * ```ts
+ * const flow = new Flow(updateProfile, {
+ *   optimisticResult: { name: 'New Name', id: '123' },
+ *   onError: () => alert('Update failed, reverting...')
+ * });
+ * ```
  */
 export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
+  // --- Core State ---
   private _state: FlowState<TData, TError> = {
     status: "idle",
     data: null,
     error: null,
+    progress: PROGRESS.INITIAL,
   };
 
-  private abortController: AbortController | null = null;
-  private loadingStartTime: number | null = null;
-  private loadingDelayTimer: any = null;
-  private _isDelayingLoading = false;
-
+  // --- Subscriptions ---
   private listeners = new Set<(state: FlowState<TData, TError>) => void>();
+
+  // --- External Control ---
+  private abortController: AbortController | null = null;
+
+  // --- UX & Performance State ---
+  private loadingStartTime: number | null = null;
+  private loadingDelayTimer: ReturnType<typeof setTimeout> | null = null;
+  private _isDelayingLoading = false;
+  private autoResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // --- Concurrency Management ---
+  private queue: {
+    args: TArgs;
+    resolve: (data: TData | undefined) => void;
+  }[] = [];
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastExecutedTime = 0;
+  private throttleTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingThrottleArgs: TArgs | null = null;
+  private pendingThrottleResolvers: ((data: TData | undefined) => void)[] = [];
 
   /**
    * Creates a new Flow instance.
+   *
    * @param action The asynchronous function to manage.
    * @param options Configuration for the flow's behavior.
+   *
+   * @example
+   * ```ts
+   * const flow = new Flow(
+   *   async (email: string) => api.subscribe(email),
+   *   { onSuccess: () => toast.success('Subscribed!') }
+   * );
+   * ```
    */
   constructor(
     private action: FlowAction<TData, TArgs>,
@@ -139,36 +224,41 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
   /**
    * Updates the flow options at runtime.
+   *
+   * @param options New options to merge with existing configuration
+   *
+   * @example
+   * ```ts
+   * const flow = new Flow(uploadFile);
+   * // Later, update retry strategy
+   * flow.setOptions({
+   *   retry: { maxAttempts: 5, backoff: 'exponential' }
+   * });
+   * ```
    */
-  setOptions(options: FlowOptions<TData, TError>) {
+  public setOptions(options: FlowOptions<TData, TError>): void {
     this.options = { ...this.options, ...options };
   }
 
-  /**
-   * The current state of the flow.
-   */
-  get state() {
-    return this._state;
+  // --- Getters ---
+
+  /** The current state of the flow. */
+  public get state(): FlowState<TData, TError> {
+    return { ...this._state };
   }
 
-  /**
-   * The current execution status.
-   */
-  get status() {
+  /** The current execution status. */
+  public get status(): FlowStatus {
     return this._state.status;
   }
 
-  /**
-   * The data from the last successful execution.
-   */
-  get data() {
+  /** The data from the last successful execution. */
+  public get data(): TData | null {
     return this._state.data;
   }
 
-  /**
-   * The error from the last failed execution.
-   */
-  get error() {
+  /** The error from the last failed execution. */
+  public get error(): TError | null {
     return this._state.error;
   }
 
@@ -176,107 +266,200 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Returns true if the flow is currently loading.
    * Note: Respects loading.delay - if a delay is active, this returns false.
    */
-  get isLoading() {
+  public get isLoading(): boolean {
     return this._state.status === "loading" && !this._isDelayingLoading;
   }
 
-  /**
-   * Returns true if the flow completed successfully.
-   */
-  get isSuccess() {
+  /** Returns true if the flow completed successfully. */
+  public get isSuccess(): boolean {
     return this._state.status === "success";
   }
 
-  /**
-   * Returns true if the flow is in an error state.
-   */
-  get isError() {
+  /** Returns true if the flow is in an error state. */
+  public get isError(): boolean {
     return this._state.status === "error";
   }
 
-  /**
-   * The current progress (0-100).
-   */
-  get progress() {
+  /** The current progress (0-100). */
+  public get progress(): number {
     return this._state.progress ?? 0;
   }
 
+  // --- Public Methods ---
+
   /**
    * Manually sets the progress value. Only effective while loading.
+   * @param progress Progress percentage (0-100).
+   * @example
+   * ```ts
+   * const flow = new Flow(uploadFile);
+   * flow.setProgress(50); // Sets progress to 50%
+   * ```
    */
-  setProgress(progress: number) {
+  public setProgress(progress: number): void {
     if (this._state.status === "loading") {
-      this.setState({ progress: Math.min(100, Math.max(0, progress)) });
+      this.setState({
+        progress: Math.min(PROGRESS.MAX, Math.max(PROGRESS.MIN, progress)),
+      });
     }
   }
 
   /**
    * Subscribes to state changes.
+   *
    * @param listener Callback fired whenever state changes.
-   * @returns Unsubscribe function.
+   * @returns Unsubscribe function to remove the listener.
+   *
+   * @example
+   * ```ts
+   * const flow = new Flow(fetchData);
+   * const unsubscribe = flow.subscribe((state) => {
+   *   console.log('Status:', state.status);
+   *   console.log('Data:', state.data);
+   * });
+   *
+   * // Later, cleanup
+   * unsubscribe();
+   * ```
    */
-  subscribe(listener: (state: FlowState<TData, TError>) => void) {
+  public subscribe(
+    listener: (state: FlowState<TData, TError>) => void,
+  ): () => void {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
   }
 
-  private setState(updates: Partial<FlowState<TData, TError>>) {
-    this._state = { ...this._state, ...updates };
-    this.notify();
-  }
-
-  private notify() {
-    this.listeners.forEach((listener) => listener(this._state));
-  }
-
   /**
    * Cancels the currently running action and resets state to idle.
+   * @example
+   * ```ts
+   * const flow = new Flow(longRunningTask);
+   * flow.execute();
+   * // Later, cancel if needed
+   * flow.cancel();
+   * ```
    */
-  cancel() {
-    this.clearLoadingDelay();
+  public cancel(): void {
+    this.clearAllTimers();
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
     }
-    this.setState({ status: "idle", error: null, progress: 0 });
+    this.setState({ status: "idle", error: null, progress: PROGRESS.INITIAL });
+  }
+
+  /**
+   * Resets the flow state back to initial 'idle' state.
+   * @example
+   * ```ts
+   * const flow = new Flow(submitForm);
+   * // After success, reset manually
+   * flow.reset();
+   * ```
+   */
+  public reset(): void {
+    this.clearAllTimers();
+    this.setState({
+      status: "idle",
+      data: null,
+      error: null,
+      progress: PROGRESS.INITIAL,
+    });
   }
 
   /**
    * Executes the action with the provided arguments.
-   * @param args Arguments to pass to the action function.
-   * @returns A promise that resolves with the action result or undefined if aborted.
+   * Handles debounce, throttle, and concurrency logic before execution.
+   *
+   * @param args Arguments to pass to the action function
+   * @returns Promise resolving to the action result, or undefined if cancelled/debounced
+   *
+   * @example Basic execution
+   * ```ts
+   * const flow = new Flow(async (name: string) => api.save(name));
+   * const result = await flow.execute('John');
+   * ```
+   *
+   * @example With debouncing
+   * ```ts
+   * const flow = new Flow(searchAPI, { debounce: 300 });
+   * // Only the last call within 300ms will execute
+   * flow.execute('hello');
+   * flow.execute('hello world'); // This one executes
+   * ```
+   *
+   * @example Handling concurrency
+   * ```ts
+   * const flow = new Flow(saveData, { concurrency: 'restart' });
+   * flow.execute(data1); // Will be cancelled
+   * flow.execute(data2); // This one completes
+   * ```
    */
-  execute(...args: TArgs): Promise<TData | undefined> {
-    const { concurrency = "keep" } = this.options;
+  public async execute(...args: TArgs): Promise<TData | undefined> {
+    const { debounce, throttle } = this.options;
 
-    // Concurrency Logic
+    // 1. Handle Debounce
+    if (debounce && debounce > 0) {
+      return this.handleDebounce(args, debounce);
+    }
+
+    // 2. Handle Throttle
+    if (throttle && throttle > 0) {
+      return this.handleThrottle(args, throttle);
+    }
+
+    // 3. Direct Execution
+    return this.internalExecute(args);
+  }
+
+  // --- Private Internal Logic ---
+
+  /**
+   * Core execution logic that handles concurrency strategies.
+   * @private
+   * @param args Arguments to pass to the action
+   * @returns Promise that resolves with the action result
+   */
+  private internalExecute(args: TArgs): Promise<TData | undefined> {
+    const { concurrency = DEFAULT_CONCURRENCY } = this.options;
+
     if (this._state.status === "loading") {
-      if (concurrency === "keep") {
-        return Promise.resolve(undefined);
-      } else if (concurrency === "restart") {
-        this.cancel();
+      switch (concurrency) {
+        case "keep":
+          return Promise.resolve(undefined);
+        case "restart":
+          this.cancel();
+          break;
+        case "enqueue":
+          return new Promise((resolve) => {
+            this.queue.push({ args, resolve });
+          });
       }
     }
 
     this.abortController = new AbortController();
     const currentSignal = this.abortController.signal;
 
-    // Set state SYNCHRONOUSLY before async execution
+    // Optimistic Update Handling
     if (this.options.optimisticResult !== undefined) {
       this.setState({
         status: "success",
         data: this.options.optimisticResult,
         error: null,
-        progress: 0,
+        progress: PROGRESS.INITIAL,
       });
     } else {
       this.loadingStartTime = Date.now();
-      this.setState({ status: "loading", error: null, progress: 0 });
+      this.setState({
+        status: "loading",
+        error: null,
+        progress: PROGRESS.INITIAL,
+      });
 
-      // Handle loading delay
-      const delay = this.options.loading?.delay ?? 0;
+      // Handle UX Loading Delay
+      const delay = this.options.loading?.delay ?? DEFAULT_LOADING.DELAY;
       if (delay > 0) {
         this._isDelayingLoading = true;
         this.loadingDelayTimer = setTimeout(() => {
@@ -286,124 +469,183 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       }
     }
 
-    // Delegate to async execution
-    return this.executeAsync(args, currentSignal);
+    return this.runAction(args, currentSignal);
   }
 
-  private async executeAsync(
+  /**
+   * Performs the actual asynchronous action with retry logic.
+   * @private
+   * @param args Arguments for the action
+   * @param signal AbortSignal for cancellation
+   * @returns Promise that resolves with the action result
+   */
+  private async runAction(
     args: TArgs,
-    currentSignal: AbortSignal,
+    signal: AbortSignal,
   ): Promise<TData | undefined> {
     let attempt = 0;
-    const maxAttempts = this.options.retry?.maxAttempts ?? 1;
+    const maxAttempts =
+      this.options.retry?.maxAttempts ?? DEFAULT_RETRY.MAX_ATTEMPTS;
 
     while (attempt < maxAttempts) {
-      if (currentSignal.aborted) return;
+      if (signal.aborted) return;
 
       attempt++;
       try {
         const data = await this.action(...args);
 
-        if (currentSignal.aborted) return;
+        if (signal.aborted) return;
 
-        // Enforce minDuration
-        await this.enforceMinDuration();
+        // Ensure minimum duration for UX if configured
+        await this.waitMinDuration();
 
-        this.setState({ status: "success", data, progress: 100 });
+        this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
         this.options.onSuccess?.(data);
-        this.scheduleAutoReset();
 
-        this.abortController = null;
-        this.clearLoadingDelay();
+        this.finalizeLoading();
+        this.scheduleAutoReset();
+        this.processEnqueuedTasks();
+
         return data;
       } catch (error) {
-        if (currentSignal.aborted) return;
+        if (signal.aborted) return;
 
         const typedError = error as TError;
-        const shouldRetry = await this.checkShouldRetry(
-          typedError,
-          attempt,
-          maxAttempts,
-        );
+        const shouldRetry = await this.evaluateRetry(typedError, attempt);
 
         if (!shouldRetry) {
-          await this.enforceMinDuration();
-          this.setState({ status: "error", error: typedError, progress: 0 });
+          await this.waitMinDuration();
+          this.setState({
+            status: "error",
+            error: typedError,
+            progress: PROGRESS.INITIAL,
+          });
           this.options.onError?.(typedError);
-          this.abortController = null;
-          this.clearLoadingDelay();
+
+          this.finalizeLoading();
+          this.processEnqueuedTasks();
           return;
-        } else {
-          await this.wait(attempt);
         }
+
+        await this.delayRetry(attempt);
       }
     }
   }
 
-  private async checkShouldRetry(
+  // --- Concurrency Helpers ---
+
+  private handleDebounce(
+    args: TArgs,
+    delay: number,
+  ): Promise<TData | undefined> {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    return new Promise((resolve) => {
+      this.debounceTimer = setTimeout(() => {
+        this.debounceTimer = null;
+        this.internalExecute(args).then(resolve);
+      }, delay);
+    });
+  }
+
+  private handleThrottle(
+    args: TArgs,
+    delay: number,
+  ): Promise<TData | undefined> {
+    const now = Date.now();
+    const remaining = delay - (now - this.lastExecutedTime);
+
+    if (remaining <= 0) {
+      this.lastExecutedTime = now;
+      return this.internalExecute(args);
+    }
+
+    this.pendingThrottleArgs = args;
+    const promise = new Promise<TData | undefined>((resolve) => {
+      this.pendingThrottleResolvers.push(resolve);
+    });
+
+    if (!this.throttleTimer) {
+      this.throttleTimer = setTimeout(() => {
+        this.throttleTimer = null;
+        this.lastExecutedTime = Date.now();
+
+        const argsToUse = this.pendingThrottleArgs!;
+        const resolvers = [...this.pendingThrottleResolvers];
+
+        this.pendingThrottleArgs = null;
+        this.pendingThrottleResolvers = [];
+
+        this.internalExecute(argsToUse).then((result) => {
+          resolvers.forEach((res) => res(result));
+        });
+      }, remaining);
+    }
+
+    return promise;
+  }
+
+  private processEnqueuedTasks(): void {
+    if (this.queue.length > 0 && this._state.status !== "loading") {
+      const { args, resolve } = this.queue.shift()!;
+      this.internalExecute(args).then(resolve);
+    }
+  }
+
+  // --- Retry Helpers ---
+
+  /**
+   * Evaluates whether a retry should be attempted.
+   * @private
+   * @param error The error that occurred
+   * @param attempt Current attempt number
+   * @returns Promise that resolves to true if retry should happen
+   */
+  private async evaluateRetry(
     error: TError,
     attempt: number,
-    maxAttempts: number,
   ): Promise<boolean> {
-    if (attempt >= maxAttempts) return false;
+    const maxAttempts =
+      this.options.retry?.maxAttempts ?? DEFAULT_RETRY.MAX_ATTEMPTS;
+    if (attempt >= maxAttempts) {
+      return false;
+    }
 
     if (this.options.retry?.shouldRetry) {
       return this.options.retry.shouldRetry(error, attempt);
     }
 
-    return true; // Default behavior: retry until maxAttempts
+    return true;
   }
 
   /**
-   * Resets the flow state back to initial 'idle' state.
+   * Delays execution for retry with backoff strategy.
+   * @private
+   * @param attempt Current attempt number
    */
-  reset() {
-    this.clearAutoReset();
-    this.clearLoadingDelay();
-    this.setState({
-      status: "idle",
-      data: null,
-      error: null,
-      progress: 0,
-    });
-  }
+  private async delayRetry(attempt: number): Promise<void> {
+    const delay = this.options.retry?.delay ?? DEFAULT_RETRY.DELAY;
+    const backoff = this.options.retry?.backoff ?? DEFAULT_RETRY.BACKOFF;
 
-  private autoResetTimer: any = null;
-
-  private scheduleAutoReset() {
-    this.clearAutoReset();
-    const options = this.options.autoReset;
-    if (
-      options &&
-      options.enabled !== false &&
-      options.delay &&
-      options.delay > 0
-    ) {
-      this.autoResetTimer = setTimeout(() => {
-        if (this._state.status === "success") {
-          this.reset();
-        }
-      }, options.delay);
+    let waitTime = delay;
+    if (backoff === "linear") {
+      waitTime = delay * attempt * BACKOFF_MULTIPLIER.LINEAR;
+    } else if (backoff === "exponential") {
+      waitTime =
+        delay * Math.pow(BACKOFF_MULTIPLIER.EXPONENTIAL_BASE, attempt - 1);
     }
+
+    return new Promise((resolve) => setTimeout(resolve, waitTime));
   }
 
-  private clearAutoReset() {
-    if (this.autoResetTimer) {
-      clearTimeout(this.autoResetTimer);
-      this.autoResetTimer = null;
-    }
-  }
+  // --- UX Helpers ---
 
-  private clearLoadingDelay() {
-    if (this.loadingDelayTimer) {
-      clearTimeout(this.loadingDelayTimer);
-      this.loadingDelayTimer = null;
-    }
-    this._isDelayingLoading = false;
-  }
-
-  private async enforceMinDuration() {
-    const minDuration = this.options.loading?.minDuration ?? 0;
+  /**
+   * Waits for minimum loading duration if configured.
+   * @private
+   */
+  private async waitMinDuration(): Promise<void> {
+    const minDuration =
+      this.options.loading?.minDuration ?? DEFAULT_LOADING.MIN_DURATION;
     if (minDuration > 0 && this.loadingStartTime) {
       const elapsed = Date.now() - this.loadingStartTime;
       const remaining = minDuration - elapsed;
@@ -413,17 +655,54 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }
   }
 
-  private async wait(attempt: number) {
-    const delay = this.options.retry?.delay ?? 1000;
-    const backoff = this.options.retry?.backoff ?? "fixed";
-
-    let waitTime = delay;
-    if (backoff === "linear") {
-      waitTime = delay * attempt;
-    } else if (backoff === "exponential") {
-      waitTime = delay * Math.pow(2, attempt - 1);
+  private scheduleAutoReset(): void {
+    this.clearTimer("autoResetTimer");
+    const options = this.options.autoReset;
+    if (options?.enabled !== false && options?.delay && options.delay > 0) {
+      this.autoResetTimer = setTimeout(() => {
+        if (this._state.status === "success") {
+          this.reset();
+        }
+      }, options.delay);
     }
+  }
 
-    return new Promise((resolve) => setTimeout(resolve, waitTime));
+  // --- Maintenance Helpers ---
+
+  private setState(updates: Partial<FlowState<TData, TError>>): void {
+    this._state = { ...this._state, ...updates };
+    this.notify();
+  }
+
+  private notify(): void {
+    this.listeners.forEach((listener) => listener({ ...this._state }));
+  }
+
+  private finalizeLoading(): void {
+    this.abortController = null;
+    this.clearTimer("loadingDelayTimer");
+    this._isDelayingLoading = false;
+  }
+
+  private clearTimer(
+    key:
+      | "loadingDelayTimer"
+      | "autoResetTimer"
+      | "debounceTimer"
+      | "throttleTimer",
+  ): void {
+    const timer = this[key];
+    if (timer) {
+      clearTimeout(timer);
+      (this as any)[key] = null;
+    }
+  }
+
+  private clearAllTimers(): void {
+    this.clearTimer("loadingDelayTimer");
+    this.clearTimer("autoResetTimer");
+    this.clearTimer("debounceTimer");
+    this.clearTimer("throttleTimer");
+    this._isDelayingLoading = false;
   }
 }

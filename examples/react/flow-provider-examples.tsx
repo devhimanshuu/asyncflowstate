@@ -1,11 +1,11 @@
 /**
  * AsyncFlowState - FlowProvider Examples
- * 
+ *
  * These examples demonstrate how to use FlowProvider for global configuration.
  */
 
-import React from 'react';
-import { FlowProvider, useFlow } from '@asyncflowstate/react';
+import React from "react";
+import { FlowProvider, useFlow } from "@asyncflowstate/react";
 
 // =============================================================================
 // Example 1: Global Error Handling with Toast
@@ -13,8 +13,8 @@ import { FlowProvider, useFlow } from '@asyncflowstate/react';
 
 // Mock toast library
 const toast = {
-  error: (message: string) => console.error('Toast:', message),
-  success: (message: string) => console.log('Toast:', message),
+  error: (message: string) => console.error("Toast:", message),
+  success: (message: string) => console.log("Toast:", message),
 };
 
 /**
@@ -23,31 +23,31 @@ const toast = {
 export function WithoutProvider() {
   const saveFlow = useFlow(
     async (data: any) => {
-      const response = await fetch('/api/save', {
-        method: 'POST',
+      const response = await fetch("/api/save", {
+        method: "POST",
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Save failed');
+      if (!response.ok) throw new Error("Save failed");
       return response.json();
     },
     {
       onError: (err: any) => toast.error(err.message), // Repeated everywhere
-    }
+    },
   );
 
   const deleteFlow = useFlow(
     async (id: number) => {
-      const response = await fetch(`/api/delete/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Delete failed');
+      const response = await fetch(`/api/delete/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Delete failed");
     },
     {
       onError: (err: any) => toast.error(err.message), // Repeated again
-    }
+    },
   );
 
   return (
     <div>
-      <button onClick={() => saveFlow.execute({ name: 'Test' })}>Save</button>
+      <button onClick={() => saveFlow.execute({ name: "Test" })}>Save</button>
       <button onClick={() => deleteFlow.execute(1)}>Delete</button>
     </div>
   );
@@ -61,7 +61,7 @@ export function WithProviderApp() {
     <FlowProvider
       config={{
         onError: (err: any) => toast.error(err.message),
-        retry: { maxAttempts: 3, backoff: 'exponential' },
+        retry: { maxAttempts: 3, backoff: "exponential" },
         loading: { minDuration: 300 },
       }}
     >
@@ -73,22 +73,22 @@ export function WithProviderApp() {
 function Dashboard() {
   // No need to specify onError - it's inherited from FlowProvider
   const saveFlow = useFlow(async (data: any) => {
-    const response = await fetch('/api/save', {
-      method: 'POST',
+    const response = await fetch("/api/save", {
+      method: "POST",
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Save failed');
+    if (!response.ok) throw new Error("Save failed");
     return response.json();
   });
 
   const deleteFlow = useFlow(async (id: number) => {
-    const response = await fetch(`/api/delete/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('Delete failed');
+    const response = await fetch(`/api/delete/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error("Delete failed");
   });
 
   return (
     <div>
-      <button onClick={() => saveFlow.execute({ name: 'Test' })}>Save</button>
+      <button onClick={() => saveFlow.execute({ name: "Test" })}>Save</button>
       <button onClick={() => deleteFlow.execute(1)}>Delete</button>
     </div>
   );
@@ -105,10 +105,10 @@ export function AppWithGlobalRetry() {
         retry: {
           maxAttempts: 3,
           delay: 1000,
-          backoff: 'exponential',
+          backoff: "exponential",
         },
         onError: (err: any) => {
-          console.error('Global error handler:', err);
+          console.error("Global error handler:", err);
           toast.error(`Error: ${err.message}`);
         },
       }}
@@ -122,29 +122,29 @@ function NetworkSensitiveApp() {
   // This flow inherits retry configuration from FlowProvider
   const fetchUserFlow = useFlow(async (userId: string) => {
     const response = await fetch(`/api/users/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch user');
+    if (!response.ok) throw new Error("Failed to fetch user");
     return response.json();
   });
 
   // This flow overrides the retry configuration
   const criticalFlow = useFlow(
     async (data: any) => {
-      const response = await fetch('/api/critical', {
-        method: 'POST',
+      const response = await fetch("/api/critical", {
+        method: "POST",
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Critical operation failed');
+      if (!response.ok) throw new Error("Critical operation failed");
       return response.json();
     },
     {
       retry: { maxAttempts: 5 }, // Override global maxAttempts
       // Still inherits delay and backoff from global config
-    }
+    },
   );
 
   return (
     <div>
-      <button onClick={() => fetchUserFlow.execute('123')}>
+      <button onClick={() => fetchUserFlow.execute("123")}>
         Fetch User (3 retries)
       </button>
       <button onClick={() => criticalFlow.execute({ important: true })}>
@@ -193,13 +193,13 @@ function SmoothUIApp() {
   return (
     <div>
       <button {...quickActionFlow.button()}>
-        {quickActionFlow.loading ? 'Loading...' : 'Quick Action'}
+        {quickActionFlow.loading ? "Loading..." : "Quick Action"}
       </button>
       <button {...slowActionFlow.button()}>
-        {slowActionFlow.loading ? 'Loading...' : 'Slow Action'}
+        {slowActionFlow.loading ? "Loading..." : "Slow Action"}
       </button>
-      {quickActionFlow.status === 'success' && <p>Quick action succeeded!</p>}
-      {slowActionFlow.status === 'success' && <p>Slow action succeeded!</p>}
+      {quickActionFlow.status === "success" && <p>Quick action succeeded!</p>}
+      {slowActionFlow.status === "success" && <p>Slow action succeeded!</p>}
     </div>
   );
 }
@@ -233,7 +233,7 @@ function MainApp() {
           retry: { maxAttempts: 5 },
           loading: { minDuration: 500 },
           onError: (err: any) => {
-            console.error('Admin error:', err);
+            console.error("Admin error:", err);
             toast.error(`Admin Error: ${err.message}`);
           },
         }}
@@ -246,30 +246,26 @@ function MainApp() {
 
 function RegularSection() {
   const flow = useFlow(async () => {
-    throw new Error('Regular error');
+    throw new Error("Regular error");
   });
 
   return (
     <div>
       <h2>Regular Section</h2>
-      <button onClick={() => flow.execute()}>
-        Trigger Error (2 retries)
-      </button>
+      <button onClick={() => flow.execute()}>Trigger Error (2 retries)</button>
     </div>
   );
 }
 
 function AdminSection() {
   const flow = useFlow(async () => {
-    throw new Error('Admin error');
+    throw new Error("Admin error");
   });
 
   return (
     <div>
       <h2>Admin Section</h2>
-      <button onClick={() => flow.execute()}>
-        Trigger Error (5 retries)
-      </button>
+      <button onClick={() => flow.execute()}>Trigger Error (5 retries)</button>
     </div>
   );
 }
@@ -285,33 +281,33 @@ export function ProductionApp() {
         // Global error handling
         onError: (err: any) => {
           // Log to error tracking service
-          console.error('Error tracked:', err);
-          
+          console.error("Error tracked:", err);
+
           // Show user-friendly message
-          if (err.message.includes('network')) {
-            toast.error('Network error. Please check your connection.');
-          } else if (err.message.includes('unauthorized')) {
-            toast.error('Session expired. Please log in again.');
+          if (err.message.includes("network")) {
+            toast.error("Network error. Please check your connection.");
+          } else if (err.message.includes("unauthorized")) {
+            toast.error("Session expired. Please log in again.");
           } else {
-            toast.error('Something went wrong. Please try again.');
+            toast.error("Something went wrong. Please try again.");
           }
         },
 
         // Global success handling
         onSuccess: (data: any) => {
-          console.log('Action succeeded:', data);
+          console.log("Action succeeded:", data);
         },
 
         // Retry configuration for resilience
         retry: {
           maxAttempts: 3,
           delay: 1000,
-          backoff: 'exponential',
+          backoff: "exponential",
           shouldRetry: (error: any, attempt: number) => {
             // Don't retry on validation errors
-            if (error.message.includes('validation')) return false;
+            if (error.message.includes("validation")) return false;
             // Don't retry on auth errors
-            if (error.message.includes('unauthorized')) return false;
+            if (error.message.includes("unauthorized")) return false;
             // Retry on network errors
             return true;
           },
@@ -330,7 +326,7 @@ export function ProductionApp() {
         },
 
         // Prevent double-submissions
-        concurrency: 'keep',
+        concurrency: "keep",
       }}
     >
       <AppContent />
@@ -341,11 +337,11 @@ export function ProductionApp() {
 function AppContent() {
   const loginFlow = useFlow(
     async (credentials: { email: string; password: string }) => {
-      const response = await fetch('/api/login', {
-        method: 'POST',
+      const response = await fetch("/api/login", {
+        method: "POST",
         body: JSON.stringify(credentials),
       });
-      if (!response.ok) throw new Error('Login failed');
+      if (!response.ok) throw new Error("Login failed");
       return response.json();
     },
     {
@@ -354,17 +350,17 @@ function AppContent() {
         toast.success(`Welcome back, ${user.name}!`);
         // Redirect to dashboard
       },
-    }
+    },
   );
 
   return (
     <div>
       <button
         onClick={() =>
-          loginFlow.execute({ email: 'user@example.com', password: 'pass' })
+          loginFlow.execute({ email: "user@example.com", password: "pass" })
         }
       >
-        {loginFlow.loading ? 'Logging in...' : 'Login'}
+        {loginFlow.loading ? "Logging in..." : "Login"}
       </button>
     </div>
   );
