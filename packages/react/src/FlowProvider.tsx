@@ -121,32 +121,76 @@ export function mergeFlowOptions<
     };
   }
 
-  // Override simple properties with local values if provided
-  if (localOptions.onStart !== undefined) {
-    merged.onStart = localOptions.onStart;
+  // Chain lifecycle callbacks to support Global Middleware pattern
+
+  // onStart
+  if (globalOptions.onStart && localOptions.onStart) {
+    merged.onStart = (args: TArgs) => {
+      globalOptions.onStart!(args);
+      localOptions.onStart!(args);
+    };
+  } else {
+    merged.onStart = localOptions.onStart || globalOptions.onStart;
   }
 
-  if (localOptions.onSuccess !== undefined) {
-    merged.onSuccess = localOptions.onSuccess;
+  // onSuccess
+  if (globalOptions.onSuccess && localOptions.onSuccess) {
+    merged.onSuccess = (data: TData) => {
+      globalOptions.onSuccess!(data);
+      localOptions.onSuccess!(data);
+    };
+  } else {
+    merged.onSuccess = localOptions.onSuccess || globalOptions.onSuccess;
   }
 
-  if (localOptions.onError !== undefined) {
-    merged.onError = localOptions.onError;
-  } else if (globalOptions.onError) {
-    // If no local onError, use global onError
-    merged.onError = globalOptions.onError;
+  // onError
+  if (globalOptions.onError && localOptions.onError) {
+    merged.onError = (error: TError) => {
+      globalOptions.onError!(error);
+      localOptions.onError!(error);
+    };
+  } else {
+    merged.onError = localOptions.onError || globalOptions.onError;
   }
 
-  if (localOptions.onRetry !== undefined) {
-    merged.onRetry = localOptions.onRetry;
+  // onRetry
+  if (globalOptions.onRetry && localOptions.onRetry) {
+    merged.onRetry = (error: TError, attempt: number, maxAttempts: number) => {
+      globalOptions.onRetry!(error, attempt, maxAttempts);
+      localOptions.onRetry!(error, attempt, maxAttempts);
+    };
+  } else {
+    merged.onRetry = localOptions.onRetry || globalOptions.onRetry;
   }
 
-  if (localOptions.onCancel !== undefined) {
-    merged.onCancel = localOptions.onCancel;
+  // onCancel
+  if (globalOptions.onCancel && localOptions.onCancel) {
+    merged.onCancel = () => {
+      globalOptions.onCancel!();
+      localOptions.onCancel!();
+    };
+  } else {
+    merged.onCancel = localOptions.onCancel || globalOptions.onCancel;
   }
 
-  if (localOptions.onSettled !== undefined) {
-    merged.onSettled = localOptions.onSettled;
+  // onSettled
+  if (globalOptions.onSettled && localOptions.onSettled) {
+    merged.onSettled = (data: TData | null, error: TError | null) => {
+      globalOptions.onSettled!(data, error);
+      localOptions.onSettled!(data, error);
+    };
+  } else {
+    merged.onSettled = localOptions.onSettled || globalOptions.onSettled;
+  }
+
+  // mapError - Merge the results of the mappings
+  if (globalOptions.mapError && localOptions.mapError) {
+    merged.mapError = (error: any) => ({
+      ...globalOptions.mapError!(error),
+      ...localOptions.mapError!(error),
+    });
+  } else {
+    merged.mapError = localOptions.mapError || globalOptions.mapError;
   }
 
   if (localOptions.concurrency !== undefined) {

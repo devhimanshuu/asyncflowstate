@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Flow, type FlowState } from "./flow";
+import { Flow, type FlowState, FlowErrorType } from "./flow";
 
 describe("Flow Core", () => {
   it("should start in idle state", () => {
@@ -679,6 +679,78 @@ describe("Flow Core", () => {
       // Should be idle (manual cancel), not error (timeout)
       expect(flow.status).toBe("idle");
       expect(flow.error).toBeNull();
+    });
+  });
+
+  describe("Smart Error Mapping", () => {
+    it("should use mapError to force retry on specific error codes", async () => {
+      const action = vi
+        .fn()
+        .mockRejectedValueOnce({ status: 429, message: "Too Many Requests" })
+        .mockResolvedValue("success");
+
+      const flow = new Flow(action, {
+        retry: { maxAttempts: 3, delay: 10 },
+        mapError: (error) => {
+          if (error.status === 429) {
+            return { isRetryable: true, type: FlowErrorType.SERVER };
+          }
+          return { isRetryable: false };
+        },
+      });
+
+      await flow.execute();
+
+      expect(action).toHaveBeenCalledTimes(2);
+      expect(flow.state.status).toBe("success");
+      expect(flow.state.data).toBe("success");
+    });
+
+    it("should use mapError to prevent retry on fatal errors", async () => {
+      const action = vi
+        .fn()
+        .mockRejectedValueOnce({ status: 401, message: "Unauthorized" })
+        .mockResolvedValue("success");
+
+      const flow = new Flow(action, {
+        retry: { maxAttempts: 3, delay: 10 },
+        mapError: (error) => {
+          if (error.status === 401) {
+            return { isRetryable: false, type: FlowErrorType.PERMISSION };
+          }
+          return { isRetryable: true };
+        },
+      });
+
+      await flow.execute();
+
+      // Should stop after 1st attempt despite maxAttempts=3 because isRetryable=false
+      expect(action).toHaveBeenCalledTimes(1);
+      expect(flow.state.status).toBe("error");
+      expect(flow.state.error).toMatchObject({
+        status: 401,
+        type: FlowErrorType.PERMISSION,
+      });
+    });
+
+    it("should merge mapped properties into the error object", async () => {
+      const error = { message: "Network Error" };
+      const action = vi.fn().mockRejectedValue(error);
+
+      const flow = new Flow(action, {
+        retry: { maxAttempts: 1 },
+        mapError: (err) => ({
+          type: FlowErrorType.NETWORK,
+          message: "Network Unreachable", // Override message
+        }),
+      });
+
+      await flow.execute();
+
+      expect(flow.state.error).toMatchObject({
+        type: FlowErrorType.NETWORK,
+        message: "Network Unreachable",
+      });
     });
   });
 });

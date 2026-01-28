@@ -48,7 +48,7 @@ describe("FlowProvider", () => {
     expect(merged.onError).toBe(globalConfig.onError);
   });
 
-  it("should allow local onError to override global onError", () => {
+  it("should chain local and global onError", () => {
     const globalOnError = vi.fn();
     const localOnError = vi.fn();
 
@@ -62,7 +62,12 @@ describe("FlowProvider", () => {
 
     const merged = mergeFlowOptions(globalConfig, localOptions);
 
-    expect(merged.onError).toBe(localOnError);
+    // Call the merged function
+    merged.onError?.({ message: "test" });
+
+    // Both should be called
+    expect(globalOnError).toHaveBeenCalledWith({ message: "test" });
+    expect(localOnError).toHaveBeenCalledWith({ message: "test" });
   });
 
   it("should use replace mode when specified", () => {

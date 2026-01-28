@@ -194,6 +194,8 @@ function App() {
 - **📝 Pro Forms:** Automated `FormData` extraction, field validation hooks, and success-auto-reset.
 - **🎨 UX Polish:** Prevent UI flashes with `minDuration` and `delay` options.
 - **📊 Progress Tracking:** Built-in progress state for long-running tasks.
+- **💾 Persistence:** Automatically persist success data to `localStorage` or `sessionStorage` with `persistKey`.
+- **🏃 Fake Progress:** Simulate progress for actions that don't support it natively with `autoProgress`.
 - **🌐 Global Config:** Set default options app-wide with `FlowProvider` (v1.1+).
 - **🧩 Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
 

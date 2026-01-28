@@ -176,6 +176,29 @@ export interface FlowOptions<
    * ```
    */
   rollbackOnError?: boolean;
+  /**
+   * Optional function to transform raw errors into FlowErrors.
+   * Useful for mapping backend error codes to retryable states.
+   */
+  mapError?: (error: any) => Partial<FlowError<any>>;
+  /**
+   * Automation for simulated progress updates.
+   */
+  autoProgress?: {
+    /** Duration in milliseconds to reach the target percentage. */
+    duration: number;
+    /** Target percentage to reach (0-100). */
+    end: number;
+  };
+  /**
+   * Unique key to persist success data in storage.
+   * If present, data will be restored on initialization.
+   */
+  persistKey?: string;
+  /**
+   * Storage type for persistence. Default is 'local'.
+   */
+  persistStorage?: "local" | "session";
 }
 
 /**
@@ -257,6 +280,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     progress: PROGRESS.INITIAL,
   };
 
+  // --- Persistence State ---
+  private hasRestoredState = false;
+
   // --- Subscriptions ---
   private listeners = new Set<(state: FlowState<TData, TError>) => void>();
 
@@ -268,6 +294,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private loadingDelayTimer: ReturnType<typeof setTimeout> | null = null;
   private _isDelayingLoading = false;
   private autoResetTimer: ReturnType<typeof setTimeout> | null = null;
+  private progressTimer: ReturnType<typeof setTimeout> | null = null;
 
   // --- Concurrency Management ---
   private queue: {
@@ -304,7 +331,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   constructor(
     private action: FlowAction<TData, TArgs>,
     private options: FlowOptions<TData, TError, TArgs> = {},
-  ) {}
+  ) {
+    if (this.options.persistKey) {
+      this.restorePersistedData();
+    }
+  }
 
   /**
    * Updates the flow options at runtime.
@@ -452,6 +483,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       error: null,
       progress: PROGRESS.INITIAL,
     });
+
+    if (this.options.persistKey) {
+      this.clearPersistedData();
+    }
   }
 
   /**
@@ -586,8 +621,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
         this._isDelayingLoading = true;
         this.loadingDelayTimer = setTimeout(() => {
           this._isDelayingLoading = false;
+          // Start auto-progress when delay finishes
+          this.startAutoProgress();
           this.notify();
         }, delay);
+      } else {
+        // Start auto-progress if no delay or delay is 0
+        this.startAutoProgress();
       }
     }
 
@@ -706,8 +746,37 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         if (signal.aborted) return;
 
-        const typedError = error as TError;
-        const shouldRetry = await this.evaluateRetry(typedError, attempt);
+        const finalError = error as TError;
+        let retryOverride: boolean | undefined;
+
+        // Apply Smart Error Mapping
+        if (this.options.mapError) {
+          try {
+            const mapped = this.options.mapError(error);
+            // If the user wants to return a transformed error object (e.g. FlowError),
+            // we can structurally merge or replace.
+            // For safety with TError, we'll assume the user might want to attach props to the original error
+            // or return a completely new object that typically satisfies TError.
+            if (mapped) {
+              // We'll trust the user if they're replacing the error, or just attaching metadata.
+              // If mapped is an object, we can try to use it as the new error.
+              // Note: This relies on runtime behavior.
+              Object.assign(finalError as object, mapped);
+              // Or if valid replacement: finalError = { ...finalError, ...mapped };
+
+              if (mapped.isRetryable !== undefined) {
+                retryOverride = mapped.isRetryable;
+              }
+            }
+          } catch (e) {
+            console.error("Flow: mapError threw an error", e);
+          }
+        }
+
+        const shouldRetry =
+          retryOverride !== undefined
+            ? retryOverride && attempt < maxAttempts
+            : await this.evaluateRetry(finalError, attempt);
 
         if (!shouldRetry) {
           await this.waitMinDuration();
@@ -720,7 +789,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           this.setState({
             status: "error",
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
-            error: typedError,
+            error: finalError,
             progress: PROGRESS.INITIAL,
           });
 
@@ -729,8 +798,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             this.previousDataSnapshot = null;
           }
 
-          this.options.onError?.(typedError);
-          this.options.onSettled?.(null, typedError);
+          this.options.onError?.(finalError);
+          this.options.onSettled?.(null, finalError);
 
           this.finalizeLoading();
           this.processEnqueuedTasks();
@@ -738,7 +807,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
         }
 
         // Fire onRetry lifecycle hook
-        this.options.onRetry?.(typedError, attempt, maxAttempts);
+        this.options.onRetry?.(finalError, attempt, maxAttempts);
         await this.delayRetry(attempt);
       }
     }
@@ -879,10 +948,113 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }
   }
 
+  private startAutoProgress(): void {
+    if (!this.options.autoProgress || this._state.status !== "loading") return;
+
+    const { duration, end } = this.options.autoProgress;
+    // Update roughly every 50ms for smoothness
+    const interval = 50;
+    const steps = duration / interval;
+    const increment = end / steps;
+
+    let current = this.progress;
+
+    this.clearTimer("progressTimer");
+    this.progressTimer = setInterval(() => {
+      // Safety check: stop if we are no longer loading
+      if (this._state.status !== "loading") {
+        this.clearTimer("progressTimer");
+        return;
+      }
+
+      current += increment;
+      if (current >= end) {
+        current = end;
+        this.clearTimer("progressTimer");
+      }
+
+      // Update state directly to avoid re-triggering logic in setProgress public method
+      // but ensure we notify listeners
+      this.setState({ progress: Math.min(Math.max(current, 0), 100) });
+    }, interval);
+  }
+
+  // --- Persistence Helpers ---
+
+  private getStorage(): Storage | null {
+    try {
+      if (typeof window !== "undefined") {
+        return this.options.persistStorage === "session"
+          ? window.sessionStorage
+          : window.localStorage;
+      }
+    } catch {
+      // Ignore errors in environments without storage
+    }
+    return null;
+  }
+
+  private restorePersistedData(): void {
+    const storage = this.getStorage();
+    const key = this.options.persistKey;
+    if (!storage || !key) return;
+
+    try {
+      const stored = storage.getItem(key);
+      if (stored) {
+        const data = JSON.parse(stored) as TData;
+        this._state = {
+          ...this._state,
+          status: "success",
+          data,
+          progress: PROGRESS.COMPLETE,
+        };
+        this.hasRestoredState = true;
+      }
+    } catch (e) {
+      console.warn("Flow: Failed to restore persisted data", e);
+    }
+  }
+
+  private persistData(data: TData): void {
+    const storage = this.getStorage();
+    const key = this.options.persistKey;
+    if (!storage || !key) return;
+
+    try {
+      storage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.warn("Flow: Failed to persist data", e);
+    }
+  }
+
+  private clearPersistedData(): void {
+    const storage = this.getStorage();
+    const key = this.options.persistKey;
+    if (!storage || !key) return;
+
+    try {
+      storage.removeItem(key);
+    } catch (e) {
+      console.warn("Flow: Failed to clear persisted data", e);
+    }
+  }
+
   // --- Maintenance Helpers ---
 
   private setState(updates: Partial<FlowState<TData, TError>>): void {
     this._state = { ...this._state, ...updates };
+
+    // Handle persistence on success
+    if (
+      this.options.persistKey &&
+      updates.status === "success" &&
+      this._state.data !== null &&
+      this._state.data !== undefined
+    ) {
+      this.persistData(this._state.data);
+    }
+
     this.notify();
   }
 
@@ -903,11 +1075,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       | "autoResetTimer"
       | "debounceTimer"
       | "throttleTimer"
-      | "timeoutTimer",
+      | "timeoutTimer"
+      | "progressTimer",
   ): void {
     const timer = this[key];
     if (timer) {
       clearTimeout(timer);
+      clearInterval(timer as any); // Handle both timeout and interval
       (this as any)[key] = null;
     }
   }
@@ -918,6 +1092,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.clearTimer("debounceTimer");
     this.clearTimer("throttleTimer");
     this.clearTimer("timeoutTimer");
+    this.clearTimer("progressTimer");
     this._isDelayingLoading = false;
     this.isTimeout = false;
   }
