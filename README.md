@@ -186,8 +186,9 @@ function App() {
 
 ## ✨ Key Features
 
-- **🛡️ Concurrency Control:** Prevent double-submissions and race conditions with `keep` or `restart` strategies.
+- **🛡️ Advanced Concurrency Control:** Prevent double-submissions with `keep`, `restart`, or `enqueue` strategies. Built-in `debounce` and `throttle` support.
 - **🔄 Resilience Engine:** Automatic retries with configurable delay and backoff (Fixed, Linear, Exponential).
+- **🎯 Lifecycle Hooks:** Complete control with `onStart`, `onSuccess`, `onError`, `onRetry`, `onCancel`, and `onSettled` callbacks.
 - **⚡ Optimistic UI:** Instantly update data while waiting for the server.
 - **♿ A11y First:** Built-in ARIA live regions, focus management for errors, and accessibility-first helpers.
 - **📝 Pro Forms:** Automated `FormData` extraction, field validation hooks, and success-auto-reset.

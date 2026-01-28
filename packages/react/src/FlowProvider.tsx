@@ -122,6 +122,10 @@ export function mergeFlowOptions<
   }
 
   // Override simple properties with local values if provided
+  if (localOptions.onStart !== undefined) {
+    merged.onStart = localOptions.onStart;
+  }
+
   if (localOptions.onSuccess !== undefined) {
     merged.onSuccess = localOptions.onSuccess;
   }
@@ -131,6 +135,18 @@ export function mergeFlowOptions<
   } else if (globalOptions.onError) {
     // If no local onError, use global onError
     merged.onError = globalOptions.onError;
+  }
+
+  if (localOptions.onRetry !== undefined) {
+    merged.onRetry = localOptions.onRetry;
+  }
+
+  if (localOptions.onCancel !== undefined) {
+    merged.onCancel = localOptions.onCancel;
+  }
+
+  if (localOptions.onSettled !== undefined) {
+    merged.onSettled = localOptions.onSettled;
   }
 
   if (localOptions.concurrency !== undefined) {

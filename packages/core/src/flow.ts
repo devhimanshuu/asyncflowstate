@@ -101,10 +101,18 @@ export interface FlowOptions<
   TError = any,
   TArgs extends any[] = any[],
 > {
+  /** Callback fired when the action starts executing */
+  onStart?: (args: TArgs) => void;
   /** Callback fired on successful execution */
   onSuccess?: (data: TData) => void;
   /** Callback fired on terminal error after retries */
   onError?: (error: TError) => void;
+  /** Callback fired on every retry attempt */
+  onRetry?: (error: TError, attempt: number, maxAttempts: number) => void;
+  /** Callback fired when cancel() is called */
+  onCancel?: () => void;
+  /** Callback fired after either success or error (like finally) */
+  onSettled?: (data: TData | null, error: TError | null) => void;
   /** Configuration for automatic retries */
   retry?: RetryOptions;
   /** Configuration for automatic state reset after success */
@@ -424,6 +432,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.abortController = null;
     }
     this.setState({ status: "idle", error: null, progress: PROGRESS.INITIAL });
+    this.options.onCancel?.();
   }
 
   /**
@@ -517,6 +526,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
     this.abortController = new AbortController();
     const currentSignal = this.abortController.signal;
+
+    // Fire onStart lifecycle hook
+    this.options.onStart?.(args);
 
     // Set up timeout if configured
     if (this.options.timeout && this.options.timeout > 0) {
@@ -653,6 +665,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
         this.options.onSuccess?.(data);
+        this.options.onSettled?.(data, null);
 
         // Clear snapshot on successful completion
         this.previousDataSnapshot = null;
@@ -685,6 +698,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           }
 
           this.options.onError?.(timeoutError);
+          this.options.onSettled?.(null, timeoutError);
           this.finalizeLoading();
           this.processEnqueuedTasks();
           return;
@@ -716,12 +730,15 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           }
 
           this.options.onError?.(typedError);
+          this.options.onSettled?.(null, typedError);
 
           this.finalizeLoading();
           this.processEnqueuedTasks();
           return;
         }
 
+        // Fire onRetry lifecycle hook
+        this.options.onRetry?.(typedError, attempt, maxAttempts);
         await this.delayRetry(attempt);
       }
     }
