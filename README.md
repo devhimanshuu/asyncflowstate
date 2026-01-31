@@ -145,6 +145,20 @@ function SaveButton() {
 }
 ```
 
+### 3. Sequential Workflows
+
+```tsx
+import { useFlowSequence } from "@asyncflowstate/react";
+
+const steps = [
+  { name: "Step 1", flow: flow1 },
+  { name: "Step 2", flow: flow2, mapInput: (prev) => prev.id },
+];
+
+const sequence = useFlowSequence(steps);
+// sequence.execute() runs them in order
+```
+
 ### 3. Form Handling
 
 ```tsx
@@ -186,17 +200,13 @@ function App() {
 
 ## ✨ Key Features
 
-- **🛡️ Advanced Concurrency Control:** Prevent double-submissions with `keep`, `restart`, or `enqueue` strategies. Built-in `debounce` and `throttle` support.
-- **🔄 Resilience Engine:** Automatic retries with configurable delay and backoff (Fixed, Linear, Exponential).
-- **🎯 Lifecycle Hooks:** Complete control with `onStart`, `onSuccess`, `onError`, `onRetry`, `onCancel`, and `onSettled` callbacks.
-- **⚡ Optimistic UI:** Instantly update data while waiting for the server.
-- **♿ A11y First:** Built-in ARIA live regions, focus management for errors, and accessibility-first helpers.
-- **📝 Pro Forms:** Automated `FormData` extraction, field validation hooks, and success-auto-reset.
-- **🎨 UX Polish:** Prevent UI flashes with `minDuration` and `delay` options.
-- **📊 Progress Tracking:** Built-in progress state for long-running tasks.
-- **💾 Persistence:** Automatically persist success data to `localStorage` or `sessionStorage` with `persistKey`.
-- **🏃 Fake Progress:** Simulate progress for actions that don't support it natively with `autoProgress`.
-- **🌐 Global Config:** Set default options app-wide with `FlowProvider` (v1.1+).
+- **🌐 Global Config:** Set default options app-wide with `FlowProvider`.
+- **⛓️ Sequential Flows:** Orchestrate complex multi-step workflows with `FlowSequence`.
+- **📋 Flow Lists:** Manage multiple independent instances of the same action with `useFlowList`.
+- **⏲️ Declarative Polling:** Built-in support for auto-refreshing actions with conditions.
+- **� Visual Debugger:** Real-time timeline of all async activity in your app with `FlowDebugger`.
+- **🔔 Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
+- **🛡️ Guard Rails:** Preconditions to prevent execution based on custom logic.
 - **🧩 Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
 
 ---

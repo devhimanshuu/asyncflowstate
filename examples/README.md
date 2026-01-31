@@ -153,6 +153,23 @@ const flow = useFlow(submitForm, {
 });
 ```
 
+### Sequential Workflows
+
+```tsx
+const sequence = useFlowSequence([
+  { name: "Step 1", flow: flow1 },
+  { name: "Step 2", flow: flow2 },
+]);
+```
+
+### Polling for Updates
+
+```tsx
+const flow = useFlow(fetchPrice, {
+  polling: { interval: 5000 },
+});
+```
+
 ## 📚 More Resources
 
 - [Main README](../README.md)

@@ -176,6 +176,84 @@ const flow = useFlow(async () => {
 return <progress value={flow.progress} max="100" />;
 ```
 
+## Advanced Orchestration
+
+### `useFlowSequence`
+
+Run multiple flows in a specific order with aggregate state and progress.
+
+```tsx
+import { useFlowSequence } from "@asyncflowstate/react";
+
+const sequence = useFlowSequence([
+  { name: "Upload", flow: uploadFlow },
+  { name: "Process", flow: processFlow, mapInput: (file) => file.id },
+]);
+
+return (
+  <div>
+    <button onClick={() => sequence.execute()}>Start</button>
+    <p>Status: {sequence.status}</p>
+    <p>Step: {sequence.currentStep?.name}</p>
+    <progress value={sequence.progress} max="100" />
+  </div>
+);
+```
+
+### `useFlowList`
+
+Manage multiple independent instances of the same action (e.g., list items).
+
+```tsx
+import { useFlowList } from "@asyncflowstate/react";
+
+const list = useFlowList(deleteItem);
+
+return items.map((item) => (
+  <button
+    key={item.id}
+    disabled={list.getStatus(item.id).status === "loading"}
+    onClick={() => list.execute(item.id, item.id)}
+  >
+    Delete
+  </button>
+));
+```
+
+## Monitoring & Notifications
+
+### `FlowDebugger`
+
+A drop-in component to visualize all async flow activity in real-time.
+
+```tsx
+import { FlowDebugger } from "@asyncflowstate/react";
+
+function App() {
+  return (
+    <>
+      <Main />
+      <FlowDebugger />
+    </>
+  );
+}
+```
+
+### `FlowNotificationProvider`
+
+Catch success or error events from ANY flow globally.
+
+```tsx
+import { FlowNotificationProvider } from "@asyncflowstate/react";
+
+<FlowNotificationProvider
+  onSuccess={(e) => toast.success(`${e.flowName} completed!`)}
+  onError={(e) => toast.error(`${e.flowName} failed: ${e.state.error.message}`)}
+>
+  <App />
+</FlowNotificationProvider>;
+```
+
 ## API Reference
 
 ### `useFlow<TData, TError, TArgs>(action, options?)`

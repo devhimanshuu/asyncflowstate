@@ -153,13 +153,38 @@ class Flow {
 -startAutoProgress()
 -restorePersistedData()
 -persistData(data)
++startPolling()
++stopPolling()
++emit(event)
 }
 class FlowState {
 +status : FlowStatus
 +data : TData
 +error : TError
 +progress : number
-}
++}
++class PollingOptions {
++interval : number
++enabled : boolean
++stopIf : (data)=>boolean
++stopOnError : boolean
++}
++class FlowOptions {
++polling : PollingOptions
++precondition : ()=>boolean
++onBlocked : ()=>void
++debugName : string
++}
++class FlowSequence {
+++constructor(steps, options)
+++execute()
+++cancel()
+++reset()
+++status
+++progress
++}
++Flow --> PollingOptions : "uses"
++Flow --> FlowSequence : "part of"
 class RetryOptions {
 +maxAttempts : number
 +delay : number
@@ -265,6 +290,18 @@ Retry logic with backoff
 - delay: Base delay between attempts.
 - backoff: fixed, linear, exponential.
 - shouldRetry: Optional predicate to decide retry per error/attempt.
+
+Polling
+
+- interval: Number of milliseconds between polls.
+- enabled: Whether polling is active.
+- stopIf: Predicate to stop polling based on data.
+- stopOnError: Whether to stop polling on error.
+
+Preconditions
+
+- precondition: Function returning boolean to gate execution.
+- onBlocked: Callback when precondition fails.
 
 **Section sources**
 

@@ -103,6 +103,58 @@ const flow = new Flow(async () => {
 console.log(flow.progress); // 50
 ```
 
+### Polling
+
+Automatically re-execute the action at a fixed interval.
+
+```typescript
+const flow = new Flow(fetchPrice, {
+  polling: {
+    interval: 5000, // Every 5 seconds
+    stopIf: (data) => data.isClosed, // Stop when condition met
+    stopOnError: true,
+  },
+});
+
+flow.execute(); // Starts execution and subsequent polls
+```
+
+### Preconditions
+
+Prevent execution based on custom logic.
+
+```typescript
+const flow = new Flow(saveData, {
+  precondition: () => isAuthenticated(),
+  onBlocked: () => redirectToLogin(),
+});
+```
+
+### FlowSequence
+
+Run multiple flows in order with shared state.
+
+```typescript
+import { FlowSequence } from "@asyncflowstate/core";
+
+const sequence = new FlowSequence([
+  { name: "Auth", flow: loginFlow },
+  { name: "Fetch", flow: dataFlow, mapInput: (auth) => auth.token },
+]);
+
+await sequence.execute();
+```
+
+### Event System (Debugger Support)
+
+Subscribe to global events for monitoring or logging.
+
+```typescript
+const cleanup = Flow.onEvent((event) => {
+  console.log(`${event.flowName}: ${event.type}`, event.state);
+});
+```
+
 ## API Reference
 
 ### `Flow<TData, TError, TArgs>`
