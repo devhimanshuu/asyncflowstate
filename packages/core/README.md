@@ -194,4 +194,4 @@ const cleanup = Flow.onEvent((event) => {
 
 ## License
 
-MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowstate)
+MIT © [AsyncFlowState Contributors](https://github.com/asyncflowstate/asyncflowstate)

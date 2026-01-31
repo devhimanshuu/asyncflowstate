@@ -4,7 +4,7 @@
 
 Eliminate boilerplate and bugs in async interactions. Built for React, works everywhere.
 
-[![Tests](https://github.com/devhimanshuu/asyncflowstate/actions/workflows/test.yml/badge.svg)](https://github.com/devhimanshuu/asyncflowstate/actions)
+[![Tests](https://github.com/asyncflowstate/asyncflowstate/actions/workflows/test.yml/badge.svg)](https://github.com/asyncflowstate/asyncflowstate/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
