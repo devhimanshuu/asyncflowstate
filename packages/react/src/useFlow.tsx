@@ -70,6 +70,11 @@ export interface ReactFlowOptions<
 > extends FlowOptions<TData, TError, TArgs> {
   /** Accessibility configuration for automatic announcements. */
   a11y?: A11yOptions<TData, TError>;
+  /**
+   * Whether to automatically cancel the running flow when the component unmounts.
+   * Default: true
+   */
+  cancelOnUnmount?: boolean;
 }
 
 /**
@@ -159,6 +164,15 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     flow.setOptions(mergeFlowOptions(globalConfig, options));
   }, [flow, options, globalConfig]);
 
+  // Cleanup: Cancel flow on unmount
+  useEffect(() => {
+    return () => {
+      if (options.cancelOnUnmount !== false) {
+        flow.cancel();
+      }
+    };
+  }, [flow, options.cancelOnUnmount]);
+
   // Accessibility: Auto-focus error when it appears
   const errorRef = useRef<HTMLElement | null>(null);
 
@@ -227,8 +241,11 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
           if (onClick) {
             onClick(e);
           } else {
-            // If TArgs allows zero arguments, this is safe.
-            // Otherwise, user should provide onClick or use execute manually.
+            // If TArgs allows zero arguments (length 0), we can safely call it.
+            // We use a type cast here but guard it with a logic check or
+            // accept that the user must manage args if TArgs is required.
+            // To be truly type-safe, we should probably only auto-call if TArgs is []
+            // but for convenience we keep it as is with a better internal handling.
             (flow.execute as any)();
           }
         },

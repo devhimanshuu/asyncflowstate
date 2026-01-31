@@ -753,4 +753,141 @@ describe("Flow Core", () => {
       });
     });
   });
+
+  describe("Polling", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("should poll at specified interval", async () => {
+      let count = 0;
+      const action = vi.fn().mockImplementation(async () => {
+        count++;
+        return count;
+      });
+
+      const flow = new Flow(action, {
+        polling: { interval: 1000 },
+      });
+
+      flow.execute();
+      await vi.advanceTimersByTimeAsync(10); // First execution
+      expect(count).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(1000); // Wait for poll
+      expect(count).toBe(2);
+
+      await vi.advanceTimersByTimeAsync(1000); // Another poll
+      expect(count).toBe(3);
+
+      flow.stopPolling();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(count).toBe(3);
+    });
+
+    it("should stop polling if stopIf condition is met", async () => {
+      let count = 0;
+      const action = vi.fn().mockImplementation(async () => {
+        count++;
+        return count;
+      });
+
+      const flow = new Flow(action, {
+        polling: {
+          interval: 1000,
+          stopIf: (data) => data >= 3,
+        },
+      });
+
+      flow.execute();
+      await vi.advanceTimersByTimeAsync(10);
+      expect(count).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(2000); // 2 more polls
+      expect(count).toBe(3);
+
+      await vi.advanceTimersByTimeAsync(1000); // Should have stopped
+      expect(count).toBe(3);
+    });
+
+    it("should stop polling on error by default", async () => {
+      let count = 0;
+      const action = vi.fn().mockImplementation(async () => {
+        count++;
+        if (count === 2) throw new Error("fail");
+        return count;
+      });
+
+      const flow = new Flow(action, {
+        polling: { interval: 1000 },
+      });
+
+      flow.execute();
+      await vi.advanceTimersByTimeAsync(10);
+      expect(count).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(1000); // Fails
+      expect(flow.status).toBe("error");
+
+      await vi.advanceTimersByTimeAsync(1000); // Should not poll again
+      expect(count).toBe(2);
+    });
+  });
+
+  describe("Debugger & Events", () => {
+    it("should emit events on lifecycle changes", async () => {
+      const events: any[] = [];
+      const cleanup = Flow.onEvent((e) => events.push(e));
+
+      const flow = new Flow(async () => "done", { debugName: "TestFlow" });
+      await flow.execute();
+
+      expect(events).toContainEqual(
+        expect.objectContaining({ type: "start", flowName: "TestFlow" }),
+      );
+      expect(events).toContainEqual(
+        expect.objectContaining({ type: "success", flowName: "TestFlow" }),
+      );
+
+      flow.reset();
+      expect(events).toContainEqual(
+        expect.objectContaining({ type: "reset", flowName: "TestFlow" }),
+      );
+
+      cleanup();
+    });
+  });
+
+  describe("Preconditions", () => {
+    it("should block execution if precondition fails", async () => {
+      const action = vi.fn().mockResolvedValue("ok");
+      const onBlocked = vi.fn();
+      const flow = new Flow(action, {
+        precondition: () => false,
+        onBlocked,
+      });
+
+      const result = await flow.execute();
+
+      expect(result).toBeUndefined();
+      expect(action).not.toHaveBeenCalled();
+      expect(onBlocked).toHaveBeenCalled();
+    });
+
+    it("should allow execution if precondition passes", async () => {
+      const action = vi.fn().mockResolvedValue("ok");
+      const flow = new Flow(action, {
+        precondition: () => true,
+      });
+
+      await flow.execute();
+
+      expect(action).toHaveBeenCalled();
+      expect(flow.status).toBe("success");
+    });
+  });
 });

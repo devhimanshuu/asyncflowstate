@@ -5,6 +5,7 @@ import {
   PROGRESS,
   BACKOFF_MULTIPLIER,
 } from "./constants";
+import { getStorage, restoreData, persistData, clearData } from "./storage";
 
 /**
  * Status of the flow.
@@ -14,6 +15,30 @@ import {
  * - `error`: Action failed after all retry attempts.
  */
 export type FlowStatus = "idle" | "loading" | "success" | "error";
+
+/**
+ * Types of events emitted by a Flow instance.
+ */
+export type FlowEventType =
+  | "start"
+  | "success"
+  | "error"
+  | "retry"
+  | "cancel"
+  | "reset"
+  | "progress"
+  | "blocked";
+
+/**
+ * An event emitted for debugging purposes.
+ */
+export interface FlowEvent {
+  type: FlowEventType;
+  flowName: string;
+  timestamp: number;
+  state: FlowState;
+  payload?: any;
+}
 
 /**
  * The internal state of a Flow instance.
@@ -113,6 +138,8 @@ export interface FlowOptions<
   onCancel?: () => void;
   /** Callback fired after either success or error (like finally) */
   onSettled?: (data: TData | null, error: TError | null) => void;
+  /** Callback fired when a precondition fails */
+  onBlocked?: () => void;
   /** Configuration for automatic retries */
   retry?: RetryOptions;
   /** Configuration for automatic state reset after success */
@@ -199,6 +226,29 @@ export interface FlowOptions<
    * Storage type for persistence. Default is 'local'.
    */
   persistStorage?: "local" | "session";
+  /**
+   * Configuration for automatic polling.
+   */
+  polling?: {
+    /** Interval in milliseconds between poll attempts. */
+    interval: number;
+    /** Whether polling is enabled. Default is true if interval is provided. */
+    enabled?: boolean;
+    /** Optional function to determine when to stop polling based on the result. */
+    stopIf?: (data: TData) => boolean;
+    /** Optional function to determine if polling should stop on error. Default is true. */
+    stopOnError?: boolean;
+  };
+  /**
+   * Optional name for debugging purposes.
+   */
+  debugName?: string;
+  /**
+   * Optional function to determine if the action should be allowed to execute.
+   * If it returns false (or a Promise that resolves to false), execute() will
+   * be blocked and onBlocked() will be called.
+   */
+  precondition?: () => boolean | Promise<boolean>;
 }
 
 /**
@@ -272,6 +322,25 @@ export interface FlowOptions<
  * ```
  */
 export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
+  // --- Debugger Support ---
+  private static eventListeners = new Set<(event: FlowEvent) => void>();
+
+  public static onEvent(listener: (event: FlowEvent) => void): () => void {
+    this.eventListeners.add(listener);
+    return () => this.eventListeners.delete(listener);
+  }
+
+  private emit(type: FlowEventType, payload?: any): void {
+    const event: FlowEvent = {
+      type,
+      flowName: this.options.debugName || "Unnamed Flow",
+      timestamp: Date.now(),
+      state: this.state,
+      payload,
+    };
+    Flow.eventListeners.forEach((l) => l(event));
+  }
+
   // --- Core State ---
   private _state: FlowState<TData, TError> = {
     status: "idle",
@@ -295,6 +364,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private _isDelayingLoading = false;
   private autoResetTimer: ReturnType<typeof setTimeout> | null = null;
   private progressTimer: ReturnType<typeof setTimeout> | null = null;
+  private pollingTimer: ReturnType<typeof setTimeout> | null = null;
 
   // --- Concurrency Management ---
   private queue: {
@@ -333,7 +403,17 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     private options: FlowOptions<TData, TError, TArgs> = {},
   ) {
     if (this.options.persistKey) {
-      this.restorePersistedData();
+      const storage = getStorage(this.options.persistStorage);
+      const data = restoreData<TData>(this.options.persistKey, storage);
+      if (data) {
+        this._state = {
+          ...this._state,
+          status: "success",
+          data,
+          progress: PROGRESS.COMPLETE,
+        };
+        this.hasRestoredState = true;
+      }
     }
   }
 
@@ -463,7 +543,24 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.abortController = null;
     }
     this.setState({ status: "idle", error: null, progress: PROGRESS.INITIAL });
+    this.emit("cancel");
     this.options.onCancel?.();
+  }
+
+  /**
+   * Starts polling if configured.
+   * @param args Arguments to pass to each execute call.
+   */
+  public startPolling(...args: TArgs): void {
+    if (!this.options.polling || this.options.polling.enabled === false) return;
+    this.scheduleNextPoll(args);
+  }
+
+  /**
+   * Stops any active polling.
+   */
+  public stopPolling(): void {
+    this.clearTimer("pollingTimer");
   }
 
   /**
@@ -483,9 +580,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       error: null,
       progress: PROGRESS.INITIAL,
     });
+    this.emit("reset");
 
     if (this.options.persistKey) {
-      this.clearPersistedData();
+      clearData(
+        this.options.persistKey,
+        getStorage(this.options.persistStorage),
+      );
     }
   }
 
@@ -518,6 +619,16 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * ```
    */
   public async execute(...args: TArgs): Promise<TData | undefined> {
+    // Check Precondition
+    if (this.options.precondition) {
+      const allowed = await this.options.precondition();
+      if (!allowed) {
+        this.emit("blocked");
+        this.options.onBlocked?.();
+        return undefined;
+      }
+    }
+
     const { debounce, throttle } = this.options;
 
     // 1. Handle Debounce
@@ -563,6 +674,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     const currentSignal = this.abortController.signal;
 
     // Fire onStart lifecycle hook
+    this.emit("start", { args });
     this.options.onStart?.(args);
 
     // Set up timeout if configured
@@ -586,16 +698,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       let optimisticData: TData;
       const optimisticConfig = this.options.optimisticResult;
 
-      // Check if it's a function by verifying it's callable
-      if (
-        typeof optimisticConfig === "function" &&
-        "call" in optimisticConfig
-      ) {
-        // It's a function - call it with prevData and args
-        optimisticData = (optimisticConfig as Function)(
-          this._state.data,
-          args,
-        ) as TData;
+      // Check if it's a function
+      if (typeof optimisticConfig === "function") {
+        optimisticData = (
+          optimisticConfig as (prevData: TData | null, args: TArgs) => TData
+        )(this._state.data, args);
       } else {
         // It's a static value
         optimisticData = optimisticConfig as TData;
@@ -714,6 +821,17 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
         this.scheduleAutoReset();
         this.processEnqueuedTasks();
 
+        // Handle Polling
+        if (
+          this.options.polling?.enabled !== false &&
+          this.options.polling?.interval
+        ) {
+          const shouldStop = this.options.polling.stopIf?.(data);
+          if (!shouldStop) {
+            this.scheduleNextPoll(args);
+          }
+        }
+
         return data;
       } catch (error) {
         // Check if this was a timeout abort
@@ -741,6 +859,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           this.options.onSettled?.(null, timeoutError);
           this.finalizeLoading();
           this.processEnqueuedTasks();
+
+          // Handle polling stop on error
+          if (this.options.polling?.stopOnError !== false) {
+            this.stopPolling();
+          }
           return;
         }
 
@@ -803,10 +926,16 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
           this.finalizeLoading();
           this.processEnqueuedTasks();
+
+          // Handle polling stop on error
+          if (this.options.polling?.stopOnError !== false) {
+            this.stopPolling();
+          }
           return;
         }
 
         // Fire onRetry lifecycle hook
+        this.emit("retry", { attempt, maxAttempts, error: finalError });
         this.options.onRetry?.(finalError, attempt, maxAttempts);
         await this.delayRetry(attempt);
       }
@@ -948,6 +1077,16 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }
   }
 
+  private scheduleNextPoll(args: TArgs): void {
+    this.clearTimer("pollingTimer");
+    const interval = this.options.polling?.interval;
+    if (interval && interval > 0) {
+      this.pollingTimer = setTimeout(() => {
+        this.execute(...args);
+      }, interval);
+    }
+  }
+
   private startAutoProgress(): void {
     if (!this.options.autoProgress || this._state.status !== "loading") return;
 
@@ -979,67 +1118,6 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }, interval);
   }
 
-  // --- Persistence Helpers ---
-
-  private getStorage(): Storage | null {
-    try {
-      if (typeof window !== "undefined") {
-        return this.options.persistStorage === "session"
-          ? window.sessionStorage
-          : window.localStorage;
-      }
-    } catch {
-      // Ignore errors in environments without storage
-    }
-    return null;
-  }
-
-  private restorePersistedData(): void {
-    const storage = this.getStorage();
-    const key = this.options.persistKey;
-    if (!storage || !key) return;
-
-    try {
-      const stored = storage.getItem(key);
-      if (stored) {
-        const data = JSON.parse(stored) as TData;
-        this._state = {
-          ...this._state,
-          status: "success",
-          data,
-          progress: PROGRESS.COMPLETE,
-        };
-        this.hasRestoredState = true;
-      }
-    } catch (e) {
-      console.warn("Flow: Failed to restore persisted data", e);
-    }
-  }
-
-  private persistData(data: TData): void {
-    const storage = this.getStorage();
-    const key = this.options.persistKey;
-    if (!storage || !key) return;
-
-    try {
-      storage.setItem(key, JSON.stringify(data));
-    } catch (e) {
-      console.warn("Flow: Failed to persist data", e);
-    }
-  }
-
-  private clearPersistedData(): void {
-    const storage = this.getStorage();
-    const key = this.options.persistKey;
-    if (!storage || !key) return;
-
-    try {
-      storage.removeItem(key);
-    } catch (e) {
-      console.warn("Flow: Failed to clear persisted data", e);
-    }
-  }
-
   // --- Maintenance Helpers ---
 
   private setState(updates: Partial<FlowState<TData, TError>>): void {
@@ -1052,10 +1130,17 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this._state.data !== null &&
       this._state.data !== undefined
     ) {
-      this.persistData(this._state.data);
+      persistData(
+        this.options.persistKey,
+        this._state.data,
+        getStorage(this.options.persistStorage),
+      );
     }
 
     this.notify();
+    this.emit(
+      updates.status === "loading" ? "progress" : (updates.status as any),
+    );
   }
 
   private notify(): void {
@@ -1076,7 +1161,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       | "debounceTimer"
       | "throttleTimer"
       | "timeoutTimer"
-      | "progressTimer",
+      | "progressTimer"
+      | "pollingTimer",
   ): void {
     const timer = this[key];
     if (timer) {
@@ -1093,6 +1179,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.clearTimer("throttleTimer");
     this.clearTimer("timeoutTimer");
     this.clearTimer("progressTimer");
+    this.clearTimer("pollingTimer");
     this._isDelayingLoading = false;
     this.isTimeout = false;
   }
