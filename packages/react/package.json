@@ -2,7 +2,7 @@
   "name": "@asyncflowstate/react",
   "version": "1.0.0",
   "private": false,
-  "description": "React hooks and helpers for AsyncFlowState - elegant async UI behavior management",
+  "description": "Official React bindings for AsyncFlowState. Declarative hooks (useFlow, useFlowParallel) for managing async loading, error, and success states effortlessly.",
   "keywords": [
     "react",
     "hooks",
@@ -11,7 +11,15 @@
     "loading",
     "error-handling",
     "ux",
-    "useFlow"
+    "useFlow",
+    "react-hooks",
+    "nextjs",
+    "typescript",
+    "api-client",
+    "frontend",
+    "declarative-ui",
+    "component-logic",
+    "data-fetching"
   ],
   "author": "AsyncFlowState Contributors",
   "license": "MIT",

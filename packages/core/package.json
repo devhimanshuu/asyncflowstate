@@ -2,7 +2,7 @@
   "name": "@asyncflowstate/core",
   "version": "1.0.0",
   "private": false,
-  "description": "Framework-agnostic async UI behavior engine for controlling loading, success, and error states",
+  "description": "Framework-agnostic core for AsyncFlowState. A tiny, powerful engine to orchestrate complex async UI behaviors, retries, and optimistic updates.",
   "keywords": [
     "async",
     "state",
@@ -11,7 +11,17 @@
     "error-handling",
     "retry",
     "optimistic-ui",
-    "ux"
+    "ux",
+    "typescript",
+    "vanilla-js",
+    "state-machine",
+    "fsm",
+    "middleware",
+    "broadcast-channel",
+    "sync",
+    "logic",
+    "promise",
+    "orchestration"
   ],
   "author": "AsyncFlowState Contributors",
   "license": "MIT",

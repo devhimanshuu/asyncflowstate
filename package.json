@@ -1,7 +1,7 @@
 {
   "name": "asyncflowstate",
   "version": "1.0.0",
-  "description": "Async UI behavior orchestration engine for React and Next.js",
+  "description": "The ultimate async state manager for modern UIs. Eliminate `isLoading` boilerplate in React, Next.js, and vanilla JS with declarative flows.",
   "private": true,
   "keywords": [
     "async",
@@ -12,7 +12,16 @@
     "loading",
     "error-handling",
     "ux",
-    "ui"
+    "ui",
+    "typescript",
+    "javascript",
+    "data-fetching",
+    "state-management",
+    "async-await",
+    "promise",
+    "workflow",
+    "orchestrator",
+    "boilerplate-killer"
   ],
   "author": "AsyncFlowState Contributors",
   "license": "MIT",
