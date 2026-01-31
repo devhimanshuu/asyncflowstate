@@ -890,4 +890,48 @@ describe("Flow Core", () => {
       expect(flow.status).toBe("success");
     });
   });
+
+  describe("Middleware", () => {
+    it("should arbitrary attach global middleware", async () => {
+      const globalLog = vi.fn();
+      Flow.useGlobal({
+        onStart: globalLog,
+      });
+
+      const flow = new Flow(async () => "ok");
+      await flow.execute();
+
+      expect(globalLog).toHaveBeenCalled();
+    });
+
+    it("should execute instance middleware hooks", async () => {
+      const onStart = vi.fn();
+      const onSuccess = vi.fn();
+      const onSettled = vi.fn();
+
+      const flow = new Flow(async () => "ok", {
+        middleware: [{ onStart, onSuccess, onSettled }],
+      });
+
+      await flow.execute();
+
+      expect(onStart).toHaveBeenCalled();
+      expect(onSuccess).toHaveBeenCalledWith("ok");
+      expect(onSettled).toHaveBeenCalledWith("ok", null);
+    });
+
+    it("should execute middleware on error", async () => {
+      const onError = vi.fn();
+      const err = new Error("fail");
+
+      const flow = new Flow(async () => {
+        throw err;
+      });
+      flow.use({ onError });
+
+      await flow.execute();
+
+      expect(onError).toHaveBeenCalledWith(err);
+    });
+  });
 });

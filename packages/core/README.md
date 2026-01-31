@@ -145,6 +145,18 @@ const sequence = new FlowSequence([
 await sequence.execute();
 ```
 
+### FlowParallel
+
+Execute multiple flows in parallel with aggregate state. Supports `all`, `allSettled`, and `race` strategies.
+
+```typescript
+import { FlowParallel } from "@asyncflowstate/core";
+
+const parallel = new FlowParallel([widget1Flow, widget2Flow], "all");
+await parallel.execute();
+console.log(parallel.state.progress); // Average progress of all flows
+```
+
 ### Event System (Debugger Support)
 
 Subscribe to global events for monitoring or logging.

@@ -322,6 +322,7 @@ AsyncFlowState supports complex multi-step workflows where flows depend on each 
 
 - **Ordered Execution**: Steps run sequentially.
 - **Input Mapping**: Pass results from one step as input to the next.
+- **Dynamic Branching**: Skip steps (`skipIf`) or jump to specific steps (`nextStep`) based on runtime data.
 - **Aggregate State**: Monitor the progress and status of the entire sequence.
 
 #### Flow Lists (useFlowList)

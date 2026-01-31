@@ -202,6 +202,7 @@ function App() {
 
 - **🌐 Global Config:** Set default options app-wide with `FlowProvider`.
 - **⛓️ Sequential Flows:** Orchestrate complex multi-step workflows with `FlowSequence`.
+- **⚡ Parallel Flows:** Run multiple flows simultaneously with aggregate state via `FlowParallel`.
 - **📋 Flow Lists:** Manage multiple independent instances of the same action with `useFlowList`.
 - **⏲️ Declarative Polling:** Built-in support for auto-refreshing actions with conditions.
 - **� Visual Debugger:** Real-time timeline of all async activity in your app with `FlowDebugger`.

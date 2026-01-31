@@ -183,8 +183,20 @@ class FlowState {
 ++status
 ++progress
 +}
++class FlowMiddleware {
++onStart : (args) => void
++onSuccess : (data) => void
++onError : (error) => void
++onSettled : (data, error) => void
+ }
++class SyncOptions {
++channel : string
++syncLoading : boolean
++}
 +Flow --> PollingOptions : "uses"
 +Flow --> FlowSequence : "part of"
++Flow --> FlowMiddleware : "uses"
++Flow --> SyncOptions : "uses"
 class RetryOptions {
 +maxAttempts : number
 +delay : number
@@ -277,6 +289,17 @@ Success Persistence (Lightweight Caching)
 
 - persistKey: If provided, data is saved to storage on success and re-hydrated on initialization.
 - persistStorage: 'local' (default) or 'session'.
+
+Middleware & Interceptors
+
+- `use(middleware)`: Register local middleware for a specific flow.
+- `useGlobal(middleware)`: Register global middleware for all flows.
+- Hooks: `onStart`, `onSuccess`, `onError`, `onSettled`.
+
+Cross-Tab Synchronization
+
+- `sync`: Configure `channel` to synchronize flow state across browser tabs.
+- Uses `BroadcastChannel` API to keep multiple tabs in sync.
 
 Enhanced Progress Simulation
 
@@ -623,6 +646,26 @@ Common issues and resolutions:
   - Ensure the action resolves successfully; errors do not replace optimistic data.
 - Cancellation not working:
   - Use cancel() to abort; note that cancellation stops future state updates but does not interrupt already-started promises.
+
+## Testing Utilities
+
+The core package exports `createMockFlow` to help test components that consume flows.
+
+```typescript
+import { createMockFlow } from "@asyncflowstate/core";
+
+// 1. Create a controlled flow
+const { flow, resolve, reject } = createMockFlow();
+
+// 2. Pass it to your component
+render(<MyComponent flow={flow} />);
+
+// 3. Simulate events
+await act(async () => {
+  flow.execute(); // Sets status to 'loading'
+  resolve({ id: 123 }); // Sets status to 'success'
+});
+```
 
 **Section sources**
 

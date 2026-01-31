@@ -119,6 +119,20 @@ export interface LoadingOptions {
 }
 
 /**
+ * Middleware interface for intercepting flow lifecycle events.
+ */
+export interface FlowMiddleware<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+> {
+  onStart?: (args: TArgs) => void;
+  onSuccess?: (data: TData) => void;
+  onError?: (error: TError) => void;
+  onSettled?: (data: TData | null, error: TError | null) => void;
+}
+
+/**
  * Configuration options for a Flow instance.
  */
 export interface FlowOptions<
@@ -140,6 +154,10 @@ export interface FlowOptions<
   onSettled?: (data: TData | null, error: TError | null) => void;
   /** Callback fired when a precondition fails */
   onBlocked?: () => void;
+  /**
+   * Middleware hooks to intercept lifecycle events.
+   */
+  middleware?: FlowMiddleware<TData, TError, TArgs>[];
   /** Configuration for automatic retries */
   retry?: RetryOptions;
   /** Configuration for automatic state reset after success */
@@ -238,6 +256,15 @@ export interface FlowOptions<
     stopIf?: (data: TData) => boolean;
     /** Optional function to determine if polling should stop on error. Default is true. */
     stopOnError?: boolean;
+  };
+  /**
+   * Configuration for cross-tab synchronization.
+   */
+  sync?: {
+    /** Unique channel name to broadcast state changes to other tabs. */
+    channel: string;
+    /** Whether to sync loading states (can be noisy). Default: true. */
+    syncLoading?: boolean;
   };
   /**
    * Optional name for debugging purposes.
@@ -384,6 +411,30 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
   private isTimeout = false;
 
+  // --- Middleware ---
+  private middlewares: FlowMiddleware<TData, TError, TArgs>[] = [];
+  private static globalMiddlewares: FlowMiddleware[] = [];
+
+  // --- Sync State ---
+  private bc: BroadcastChannel | null = null;
+  private isProcessingSync = false;
+
+  /**
+   * Registers a global middleware that applies to ALL Flow instances.
+   * @param middleware The middleware to register.
+   */
+  public static useGlobal(middleware: FlowMiddleware): void {
+    Flow.globalMiddlewares.push(middleware);
+  }
+
+  /**
+   * Registers a middleware for this Flow instance.
+   * @param middleware The middleware to register.
+   */
+  public use(middleware: FlowMiddleware<TData, TError, TArgs>): void {
+    this.middlewares.push(middleware);
+  }
+
   /**
    * Creates a new Flow instance.
    *
@@ -402,6 +453,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     private action: FlowAction<TData, TArgs>,
     private options: FlowOptions<TData, TError, TArgs> = {},
   ) {
+    if (options.middleware) {
+      this.middlewares.push(...options.middleware);
+    }
     if (this.options.persistKey) {
       const storage = getStorage(this.options.persistStorage);
       const data = restoreData<TData>(this.options.persistKey, storage);
@@ -414,6 +468,12 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
         };
         this.hasRestoredState = true;
       }
+    }
+
+    // Initialize Sync
+    if (this.options.sync?.channel && typeof BroadcastChannel !== "undefined") {
+      this.bc = new BroadcastChannel(this.options.sync.channel);
+      this.bc.onmessage = this.handleSyncMessage.bind(this);
     }
   }
 
@@ -433,6 +493,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    */
   public setOptions(options: FlowOptions<TData, TError, TArgs>): void {
     this.options = { ...this.options, ...options };
+    if (options.middleware) {
+      this.middlewares.push(...options.middleware);
+    }
   }
 
   // --- Getters ---
@@ -676,6 +739,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     // Fire onStart lifecycle hook
     this.emit("start", { args });
     this.options.onStart?.(args);
+    this.runMiddleware("onStart", args);
 
     // Set up timeout if configured
     if (this.options.timeout && this.options.timeout > 0) {
@@ -781,6 +845,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           }
 
           this.options.onError?.(timeoutError);
+          this.runMiddleware("onError", timeoutError);
           this.finalizeLoading();
           this.processEnqueuedTasks();
         }
@@ -812,7 +877,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
         this.options.onSuccess?.(data);
+        this.runMiddleware("onSuccess", data);
         this.options.onSettled?.(data, null);
+        this.runMiddleware("onSettled", data, null);
 
         // Clear snapshot on successful completion
         this.previousDataSnapshot = null;
@@ -856,7 +923,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           }
 
           this.options.onError?.(timeoutError);
+          this.runMiddleware("onError", timeoutError);
           this.options.onSettled?.(null, timeoutError);
+          this.runMiddleware("onSettled", null, timeoutError);
           this.finalizeLoading();
           this.processEnqueuedTasks();
 
@@ -922,7 +991,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           }
 
           this.options.onError?.(finalError);
+          this.runMiddleware("onError", finalError);
           this.options.onSettled?.(null, finalError);
+          this.runMiddleware("onSettled", null, finalError);
 
           this.finalizeLoading();
           this.processEnqueuedTasks();
@@ -1082,7 +1153,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     const interval = this.options.polling?.interval;
     if (interval && interval > 0) {
       this.pollingTimer = setTimeout(() => {
-        this.execute(...args);
+        this.internalExecute(args);
       }, interval);
     }
   }
@@ -1118,6 +1189,40 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }, interval);
   }
 
+  private runMiddleware(hook: keyof FlowMiddleware, ...args: any[]): void {
+    const allMiddlewares = [...Flow.globalMiddlewares, ...this.middlewares];
+
+    allMiddlewares.forEach((mw) => {
+      const fn = mw[hook];
+      if (typeof fn === "function") {
+        try {
+          (fn as Function)(...args);
+        } catch (err) {
+          console.error(`Flow: Middleware error in ${hook}`, err);
+        }
+      }
+    });
+  }
+
+  private handleSyncMessage(event: MessageEvent): void {
+    if (!event.data || typeof event.data !== "object") return;
+    const { type, state } = event.data;
+
+    // Only accept state sync messages
+    if (type !== "FLOW_SYNC" || !state) return;
+
+    this.isProcessingSync = true;
+    this.setState({
+      ...state,
+      // Ensure we don't sync functions or sensitive internal state accidentally if they existed
+      status: state.status,
+      data: state.data,
+      error: state.error,
+      progress: state.progress,
+    });
+    this.isProcessingSync = false;
+  }
+
   // --- Maintenance Helpers ---
 
   private setState(updates: Partial<FlowState<TData, TError>>): void {
@@ -1141,6 +1246,22 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.emit(
       updates.status === "loading" ? "progress" : (updates.status as any),
     );
+
+    // Sync across tabs
+    if (this.bc && !this.isProcessingSync) {
+      // Avoid syncing high-frequency loading updates if disabled
+      if (
+        updates.status === "loading" &&
+        this.options.sync?.syncLoading === false
+      ) {
+        return;
+      }
+
+      this.bc.postMessage({
+        type: "FLOW_SYNC",
+        state: this._state,
+      });
+    }
   }
 
   private notify(): void {

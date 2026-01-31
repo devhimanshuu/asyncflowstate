@@ -9,6 +9,14 @@ export interface SequenceStep<TInput = any, TOutput = any> {
    * into the input for this step.
    */
   mapInput?: (prevResult: any) => TInput;
+  /**
+   * Optional function to skip this step based on previous result.
+   */
+  skipIf?: (prevResult: any) => boolean;
+  /**
+   * Optional function to determine the next step by name.
+   */
+  nextStep?: (result: any) => string | null | undefined;
 }
 
 export interface SequenceState {
@@ -68,6 +76,13 @@ export class FlowSequence {
 
     for (let i = 0; i < this.steps.length; i++) {
       const step = this.steps[i];
+
+      // Check skip condition
+      if (step.skipIf && step.skipIf(lastResult)) {
+        allResults.push(null); // Placeholder for skipped step
+        continue;
+      }
+
       this.setState({ currentStepIndex: i });
 
       try {
@@ -83,6 +98,23 @@ export class FlowSequence {
 
         const progress = ((i + 1) / this.steps.length) * 100;
         this.setState({ progress, results: [...allResults] });
+
+        // Handle branching
+        if (step.nextStep) {
+          const nextStepName = step.nextStep(result);
+          if (nextStepName) {
+            const nextIndex = this.steps.findIndex(
+              (s) => s.name === nextStepName,
+            );
+            if (nextIndex !== -1 && nextIndex > i) {
+              // Fill skipped steps with null
+              for (let k = i + 1; k < nextIndex; k++) {
+                allResults.push(null);
+              }
+              i = nextIndex - 1; // Loop increment will make it nextIndex
+            }
+          }
+        }
       } catch (error) {
         this.setState({ status: "error", error });
         return undefined;

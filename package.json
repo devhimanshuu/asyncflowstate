@@ -41,7 +41,7 @@
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -65,8 +65,5 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
-  },
-  "dependencies": {
-    "pnpm": "^10.28.2"
   }
 }

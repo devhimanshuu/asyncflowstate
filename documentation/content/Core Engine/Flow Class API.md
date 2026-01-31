@@ -15,6 +15,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -27,9 +28,11 @@
 10. [Appendices](#appendices)
 
 ## Introduction
+
 This document provides comprehensive API documentation for the Flow class, the core engine of AsyncFlowState. It covers the constructor interface, all public methods and getters, TypeScript generics, error handling patterns, and integration with various async operations. It also includes usage patterns, method chaining examples, and guidance for different data types and error scenarios.
 
 ## Project Structure
+
 The Flow class resides in the core package and is designed to be framework-agnostic. It exposes a minimal TypeScript API surface with strong typing for data and error types, and integrates with optional utilities for error categorization and retry decisions.
 
 ```mermaid
@@ -54,6 +57,7 @@ RPE --> F
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L223)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L207)
@@ -63,12 +67,14 @@ RPE --> F
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L1-L368)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L207)
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 
 ## Core Components
+
 - Flow<TData, TError, TArgs>: The central orchestrator for async actions, managing state transitions, retries, concurrency, and UX controls.
 - FlowState<TData, TError>: Immutable snapshot of the current state including status, data, error, and progress.
 - FlowOptions<TData, TError>: Configuration for callbacks, retries, auto-reset, loading UX, concurrency, and optimistic updates.
@@ -77,13 +83,16 @@ RPE --> F
 - Error utilities: Helpers to create and categorize FlowError instances.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L16-L127)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L8-L79)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L50)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L206)
 
 ## Architecture Overview
+
 The Flow class encapsulates the execution lifecycle of an async action. It manages:
+
 - State transitions: idle → loading → success/error
 - Retries with configurable delay and backoff
 - Concurrency control: keep, restart, enqueue
@@ -143,7 +152,23 @@ class LoadingOptions {
 +minDuration number?
 +delay number?
 }
+class Middleware {
++onStart?
++onSuccess?
++onError?
++onSettled?
+}
+class SyncOptions {
++channel string
++syncLoading boolean?
+}
 Flow --> FlowState : "manages"
+Flow --> FlowOptions : "configured by"
+FlowOptions --> RetryOptions : "has"
+FlowOptions --> AutoResetOptions : "has"
+FlowOptions --> LoadingOptions : "has"
+FlowOptions --> Middleware : "has list of"
+FlowOptions --> SyncOptions : "has"
 Flow --> FlowOptions : "configured by"
 FlowOptions --> RetryOptions : "has"
 FlowOptions --> AutoResetOptions : "has"
@@ -151,12 +176,14 @@ FlowOptions --> LoadingOptions : "has"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L223)
 - [flow.ts](file://packages/core/src/flow.ts#L21-L127)
 
 ## Detailed Component Analysis
 
 ### Constructor: new Flow<TData, TError, TArgs>(action, options?)
+
 - Purpose: Initializes a Flow instance with an async action and optional configuration.
 - Parameters:
   - action: FlowAction<TData, TArgs> — the async function to orchestrate.
@@ -170,15 +197,18 @@ FlowOptions --> LoadingOptions : "has"
   - Options are merged at runtime via setOptions.
 
 Usage patterns:
+
 - Basic instantiation with an async function.
 - Passing onSuccess/onError callbacks.
 - Configuring retry, autoReset, loading UX, concurrency, debounce/throttle, and optimisticResult.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L220-L223)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L98-L105)
 
 ### Method: setOptions(options)
+
 - Purpose: Merge new options into the existing configuration at runtime.
 - Parameters:
   - options: FlowOptions<TData, TError> — partial options to update.
@@ -187,15 +217,33 @@ Usage patterns:
 - Typical use cases:
   - Dynamically changing retry strategy.
   - Updating callbacks or UX settings.
+- Method chaining:
+  - setOptions returns void; chain it with other methods by calling them in sequence.
 
-Method chaining:
+### Method: use(middleware)
+
+- Purpose: Register a middleware object for this flow instance.
+- Parameters:
+  - middleware: FlowMiddleware — object with optional hooks (onStart, onSuccess, onError, onSettled).
+- Behavior:
+  - Adds the middleware to the execution chain.
+  - Middlewares run in order of registration.
+
+### Static Method: Flow.useGlobal(middleware)
+
+- Purpose: Register a middleware that runs for ALL Flow instances.
+- Use cases:
+  - Global error logging.
+  - Analytics tracking.
 - setOptions returns void; chain it with other methods by calling them in sequence.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L239-L241)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L107-L109)
 
 ### Method: execute(...args)
+
 - Purpose: Executes the underlying action with argument forwarding and concurrency control.
 - Parameters:
   - args: TArgs — forwarded to the action function.
@@ -214,15 +262,18 @@ Method chaining:
   - Throttle: Executes immediately if cooldown elapsed; otherwise queues and executes later.
 
 Method chaining:
+
 - execute returns a Promise; chain with .then/.catch or await.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L400-L415)
 - [flow.ts](file://packages/core/src/flow.ts#L425-L473)
 - [flow.ts](file://packages/core/src/flow.ts#L537-L585)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L160-L164)
 
 ### Method: subscribe(listener)
+
 - Purpose: Registers a listener for state change notifications.
 - Parameters:
   - listener: (state: FlowState<TData, TError>) => void — invoked on each state change.
@@ -236,13 +287,16 @@ Method chaining:
   - Avoid heavy work inside listeners; prefer lightweight updates.
 
 Method chaining:
+
 - subscribe returns a function; chain by storing and invoking it later.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L148-L152)
 
 ### Method: cancel()
+
 - Purpose: Aborts the current execution and resets state to idle.
 - Behavior:
   - Clears timers and cancels via AbortController.
@@ -252,13 +306,16 @@ Method chaining:
   - Cleanup before unmounting.
 
 Method chaining:
+
 - cancel returns void; chain by calling other methods afterward.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L344-L351)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L156-L158)
 
 ### Method: reset()
+
 - Purpose: Resets state to idle regardless of current status.
 - Behavior:
   - Clears timers and resets state to initial values.
@@ -267,13 +324,16 @@ Method chaining:
   - Clearing stale data before reuse.
 
 Method chaining:
+
 - reset returns void; chain by calling other methods afterward.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L362-L370)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L167-L169)
 
 ### Method: setProgress(progress)
+
 - Purpose: Manually sets progress while loading.
 - Parameters:
   - progress: number — clamped between 0 and 100.
@@ -284,13 +344,16 @@ Method chaining:
   - Long-running tasks with known progress (e.g., uploads).
 
 Method chaining:
+
 - setProgress returns void; chain by calling other methods afterward.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L299-L305)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L144-L146)
 
 ### Getters: state, status, data, error, isLoading, isSuccess, isError, progress
+
 - state: Returns a shallow copy of the current FlowState.
 - status: Current FlowStatus ("idle" | "loading" | "success" | "error").
 - data: Last successful data or null.
@@ -301,14 +364,17 @@ Method chaining:
 - progress: Current progress percentage (0–100), defaults to 0.
 
 Notes:
+
 - isLoading respects loading.delay; during the delay window, status may be "loading" but isLoading is false.
 - progress is initially set to initial value and auto-completes on success.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L246-L286)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L111-L142)
 
 ### TypeScript Generics and Type Safety
+
 - TData: Type of the successful action result.
 - TError: Type of the error object thrown on failure.
 - TArgs: Tuple type of arguments passed to the action (inferred from FlowAction).
@@ -316,16 +382,19 @@ Notes:
 - FlowOptions<TData, TError>: Typed configuration for callbacks, retries, and UX.
 
 Usage tips:
+
 - Specify TData and TError explicitly when the action’s return type is not inferable.
 - Use TArgs to constrain action parameters for stricter validation.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L174)
 - [flow.ts](file://packages/core/src/flow.ts#L21-L30)
 - [flow.ts](file://packages/core/src/flow.ts#L99-L127)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L88)
 
 ### Error Handling Patterns
+
 - Built-in retry logic with configurable maxAttempts, delay, and backoff.
 - Optional shouldRetry predicate to decide retry eligibility per error and attempt.
 - Error categorization and retryability via createFlowError and helpers.
@@ -333,16 +402,20 @@ Usage tips:
 - FlowErrorType includes NETWORK, TIMEOUT, VALIDATION, PERMISSION, SERVER, UNKNOWN.
 
 Integration patterns:
+
 - Use createFlowError to normalize errors and pass to onError handlers.
 - Combine shouldRetry with error categorization for fine-grained retry policies.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L482-L533)
 - [flow.ts](file://packages/core/src/flow.ts#L603-L638)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L206)
 
 ### Integration with Async Operations
+
 Common scenarios:
+
 - API calls: Pass async functions that fetch, mutate, or stream data.
 - File uploads: Use setProgress to reflect upload progress.
 - Optimistic UI: Provide optimisticResult to immediately reflect changes.
@@ -350,6 +423,7 @@ Common scenarios:
 - Concurrency: Use restart to allow latest request to supersede older ones.
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L14-L38)
 - [core-examples.ts](file://examples/basic/core-examples.ts#L82-L111)
 - [core-examples.ts](file://examples/basic/core-examples.ts#L120-L144)
@@ -357,6 +431,7 @@ Common scenarios:
 - [core-examples.ts](file://examples/basic/core-examples.ts#L183-L203)
 
 ### Method Chaining Examples
+
 - Configure then execute:
   - new Flow(action, options).execute(...args)
 - Subscribe and execute:
@@ -369,13 +444,16 @@ Common scenarios:
 Note: Methods return void except execute (Promise) and subscribe (unsubscribe function).
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 - [flow.ts](file://packages/core/src/flow.ts#L400-L415)
 - [flow.ts](file://packages/core/src/flow.ts#L239-L241)
 - [flow.ts](file://packages/core/src/flow.ts#L362-L370)
 
 ## Dependency Analysis
+
 The Flow class depends on:
+
 - Constants for defaults (retry, loading UX, progress, backoff multipliers).
 - Error utilities for error categorization and retryability.
 - Internal timers and AbortController for UX and cancellation.
@@ -393,17 +471,20 @@ Flow --> Timer
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [flow.ts](file://packages/core/src/flow.ts#L672-L707)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L50)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L206)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L50)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L206)
 
 ## Performance Considerations
+
 - Debounce/throttle reduce redundant executions for frequent triggers (e.g., search input).
 - minDuration prevents UI flicker for fast operations; delay avoids showing spinners for instant actions.
 - Backoff strategies (fixed, linear, exponential) balance responsiveness and resilience.
@@ -412,7 +493,9 @@ Flow --> Timer
 [No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
+
 Common issues and resolutions:
+
 - Double submissions: Ensure concurrency is set appropriately; "keep" ignores concurrent calls, "restart" cancels and starts fresh.
 - Immediate UI flashes: Increase minDuration to ensure loading persists for a minimum time.
 - Spinner appears too early: Increase loading delay to hide spinners for fast operations.
@@ -421,6 +504,7 @@ Common issues and resolutions:
 - Cancellation not stopping work: AbortController cancels future state updates; long-running promises may still complete, but results are ignored.
 
 **Section sources**
+
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L87-L138)
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L292-L334)
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L336-L345)
@@ -428,6 +512,7 @@ Common issues and resolutions:
 - [flow.ts](file://packages/core/src/flow.ts#L646-L656)
 
 ## Conclusion
+
 The Flow class provides a robust, typed, and extensible foundation for orchestrating async UI behavior. Its comprehensive configuration, strong typing, and rich UX controls enable consistent and resilient async interactions across diverse applications and frameworks.
 
 [No sources needed since this section summarizes without analyzing specific files]
@@ -449,9 +534,11 @@ The Flow class provides a robust, typed, and extensible foundation for orchestra
   - state, status, data, error, isLoading, isSuccess, isError, progress
 
 **Section sources**
+
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L176)
 
 ### Example Usage References
+
 - Basic examples: [core-examples.ts](file://examples/basic/core-examples.ts#L14-L38), [core-examples.ts](file://examples/basic/core-examples.ts#L44-L73), [core-examples.ts](file://examples/basic/core-examples.ts#L82-L111), [core-examples.ts](file://examples/basic/core-examples.ts#L120-L144), [core-examples.ts](file://examples/basic/core-examples.ts#L150-L177), [core-examples.ts](file://examples/basic/core-examples.ts#L183-L203)
 - React examples: [react-examples.tsx](file://examples/react/react-examples.tsx#L14-L87), [react-examples.tsx](file://examples/react/react-examples.tsx#L100-L128), [react-examples.tsx](file://examples/react/react-examples.tsx#L134-L180), [react-examples.tsx](file://examples/react/react-examples.tsx#L186-L244), [react-examples.tsx](file://examples/react/react-examples.tsx#L251-L301), [react-examples.tsx](file://examples/react/react-examples.tsx#L307-L373), [react-examples.tsx](file://examples/react/react-examples.tsx#L379-L415), [react-examples.tsx](file://examples/react/react-examples.tsx#L421-L490)
 - FlowProvider examples: [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L59-L95), [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L101-L155), [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L161-L205), [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L211-L271), [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L277-L367)

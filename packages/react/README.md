@@ -200,6 +200,27 @@ return (
 );
 ```
 
+### `useFlowParallel`
+
+Monitor and control multiple flows running at the same time.
+
+```tsx
+import { useFlowParallel } from "@asyncflowstate/react";
+
+const parallel = useFlowParallel({
+  profile: profileFlow,
+  settings: settingsFlow,
+});
+
+return (
+  <div>
+    <button onClick={() => parallel.execute()}>Refresh Dashboard</button>
+    {parallel.loading && <p>Loading all components...</p>}
+    <p>Overall Progress: {parallel.progress}%</p>
+  </div>
+);
+```
+
 ### `useFlowList`
 
 Manage multiple independent instances of the same action (e.g., list items).
