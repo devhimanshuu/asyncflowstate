@@ -71,10 +71,15 @@ export interface ReactFlowOptions<
   /** Accessibility configuration for automatic announcements. */
   a11y?: A11yOptions<TData, TError>;
   /**
-   * Whether to automatically cancel the running flow when the component unmounts.
+   * Which usually happens when navigating away.
    * Default: true
    */
   cancelOnUnmount?: boolean;
+  /**
+   * If true, the flow will continue running in the background even if the component unmounts.
+   * Useful for file uploads or critical updates. Overrides cancelOnUnmount.
+   */
+  keepAlive?: boolean;
   /**
    * If true, automatically re-executes the flow with the last arguments
    * when the window regains focus.
@@ -181,11 +186,12 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   // Cleanup: Cancel flow on unmount
   useEffect(() => {
     return () => {
-      if (options.cancelOnUnmount !== false) {
+      const shouldCancel = options.cancelOnUnmount !== false && !options.keepAlive;
+      if (shouldCancel) {
         flow.cancel();
       }
     };
-  }, [flow, options.cancelOnUnmount]);
+  }, [flow, options.cancelOnUnmount, options.keepAlive]);
 
   // Accessibility: Auto-focus error when it appears
   const errorRef = useRef<HTMLElement | null>(null);
@@ -388,5 +394,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     fieldErrors,
     /** ARIA live region component for announcements */
     LiveRegion,
+    /** The underlying Flow instance (advanced usage) */
+    flow,
   };
 }

@@ -64,6 +64,7 @@ export enum FlowErrorType {
   PERMISSION = "PERMISSION",
   SERVER = "SERVER",
   UNKNOWN = "UNKNOWN",
+  CIRCUIT_OPEN = "CIRCUIT_OPEN",
 }
 
 /**
@@ -135,6 +136,16 @@ export interface FlowMiddleware<
   onSuccess?: (data: TData) => void;
   onError?: (error: TError) => void;
   onSettled?: (data: TData | null, error: TError | null) => void;
+}
+
+/**
+ * Options for the Circuit Breaker pattern.
+ */
+export interface CircuitBreakerOptions {
+  /** Number of failures allowed before opening the circuit. */
+  failureThreshold: number;
+  /** Time in milliseconds to wait before attempting to half-open the circuit. */
+  resetTimeout: number;
 }
 
 /**
@@ -249,6 +260,19 @@ export interface FlowOptions<
    * Storage type for persistence. Default is 'local'.
    */
   persistStorage?: "local" | "session";
+  /**
+   * Configuration for Circuit Breaker pattern.
+   * If provided, enables circuit breaking for this flow.
+   * The scope of the circuit is defined by `dedupKey` or defaults to global if not specific enough (though usually per-key is best).
+   * Actually, we should probably add a `scope` or just use `dedupKey`.
+   * For now, let's assume it shares state via `dedupKey` if present, or we can add a explicit `circuitBreakerKey`.
+   */
+  circuitBreaker?: CircuitBreakerOptions;
+  /**
+   * Unique key to identify the circuit breaker scope.
+   * If not provided, it defaults to `dedupKey`.
+   */
+  circuitBreakerKey?: string;
   /**
    * Configuration for automatic polling.
    */
@@ -392,6 +416,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     progress: PROGRESS.INITIAL,
   };
 
+  // --- Time-Travel State ---
+  private _history: FlowState<TData, TError>[] = [];
+  private historyLimit = 50;
+
   // --- Persistence State ---
   private hasRestoredState = false;
 
@@ -439,6 +467,16 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private static dedupRegistry: Map<string, Promise<any>> = new Map();
   private static cacheRegistry: Map<string, { data: any; timestamp: number }> =
     new Map();
+  // --- Circuit Breaker State ---
+  // Map<key, { failures: number, lastFailure: number, state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' }>
+  private static circuitRegistry: Map<
+    string,
+    {
+      failures: number;
+      lastFailure: number;
+      state: "CLOSED" | "OPEN" | "HALF_OPEN";
+    }
+  > = new Map();
 
   /**
    * Registers a global middleware that applies to ALL Flow instances.
@@ -564,6 +602,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     return this._state.progress ?? 0;
   }
 
+  /**
+   * Returns the history of state changes (Time-Travel Debugging).
+   */
+  public get history(): FlowState<TData, TError>[] {
+    return this._history;
+  }
+
   // --- Public Methods ---
 
   /**
@@ -580,6 +625,21 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.setState({
         progress: Math.min(PROGRESS.MAX, Math.max(PROGRESS.MIN, progress)),
       });
+    }
+  }
+
+  /**
+   * Reverts the state to the previous snapshot (Time-Travel Debugging).
+   */
+  public undo(): void {
+    if (this._history.length === 0) return;
+
+    const previous = this._history.pop();
+    if (previous) {
+      // Restore state without adding to history (it's an undo)
+      this._state = previous;
+      this.notify();
+      this.emit("reset"); // Emit reset or specific undo event? relying on reset for now or state change
     }
   }
 
@@ -725,7 +785,34 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       return this.handleThrottle(args, throttle);
     }
 
-    // 3. Direct Execution
+    // 3. Circuit Breaker Check
+    const cbKey = this.options.circuitBreakerKey || this.options.dedupKey;
+    if (this.options.circuitBreaker && cbKey) {
+      const circuit = Flow.circuitRegistry.get(cbKey);
+      if (circuit && circuit.state === "OPEN") {
+        const now = Date.now();
+        if (
+          now - circuit.lastFailure >
+          this.options.circuitBreaker.resetTimeout
+        ) {
+          // Half-Open: Allow one request to pass
+          Flow.circuitRegistry.set(cbKey, { ...circuit, state: "HALF_OPEN" });
+        } else {
+          // Fast fail
+          const error: FlowError = {
+            type: FlowErrorType.CIRCUIT_OPEN,
+            message: `Circuit breaker is open for key: ${cbKey}`,
+            originalError: new Error("Circuit Open"),
+            isRetryable: false, // Don't retry immediately if circuit is open
+          };
+          this.setState({ status: "error", error: error as TError });
+          this.options.onError?.(error as TError);
+          return undefined;
+        }
+      }
+    }
+
+    // 4. Direct Execution
     return this.internalExecute(args);
   }
 
@@ -913,6 +1000,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     args: TArgs,
     signal: AbortSignal,
   ): Promise<TData | undefined> {
+    const cbKey = this.options.circuitBreakerKey || this.options.dedupKey;
     let attempt = 0;
     const maxAttempts =
       this.options.retry?.maxAttempts ?? DEFAULT_RETRY.MAX_ATTEMPTS;
@@ -968,6 +1056,25 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           this.runMiddleware("onError", timeoutError);
           this.finalizeLoading();
           this.processEnqueuedTasks();
+
+          // Update Circuit Breaker on timeout failure (treated as failure)
+          if (this.options.circuitBreaker && cbKey) {
+            const current = Flow.circuitRegistry.get(cbKey) || {
+              failures: 0,
+              lastFailure: 0,
+              state: "CLOSED",
+            };
+            const newFailures = current.failures + 1;
+            const newState =
+              newFailures >= this.options.circuitBreaker.failureThreshold
+                ? "OPEN"
+                : "CLOSED";
+            Flow.circuitRegistry.set(cbKey, {
+              failures: newFailures,
+              lastFailure: Date.now(),
+              state: newState,
+            });
+          }
         }
         return;
       }
@@ -1104,6 +1211,36 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             error: finalError,
             progress: PROGRESS.INITIAL,
           });
+
+          // Update Circuit Breaker on failure
+          if (this.options.circuitBreaker && cbKey) {
+            const current = Flow.circuitRegistry.get(cbKey) || {
+              failures: 0,
+              lastFailure: 0,
+              state: "CLOSED",
+            };
+
+            // If we were HALF_OPEN and failed, go back to OPEN
+            if (current.state === "HALF_OPEN") {
+              Flow.circuitRegistry.set(cbKey, {
+                failures: current.failures + 1,
+                lastFailure: Date.now(),
+                state: "OPEN",
+              });
+            } else {
+              // Normal CLOSED state failure count
+              const newFailures = current.failures + 1;
+              const newState =
+                newFailures >= this.options.circuitBreaker.failureThreshold
+                  ? "OPEN"
+                  : "CLOSED";
+              Flow.circuitRegistry.set(cbKey, {
+                failures: newFailures,
+                lastFailure: Date.now(),
+                state: newState,
+              });
+            }
+          }
 
           // Clear snapshot after rollback
           if (shouldRollback) {
@@ -1346,6 +1483,15 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   // --- Maintenance Helpers ---
 
   private setState(updates: Partial<FlowState<TData, TError>>): void {
+    // Record history before updating
+    // We only record significant state changes, ignoring pure progress updates to avoid spamming history
+    if (!updates.progress || Object.keys(updates).length > 1) {
+      this._history.push({ ...this._state });
+      if (this._history.length > this.historyLimit) {
+        this._history.shift();
+      }
+    }
+
     this._state = { ...this._state, ...updates };
 
     // Handle persistence on success
