@@ -137,6 +137,8 @@ class FlowOptions {
 +debounce number?
 +throttle number?
 +optimisticResult TData?
++dedupKey string?
++staleTime number?
 }
 class RetryOptions {
 +maxAttempts number?

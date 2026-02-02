@@ -934,4 +934,58 @@ describe("Flow Core", () => {
       expect(onError).toHaveBeenCalledWith(err);
     });
   });
+
+  describe("Deduplication", () => {
+    it(
+      "should resuse in-flight request for same dedupKey",
+      { timeout: 10000 },
+      async () => {
+        let callCount = 0;
+        const action = async () => {
+          callCount++;
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          return "data";
+        };
+
+        const flow1 = new Flow(action, { dedupKey: "shared-key" });
+        const flow2 = new Flow(action, { dedupKey: "shared-key" });
+
+        const [res1, res2] = await Promise.all([
+          flow1.execute(),
+          flow2.execute(),
+        ]);
+
+        expect(res1).toBe("data");
+        expect(res2).toBe("data");
+        expect(callCount).toBe(1); // Only executed once
+      },
+    );
+
+    it(
+      "should return cached data if staleTime is active",
+      { timeout: 10000 },
+      async () => {
+        let callCount = 0;
+        const action = async () => {
+          callCount++;
+          return `count-${callCount}`;
+        };
+
+        const flow1 = new Flow(action, {
+          dedupKey: "cache-key",
+          staleTime: 5000,
+        });
+        await flow1.execute(); // count-1
+
+        const flow2 = new Flow(action, {
+          dedupKey: "cache-key",
+          staleTime: 5000,
+        });
+        const res2 = await flow2.execute(); // Should be count-1 from cache
+
+        expect(res2).toBe("count-1");
+        expect(callCount).toBe(1);
+      },
+    );
+  });
 });

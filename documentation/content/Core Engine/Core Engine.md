@@ -276,6 +276,11 @@ Concurrency control
 - restart: Cancel current execution and start a new one.
 - enqueue: Queue subsequent calls to run after current completes.
 
+Request Deduplication & Caching
+
+- `dedupKey`: If multiple flows share this key, they will attach to the *same* in-flight promise.
+- `staleTime`: If valid cached data exists for this key, return it immediately without hitting the network.
+
 Optimistic UI
 
 - If optimisticResult is provided, state transitions to success immediately with optimistic data before action completion. Real data replaces optimistic data upon resolution.

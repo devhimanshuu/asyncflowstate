@@ -276,6 +276,17 @@ export interface FlowOptions<
    * be blocked and onBlocked() will be called.
    */
   precondition?: () => boolean | Promise<boolean>;
+  /**
+   * Key to identify requests for deduplication.
+   * If multiple flows with the same dedupKey are executed, they will reuse the same in-flight promise.
+   */
+  dedupKey?: string;
+  /**
+   * Time in milliseconds during which a successful result is considered fresh.
+   * If valid data exists within this window, execute() will return it immediately
+   * without triggering a new network request.
+   */
+  staleTime?: number;
 }
 
 /**
@@ -418,6 +429,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   // --- Sync State ---
   private bc: BroadcastChannel | null = null;
   private isProcessingSync = false;
+
+  // --- Deduplication State ---
+  private static dedupRegistry: Map<string, Promise<any>> = new Map();
+  private static cacheRegistry: Map<string, { data: any; timestamp: number }> =
+    new Map();
 
   /**
    * Registers a global middleware that applies to ALL Flow instances.
@@ -736,6 +752,56 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.abortController = new AbortController();
     const currentSignal = this.abortController.signal;
 
+    // Deduplication & Cache Check
+    if (this.options.dedupKey) {
+      const key = this.options.dedupKey;
+
+      // Check Cache
+      if (this.options.staleTime && this.options.staleTime > 0) {
+        const cached = Flow.cacheRegistry.get(key);
+        if (cached && Date.now() - cached.timestamp < this.options.staleTime) {
+          // Cache hit - return immediately
+          this.setState({
+            status: "success",
+            data: cached.data,
+            progress: PROGRESS.COMPLETE,
+          });
+          this.options.onSuccess?.(cached.data);
+          this.runMiddleware("onSuccess", cached.data);
+          this.options.onSettled?.(cached.data, null);
+          this.runMiddleware("onSettled", cached.data, null);
+          return Promise.resolve(cached.data);
+        }
+      }
+
+      // Check In-Flight Deduplication
+      const pendingPromise = Flow.dedupRegistry.get(key);
+      if (pendingPromise) {
+        this.setState({ status: "loading", error: null });
+        return pendingPromise
+          .then((data) => {
+            this.setState({
+              status: "success",
+              data,
+              progress: PROGRESS.COMPLETE,
+            });
+            this.options.onSuccess?.(data);
+            this.runMiddleware("onSuccess", data);
+            this.options.onSettled?.(data, null);
+            this.runMiddleware("onSettled", data, null);
+            return data;
+          })
+          .catch((error) => {
+            this.setState({ status: "error", error });
+            this.options.onError?.(error);
+            this.runMiddleware("onError", error);
+            this.options.onSettled?.(null, error);
+            this.runMiddleware("onSettled", null, error);
+            throw error;
+          });
+      }
+    }
+
     // Fire onStart lifecycle hook
     this.emit("start", { args });
     this.options.onStart?.(args);
@@ -802,7 +868,31 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       }
     }
 
-    return this.runAction(args, currentSignal);
+    const promise = this.runAction(args, currentSignal);
+
+    // Register for deduplication
+    if (this.options.dedupKey) {
+      Flow.dedupRegistry.set(
+        this.options.dedupKey,
+        promise.then((data) => {
+          // Optimization: Update cache on success
+          if (data !== undefined && this.options.dedupKey) {
+            Flow.cacheRegistry.set(this.options.dedupKey, {
+              data,
+              timestamp: Date.now(),
+            });
+          }
+          return data;
+        }).finally(() => {
+          // Cleanup registry
+          if (this.options.dedupKey) {
+            Flow.dedupRegistry.delete(this.options.dedupKey);
+          }
+        })
+      );
+    }
+
+    return promise;
   }
 
   /**
