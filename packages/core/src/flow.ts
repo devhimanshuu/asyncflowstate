@@ -96,6 +96,11 @@ export interface RetryOptions {
   backoff?: "fixed" | "linear" | "exponential";
   /** Optional callback to determine if a specific error should trigger a retry. */
   shouldRetry?: (error: any, attempt: number) => boolean | Promise<boolean>;
+  /**
+   * If true, pauses execution when the network is offline and resumes when online.
+   * Only works in browser environments with `navigator.onLine`.
+   */
+  pauseOffline?: boolean;
 }
 
 /**
@@ -874,21 +879,23 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     if (this.options.dedupKey) {
       Flow.dedupRegistry.set(
         this.options.dedupKey,
-        promise.then((data) => {
-          // Optimization: Update cache on success
-          if (data !== undefined && this.options.dedupKey) {
-            Flow.cacheRegistry.set(this.options.dedupKey, {
-              data,
-              timestamp: Date.now(),
-            });
-          }
-          return data;
-        }).finally(() => {
-          // Cleanup registry
-          if (this.options.dedupKey) {
-            Flow.dedupRegistry.delete(this.options.dedupKey);
-          }
-        })
+        promise
+          .then((data) => {
+            // Optimization: Update cache on success
+            if (data !== undefined && this.options.dedupKey) {
+              Flow.cacheRegistry.set(this.options.dedupKey, {
+                data,
+                timestamp: Date.now(),
+              });
+            }
+            return data;
+          })
+          .finally(() => {
+            // Cleanup registry
+            if (this.options.dedupKey) {
+              Flow.dedupRegistry.delete(this.options.dedupKey);
+            }
+          }),
       );
     }
 
@@ -911,6 +918,29 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.options.retry?.maxAttempts ?? DEFAULT_RETRY.MAX_ATTEMPTS;
 
     while (attempt < maxAttempts) {
+      // Offline Pause Logic
+      if (
+        this.options.retry?.pauseOffline &&
+        typeof navigator !== "undefined" &&
+        !navigator.onLine
+      ) {
+        // Wait for online event
+        await new Promise<void>((resolve) => {
+          const target = typeof window !== "undefined" ? window : self;
+          const handler = () => {
+            target.removeEventListener("online", handler);
+            resolve();
+          };
+          target.addEventListener("online", handler);
+
+          // If aborted while waiting, resolve to let the loop handle it
+          signal.addEventListener("abort", () => {
+            target.removeEventListener("online", handler);
+            resolve();
+          });
+        });
+      }
+
       if (signal.aborted) {
         // Check if this was a timeout abort
         if (this.isTimeout) {

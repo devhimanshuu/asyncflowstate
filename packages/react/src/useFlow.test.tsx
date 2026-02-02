@@ -138,4 +138,42 @@ describe("useFlow Hook", () => {
       expect(screen.getByText("Mission accomplished")).toBeInTheDocument();
     });
   });
+
+  it("should revalidate on focus", async () => {
+    const action = vi.fn().mockResolvedValue("ok");
+    const originalVisibility = Object.getOwnPropertyDescriptor(
+      document,
+      "visibilityState",
+    );
+
+    function TestComponent() {
+      const { execute } = useFlow(action, { revalidateOnFocus: true });
+      return <button onClick={() => execute("arg1")}>Run</button>;
+    }
+
+    render(<TestComponent />);
+    fireEvent.click(screen.getByRole("button"));
+
+    await waitFor(() => {
+      expect(action).toHaveBeenCalledTimes(1);
+    });
+
+    // Mock visibilityState
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      get: () => "visible",
+    });
+
+    fireEvent(document, new Event("visibilitychange"));
+
+    await waitFor(() => {
+      expect(action).toHaveBeenCalledTimes(2);
+      expect(action).toHaveBeenLastCalledWith("arg1");
+    });
+
+    // Cleanup
+    if (originalVisibility) {
+      Object.defineProperty(document, "visibilityState", originalVisibility);
+    }
+  });
 });

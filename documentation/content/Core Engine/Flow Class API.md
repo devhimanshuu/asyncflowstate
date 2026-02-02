@@ -145,6 +145,7 @@ class RetryOptions {
 +delay number?
 +backoff "fixed"|"linear"|"exponential"?
 +shouldRetry(error, attempt) boolean|Promise<boolean>?
++pauseOffline boolean?
 }
 class AutoResetOptions {
 +enabled boolean?

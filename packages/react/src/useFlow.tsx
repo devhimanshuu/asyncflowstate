@@ -75,6 +75,16 @@ export interface ReactFlowOptions<
    * Default: true
    */
   cancelOnUnmount?: boolean;
+  /**
+   * If true, automatically re-executes the flow with the last arguments
+   * when the window regains focus.
+   */
+  revalidateOnFocus?: boolean;
+  /**
+   * If true, automatically re-executes the flow with the last arguments
+   * when the network reconnects.
+   */
+  revalidateOnReconnect?: boolean;
 }
 
 /**
@@ -138,7 +148,11 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   useEffect(() => {
     actionRef.current = action;
     optionsRef.current = options;
+    optionsRef.current = options;
   }, [action, options]);
+
+  // Track last arguments for revalidation
+  const lastArgsRef = useRef<TArgs | null>(null);
 
   // Initial merged options for the first creation
   const initialMergedOptions = useRef(mergeFlowOptions(globalConfig, options));
@@ -299,6 +313,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
             onSubmit(e);
           } else {
             const result = await flow.execute(...args);
+            lastArgsRef.current = args;
             if (result !== undefined && resetOnSuccess) {
               (e.currentTarget as HTMLFormElement).reset();
             }
@@ -314,6 +329,35 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     return flow.subscribe(setSnapshot);
   }, [flow]);
 
+  // Handle Auto-Revalidation
+  useEffect(() => {
+    const handleFocus = () => {
+      if (
+        document.visibilityState === "visible" &&
+        optionsRef.current.revalidateOnFocus &&
+        lastArgsRef.current
+      ) {
+        flow.execute(...lastArgsRef.current);
+      }
+    };
+
+    const handleOnline = () => {
+      if (optionsRef.current.revalidateOnReconnect && lastArgsRef.current) {
+        flow.execute(...lastArgsRef.current);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus); // Also listen to window focus for better coverage
+    document.addEventListener("visibilitychange", handleFocus);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleFocus);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [flow]);
+
   // Memoize the return value to prevent unnecessary re-renders of consuming components
   return {
     /** The complete flow state snapshot */
@@ -321,7 +365,13 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     /** Whether the flow is currently loading (respects loading.delay) */
     loading: flow.isLoading,
     /** Executes the action manually */
-    execute: flow.execute.bind(flow),
+    execute: useCallback(
+      (...args: TArgs) => {
+        lastArgsRef.current = args;
+        return flow.execute(...args);
+      },
+      [flow],
+    ),
     /** Resets the flow state to idle */
     reset: flow.reset.bind(flow),
     /** Cancels the currently running action */

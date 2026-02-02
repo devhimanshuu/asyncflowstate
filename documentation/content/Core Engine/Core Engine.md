@@ -248,6 +248,7 @@ Flow --> LoadingOptions : "uses"
   - runAction(args, signal): Executes action, handles retries/backoff, success/error transitions, minDuration, and auto-reset.
   - handleDebounce(args, delay), handleThrottle(args, delay): Rate-limiting logic.
   - evaluateRetry(error, attempt), delayRetry(attempt): Retry policy and backoff scheduling.
+  - `pauseOffline`: If enabled, flow pauses while offline and resumes when online.
   - waitMinDuration(), scheduleAutoReset(), finalizeLoading(), clearAllTimers(): UX and lifecycle helpers.
   - startAutoProgress(): Manages simulated progress updates.
   - restorePersistedData(), persistData(data), clearPersistedData(): Persistence helpers.
@@ -278,7 +279,7 @@ Concurrency control
 
 Request Deduplication & Caching
 
-- `dedupKey`: If multiple flows share this key, they will attach to the *same* in-flight promise.
+- `dedupKey`: If multiple flows share this key, they will attach to the _same_ in-flight promise.
 - `staleTime`: If valid cached data exists for this key, return it immediately without hitting the network.
 
 Optimistic UI

@@ -988,4 +988,33 @@ describe("Flow Core", () => {
       },
     );
   });
+
+  describe("Offline Awareness", () => {
+    it("should pause execution when offline and resume when online", async () => {
+      const onLineSpy = vi.spyOn(navigator, "onLine", "get");
+      onLineSpy.mockReturnValue(false); // Simulate offline
+
+      let executed = false;
+      const action = async () => {
+        executed = true;
+        return "success";
+      };
+
+      const flow = new Flow(action, { retry: { pauseOffline: true } });
+      const promise = flow.execute();
+
+      // Should be paused
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(executed).toBe(false);
+
+      // Simulate coming online
+      onLineSpy.mockReturnValue(true);
+      window.dispatchEvent(new Event("online"));
+
+      await promise;
+      expect(executed).toBe(true);
+
+      onLineSpy.mockRestore();
+    });
+  });
 });
