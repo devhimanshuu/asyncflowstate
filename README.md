@@ -109,25 +109,25 @@ return (
 
 AsyncFlowState is built as a modular system:
 
-| Package                                     | Version  | Description                               |
-| :------------------------------------------ | :------- | :---------------------------------------- |
-| [`@asyncflowstate/core`](./packages/core)   | `1.0.0`  | Framework-agnostic logic engine           |
-| [`@asyncflowstate/react`](./packages/react) | `1.0.0`  | React hooks & accessibility-first helpers |
-| `@asyncflowstate/next`                      | `(v2.0)` | Planned: Server Actions & SSR integration |
+| Package                                     | Version | Description                               |
+| :------------------------------------------ | :------ | :---------------------------------------- |
+| [`@asyncflowstate/core`](./packages/core)   | `1.0.0` | Framework-agnostic logic engine           |
+| [`@asyncflowstate/react`](./packages/react) | `1.0.0` | React hooks & accessibility-first helpers |
+| [`@asyncflowstate/next`](./packages/next)   | `1.0.0` | Next.js Server Actions & SSR integration  |
 
 ---
 
-## 🚀 Quick Start (React)
+## 🚀 Quick Start (React & Next.js)
 
 ### 1. Installation
 
 ```bash
-npm install @asyncflowstate/react
-# or
-pnpm add @asyncflowstate/react
+pnpm add @asyncflowstate/react @asyncflowstate/core
+# For Next.js projects
+pnpm add @asyncflowstate/next
 ```
 
-### 2. Basic Usage
+### 2. Basic Usage (React)
 
 ```tsx
 import { useFlow } from "@asyncflowstate/react";
@@ -141,6 +141,28 @@ function SaveButton() {
     <button {...flow.button()}>
       {flow.loading ? "Saving..." : "Save Changes"}
     </button>
+  );
+}
+```
+
+### 3. Server Actions (Next.js)
+
+```tsx
+"use client";
+
+import { useServerActionFlow } from "@asyncflowstate/next";
+import { saveUserAction } from "./actions";
+
+function ProfileForm() {
+  const flow = useServerActionFlow(saveUserAction);
+
+  return (
+    <form action={flow.execute}>
+      <input name="name" />
+      <button type="submit" disabled={flow.loading}>
+        {flow.loading ? "Saving..." : "Save"}
+      </button>
+    </form>
   );
 }
 ```
