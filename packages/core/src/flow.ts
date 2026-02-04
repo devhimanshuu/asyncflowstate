@@ -252,11 +252,52 @@ export interface FlowOptions<
     end: number;
   };
   /**
+   * Configuration for state persistence (Smart Persistence feature).
+   * Allows flows to survive page refreshes and resume interrupted operations.
+   *
+   * @example Basic persistence
+   * ```ts
+   * persist: {
+   *   key: 'user-profile-upload',
+   *   storage: 'local'
+   * }
+   * ```
+   *
+   * @example Resumable file upload
+   * ```ts
+   * persist: {
+   *   key: 'file-upload-' + fileId,
+   *   persistLoading: true,
+   *   onInterruptedLoading: (state) => {
+   *     showResumeDialog(state.progress);
+   *   }
+   * }
+   * ```
+   */
+  persist?: {
+    /** Unique key to identify this flow's persisted state */
+    key: string;
+    /** Storage type: 'local' or 'session'. Default: 'local' */
+    storage?: "local" | "session";
+    /** Whether to persist loading states. Default: false */
+    persistLoading?: boolean;
+    /** Whether to persist error states. Default: false */
+    persistError?: boolean;
+    /** Time in ms after which persisted state is stale. Default: 24 hours */
+    ttl?: number;
+    /** Callback when state is restored. Return false to reject. */
+    onRestore?: (state: any) => boolean | Promise<boolean>;
+    /** Callback when interrupted loading state is detected */
+    onInterruptedLoading?: (state: any) => void;
+  };
+  /**
+   * @deprecated Use `persist.key` instead
    * Unique key to persist success data in storage.
    * If present, data will be restored on initialization.
    */
   persistKey?: string;
   /**
+   * @deprecated Use `persist.storage` instead
    * Storage type for persistence. Default is 'local'.
    */
   persistStorage?: "local" | "session";
@@ -422,12 +463,15 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
   // --- Persistence State ---
   private hasRestoredState = false;
+  private lastPersistedArgs: TArgs | undefined;
+  private currentExecutionArgs: TArgs | undefined;
 
   // --- Subscriptions ---
   private listeners = new Set<(state: FlowState<TData, TError>) => void>();
 
   // --- External Control ---
   private abortController: AbortController | null = null;
+  private activePromise: Promise<TData | undefined> | null = null;
 
   // --- UX & Performance State ---
   private loadingStartTime: number | null = null;
@@ -515,7 +559,12 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     if (options.middleware) {
       this.middlewares.push(...options.middleware);
     }
-    if (this.options.persistKey) {
+
+    // Initialize new persistence system
+    this.initializePersistence();
+
+    // Backward compatibility: support old persistKey
+    if (this.options.persistKey && !this.options.persist) {
       const storage = getStorage(this.options.persistStorage);
       const data = restoreData<TData>(this.options.persistKey, storage);
       if (data) {
@@ -533,6 +582,37 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     if (this.options.sync?.channel && typeof BroadcastChannel !== "undefined") {
       this.bc = new BroadcastChannel(this.options.sync.channel);
       this.bc.onmessage = this.handleSyncMessage.bind(this);
+    }
+  }
+
+  /**
+   * Initializes the persistence system and restores state if available.
+   */
+  private async initializePersistence(): Promise<void> {
+    if (!this.options.persist) return;
+
+    const { restoreFlowState } = await import("./persistence");
+
+    const persistedState = await restoreFlowState<TData, TError>({
+      key: this.options.persist.key,
+      storage: this.options.persist.storage,
+      persistLoading: this.options.persist.persistLoading,
+      persistError: this.options.persist.persistError,
+      ttl: this.options.persist.ttl,
+      onRestore: this.options.persist.onRestore,
+      onInterruptedLoading: this.options.persist.onInterruptedLoading,
+    });
+
+    if (persistedState) {
+      this._state = {
+        status: persistedState.status,
+        data: persistedState.data,
+        error: persistedState.error,
+        progress: persistedState.progress ?? PROGRESS.INITIAL,
+      };
+      this.hasRestoredState = true;
+      this.lastPersistedArgs = persistedState.lastArgs as TArgs;
+      this.notify();
     }
   }
 
@@ -701,6 +781,42 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   }
 
   /**
+   * Resumes a previously interrupted flow execution.
+   * This is useful when a loading state was persisted (e.g., file upload interrupted by page refresh).
+   *
+   * @param args Optional arguments to use for resumption. If not provided, uses the last persisted args.
+   * @returns Promise resolving to the action result
+   *
+   * @example
+   * ```ts
+   * const flow = new Flow(uploadFile, {
+   *   persist: {
+   *     key: 'file-upload',
+   *     persistLoading: true,
+   *     onInterruptedLoading: (state) => {
+   *       if (confirm(`Resume upload at ${state.progress}%?`)) {
+   *         flow.resume();
+   *       }
+   *     }
+   *   }
+   * });
+   * ```
+   */
+  public async resume(...args: TArgs): Promise<TData | undefined> {
+    const argsToUse =
+      args.length > 0 ? args : (this.lastPersistedArgs as TArgs);
+
+    if (!argsToUse) {
+      console.warn(
+        "Flow: Cannot resume without arguments. Provide args or ensure they were persisted.",
+      );
+      return undefined;
+    }
+
+    return this.execute(...argsToUse);
+  }
+
+  /**
    * Stops any active polling.
    */
   public stopPolling(): void {
@@ -827,10 +943,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private internalExecute(args: TArgs): Promise<TData | undefined> {
     const { concurrency = DEFAULT_CONCURRENCY } = this.options;
 
-    if (this._state.status === "loading") {
+    if (this._state.status === "loading" && this.activePromise) {
       switch (concurrency) {
         case "keep":
-          return Promise.resolve(undefined);
+          return this.activePromise;
         case "restart":
           this.cancel();
           break;
@@ -840,9 +956,6 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           });
       }
     }
-
-    this.abortController = new AbortController();
-    const currentSignal = this.abortController.signal;
 
     // Deduplication & Cache Check
     if (this.options.dedupKey) {
@@ -898,6 +1011,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.emit("start", { args });
     this.options.onStart?.(args);
     this.runMiddleware("onStart", args);
+
+    // Track args for persistence
+    this.currentExecutionArgs = args;
 
     // Set up timeout if configured
     if (this.options.timeout && this.options.timeout > 0) {
@@ -960,13 +1076,15 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       }
     }
 
-    const promise = this.runAction(args, currentSignal);
+    this.abortController = new AbortController();
+    const currentSignal = this.abortController.signal;
+    this.activePromise = this.runAction(args, currentSignal);
 
     // Register for deduplication
     if (this.options.dedupKey) {
       Flow.dedupRegistry.set(
         this.options.dedupKey,
-        promise
+        this.activePromise
           .then((data) => {
             // Optimization: Update cache on success
             if (data !== undefined && this.options.dedupKey) {
@@ -986,7 +1104,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       );
     }
 
-    return promise;
+    return this.activePromise;
   }
 
   /**
@@ -1494,9 +1612,15 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
     this._state = { ...this._state, ...updates };
 
-    // Handle persistence on success
+    // Handle new persistence system
+    if (this.options.persist) {
+      this.persistCurrentState();
+    }
+
+    // Backward compatibility: Handle old persistKey
     if (
       this.options.persistKey &&
+      !this.options.persist &&
       updates.status === "success" &&
       this._state.data !== null &&
       this._state.data !== undefined
@@ -1534,8 +1658,31 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.listeners.forEach((listener) => listener({ ...this._state }));
   }
 
+  /**
+   * Persists the current state to storage using the new persistence system.
+   */
+  private persistCurrentState(): void {
+    if (!this.options.persist) return;
+
+    // Dynamic import to avoid bundling persistence code if not used
+    import("./persistence").then(({ persistFlowState }) => {
+      persistFlowState(
+        this._state,
+        {
+          key: this.options.persist!.key,
+          storage: this.options.persist!.storage,
+          persistLoading: this.options.persist!.persistLoading,
+          persistError: this.options.persist!.persistError,
+          ttl: this.options.persist!.ttl,
+        },
+        this.currentExecutionArgs,
+      );
+    });
+  }
+
   private finalizeLoading(): void {
     this.abortController = null;
+    this.activePromise = null;
     this.clearTimer("loadingDelayTimer");
     this.clearTimer("timeoutTimer");
     this._isDelayingLoading = false;

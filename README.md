@@ -227,7 +227,8 @@ function App() {
 - **⚡ Parallel Flows:** Run multiple flows simultaneously with aggregate state via `FlowParallel`.
 - **📋 Flow Lists:** Manage multiple independent instances of the same action with `useFlowList`.
 - **⏲️ Declarative Polling:** Built-in support for auto-refreshing actions with conditions.
-- **� Visual Debugger:** Real-time timeline of all async activity in your app with `FlowDebugger`.
+- **💾 Smart Persistence:** Survive page refreshes and resume interrupted operations (file uploads, forms, etc.).
+- **🎯 Visual Debugger:** Real-time timeline of all async activity in your app with `FlowDebugger`.
 - **🔔 Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
 - **🛡️ Guard Rails:** Preconditions to prevent execution based on custom logic.
 - **🧩 Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
