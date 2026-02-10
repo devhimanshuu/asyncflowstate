@@ -8,9 +8,48 @@
  * - Custom retry UI
  */
 
-import { useFlow } from "@asyncflowstate/react";
+import React, { useEffect } from "react";
+import { useFlow, FlowProvider } from "@asyncflowstate/react";
 
-// Example 1: Integration with Toast System
+// Dummy declarations for external libraries used in examples
+const toast = {
+  success: (msg: string) => console.log("Toast Success:", msg),
+  error: (msg: string) => console.error("Toast Error:", msg),
+  info: (msg: string) => console.log("Toast Info:", msg),
+  warning: (msg: string) => console.warn("Toast Warning:", msg),
+};
+
+const analytics = {
+  track: (event: string, properties?: any) =>
+    console.log("Analytics Track:", event, properties),
+};
+
+const api = {
+  saveData: async (data: any) => ({ success: true, ...data }),
+  save: async (data: any) => ({ success: true, id: "123", ...data }),
+};
+
+const logger = {
+  info: (msg: string, meta?: any) => console.log("INFO:", msg, meta),
+  error: (msg: string, error?: any) => console.error("ERROR:", msg, error),
+  debug: (msg: string, meta?: any) => console.log("DEBUG:", msg, meta),
+};
+
+const Sentry = {
+  captureException: (error: any) => console.error("Sentry:", error),
+};
+
+const NProgress = {
+  start: () => console.log("NProgress Start"),
+  done: () => console.log("NProgress Done"),
+};
+
+const uploadFile = async (file: File) => ({ url: "..." });
+const processCheckout = async (items: any) => ({ orderId: "123", total: 0 });
+const complexOperation = async () => ({ res: "ok" });
+const YourApp = () => <div>App</div>;
+
+// =============================================================================
 function SaveButton() {
   const flow = useFlow(
     async (data) => {

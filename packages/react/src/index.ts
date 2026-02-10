@@ -7,6 +7,7 @@ export * from "./FlowProvider";
 export * from "./FlowDebugger";
 export * from "./FlowNotificationProvider";
 export * from "./useFlowSuspense";
+export * from "./ProgressiveFlow";
 
 // Re-export all core types and utilities for convenience
 export * from "@asyncflowstate/core";

@@ -916,8 +916,8 @@ describe("Flow Core", () => {
       await flow.execute();
 
       expect(onStart).toHaveBeenCalled();
-      expect(onSuccess).toHaveBeenCalledWith("ok");
-      expect(onSettled).toHaveBeenCalledWith("ok", null);
+      expect(onSuccess).toHaveBeenCalledWith("ok", expect.anything());
+      expect(onSettled).toHaveBeenCalledWith("ok", null, expect.anything());
     });
 
     it("should execute middleware on error", async () => {
@@ -931,7 +931,7 @@ describe("Flow Core", () => {
 
       await flow.execute();
 
-      expect(onError).toHaveBeenCalledWith(err);
+      expect(onError).toHaveBeenCalledWith(err, expect.anything());
     });
   });
 

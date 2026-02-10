@@ -1,4 +1,5 @@
 export * from "./useServerActionFlow";
+export * from "./useTransitionFlow";
 
 // Re-export core and react for convenience in Next.js projects
 export * from "@asyncflowstate/core";

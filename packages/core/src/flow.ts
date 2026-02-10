@@ -125,6 +125,20 @@ export interface LoadingOptions {
 }
 
 /**
+ * Context provided to middleware callbacks.
+ */
+export interface FlowMiddlewareContext<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+> {
+  /** Metadata attached to the flow */
+  meta: Record<string, any>;
+  /** The full options used for this flow execution */
+  options: FlowOptions<TData, TError, TArgs>;
+}
+
+/**
  * Middleware interface for intercepting flow lifecycle events.
  */
 export interface FlowMiddleware<
@@ -132,10 +146,23 @@ export interface FlowMiddleware<
   TError = any,
   TArgs extends any[] = any[],
 > {
-  onStart?: (args: TArgs) => void;
-  onSuccess?: (data: TData) => void;
-  onError?: (error: TError) => void;
-  onSettled?: (data: TData | null, error: TError | null) => void;
+  onStart?: (
+    args: TArgs,
+    context: FlowMiddlewareContext<TData, TError, TArgs>,
+  ) => void;
+  onSuccess?: (
+    data: TData,
+    context: FlowMiddlewareContext<TData, TError, TArgs>,
+  ) => void;
+  onError?: (
+    error: TError,
+    context: FlowMiddlewareContext<TData, TError, TArgs>,
+  ) => void;
+  onSettled?: (
+    data: TData | null,
+    error: TError | null,
+    context: FlowMiddlewareContext<TData, TError, TArgs>,
+  ) => void;
 }
 
 /**
@@ -346,6 +373,11 @@ export interface FlowOptions<
    * be blocked and onBlocked() will be called.
    */
   precondition?: () => boolean | Promise<boolean>;
+  /**
+   * Optional metadata to attach to the flow.
+   * Useful for global middleware/interceptors to handle specific behaviors.
+   */
+  meta?: Record<string, any>;
   /**
    * Key to identify requests for deduplication.
    * If multiple flows with the same dedupKey are executed, they will reuse the same in-flight promise.
@@ -633,7 +665,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   public setOptions(options: FlowOptions<TData, TError, TArgs>): void {
     this.options = { ...this.options, ...options };
     if (options.middleware) {
-      this.middlewares.push(...options.middleware);
+      // Replace middlewares completely to avoid accumulation on re-renders
+      this.middlewares = [...options.middleware];
     }
   }
 
@@ -802,7 +835,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * });
    * ```
    */
-  public async resume(...args: TArgs): Promise<TData | undefined> {
+  public async resume(...args: TArgs | []): Promise<TData | undefined> {
     const argsToUse =
       args.length > 0 ? args : (this.lastPersistedArgs as TArgs);
 
@@ -813,7 +846,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       return undefined;
     }
 
-    return this.execute(...argsToUse);
+    return this.execute(...(argsToUse as TArgs));
   }
 
   /**
@@ -1567,11 +1600,16 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private runMiddleware(hook: keyof FlowMiddleware, ...args: any[]): void {
     const allMiddlewares = [...Flow.globalMiddlewares, ...this.middlewares];
 
+    const context: FlowMiddlewareContext<TData, TError, TArgs> = {
+      meta: this.options.meta || {},
+      options: this.options,
+    };
+
     allMiddlewares.forEach((mw) => {
       const fn = mw[hook];
       if (typeof fn === "function") {
         try {
-          (fn as Function)(...args);
+          (fn as Function)(...args, context);
         } catch (err) {
           console.error(`Flow: Middleware error in ${hook}`, err);
         }

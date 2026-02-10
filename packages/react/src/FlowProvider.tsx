@@ -1,5 +1,5 @@
 import React, { createContext, useContext, type ReactNode } from "react";
-import { type FlowOptions } from "@asyncflowstate/core";
+import { type FlowOptions, type FlowMiddleware } from "@asyncflowstate/core";
 
 /**
  * Global configuration options for all flows within a FlowProvider.
@@ -9,6 +9,11 @@ export interface FlowProviderConfig<
   TError = any,
   TArgs extends any[] = any[],
 > extends FlowOptions<TData, TError, TArgs> {
+  /**
+   * Global interceptors or behaviors that apply to every flow.
+   * Useful for auth, telemetry, or notifications.
+   */
+  behaviors?: FlowMiddleware<TData, TError, TArgs>[];
   /**
    * If true, local flow options will completely override global options.
    * If false (default), local options will be merged with global options,
@@ -191,6 +196,22 @@ export function mergeFlowOptions<
     });
   } else {
     merged.mapError = localOptions.mapError || globalOptions.mapError;
+  }
+
+  // Merge meta
+  if (globalOptions.meta || localOptions.meta) {
+    merged.meta = {
+      ...globalOptions.meta,
+      ...localOptions.meta,
+    };
+  }
+
+  // Merge behaviors (middleware)
+  if (globalConfig.behaviors || localOptions.middleware) {
+    merged.middleware = [
+      ...((globalConfig.behaviors as any[]) || []),
+      ...(localOptions.middleware || []),
+    ];
   }
 
   if (localOptions.concurrency !== undefined) {

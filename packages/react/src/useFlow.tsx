@@ -194,7 +194,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   }, [flow, options.cancelOnUnmount, options.keepAlive]);
 
   // Accessibility: Auto-focus error when it appears
-  const errorRef = useRef<HTMLElement | null>(null);
+  const errorRef = useRef<any>(null);
 
   useEffect(() => {
     if (snapshot.status === "error" && errorRef.current) {
@@ -369,7 +369,13 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     /** The complete flow state snapshot */
     ...snapshot,
     /** Whether the flow is currently loading (respects loading.delay) */
+    isLoading: flow.isLoading,
+    /** Alias for isLoading for backward compatibility */
     loading: flow.isLoading,
+    /** Whether the flow completed successfully */
+    isSuccess: flow.isSuccess,
+    /** Whether the flow is in an error state */
+    isError: flow.isError,
     /** Executes the action manually */
     execute: useCallback(
       (...args: TArgs) => {

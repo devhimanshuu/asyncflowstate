@@ -24,7 +24,7 @@ async function updateUserProfile(formData: FormData) {
  * Shows how to bind a server action to a form with automatic loading and error states.
  */
 export function ServerActionForm() {
-    const { execute, loading, error, success, data } = useServerActionFlow(updateUserProfile, {
+    const { execute, isLoading: loading, error, isSuccess, data } = useServerActionFlow(updateUserProfile, {
         onSuccess: (result: { name: string; id: number }) => {
             console.log(`Profile updated for ${result.name}!`);
         },
@@ -37,7 +37,7 @@ export function ServerActionForm() {
         <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
             <h2 className="text-xl font-bold">Update Profile</h2>
 
-            <form action={execute} className="space-y-4">
+            <form action={(fd) => { execute(fd); }} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Name</label>
                     <input
@@ -59,7 +59,7 @@ export function ServerActionForm() {
                 </button>
             </form>
 
-            {success && (
+            {isSuccess && (
                 <div className="text-green-600 text-sm">
                     Successfully updated! Server returned ID: {data?.id}
                 </div>

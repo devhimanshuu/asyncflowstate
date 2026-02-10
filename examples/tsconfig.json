@@ -7,7 +7,8 @@
     "baseUrl": ".",
     "paths": {
       "@asyncflowstate/core": ["../packages/core/src/index.ts"],
-      "@asyncflowstate/react": ["../packages/react/src/index.ts"]
+      "@asyncflowstate/react": ["../packages/react/src/index.ts"],
+      "@asyncflowstate/next": ["../packages/next/src/index.ts"]
     },
     "skipLibCheck": true,
     "noEmit": true,
