@@ -176,4 +176,74 @@ describe("useFlow Hook", () => {
       Object.defineProperty(document, "visibilityState", originalVisibility);
     }
   });
+
+  it("form() helper should handle native Zod schema validation", async () => {
+    const action = vi.fn().mockResolvedValue("ok");
+
+    // Mock Zod schema
+    const mockZodSchema = {
+      safeParse: vi.fn().mockImplementation((data) => {
+        if (!data.email || !data.email.includes("@")) {
+          return {
+            success: false,
+            error: {
+              issues: [
+                { path: ["email"], message: "Invalid email" },
+                { path: ["password"], message: "Too short" },
+              ],
+            },
+          };
+        }
+        return { success: true, data };
+      }),
+    };
+
+    function TestComponent() {
+      const { form, fieldErrors } = useFlow(action);
+      return (
+        <form
+          {...form({
+            schema: mockZodSchema,
+            extractFormData: true,
+            "data-testid": "form",
+          })}
+        >
+          <input name="email" defaultValue="wrong" />
+          <input name="password" defaultValue="12" />
+          {fieldErrors.email && (
+            <span data-testid="email-error">{fieldErrors.email}</span>
+          )}
+          {fieldErrors.password && (
+            <span data-testid="pw-error">{fieldErrors.password}</span>
+          )}
+          <button type="submit">Submit</button>
+        </form>
+      );
+    }
+
+    render(<TestComponent />);
+
+    fireEvent.submit(screen.getByTestId("form"));
+
+    expect(mockZodSchema.safeParse).toHaveBeenCalled();
+    expect(action).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-error")).toHaveTextContent(
+        "Invalid email",
+      );
+      expect(screen.getByTestId("pw-error")).toHaveTextContent("Too short");
+    });
+
+    // Fix and submit again
+    const emailInput = screen.getAllByRole("textbox")[0] as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "valid@test.com" } });
+    emailInput.value = "valid@test.com";
+
+    fireEvent.submit(screen.getByTestId("form"));
+
+    await waitFor(() => {
+      expect(action).toHaveBeenCalled();
+    });
+  });
 });

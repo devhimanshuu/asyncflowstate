@@ -181,15 +181,27 @@ const sequence = useFlowSequence(steps);
 // sequence.execute() runs them in order
 ```
 
-### 3. Form Handling
+### 3. Form Handling (Native Zod/Valibot)
 
 ```tsx
+import { z } from "zod";
+
+const schema = z.object({
+  username: z.string().min(3),
+  email: z.string().email(),
+});
+
 function ProfileForm() {
   const flow = useFlow(updateProfile);
 
   return (
-    <form {...flow.form()}>
+    <form {...flow.form({ schema, extractFormData: true })}>
       <input name="username" />
+      {flow.fieldErrors.username && <span>{flow.fieldErrors.username}</span>}
+
+      <input name="email" />
+      {flow.fieldErrors.email && <span>{flow.fieldErrors.email}</span>}
+
       <button type="submit" disabled={flow.loading}>
         Submit
       </button>

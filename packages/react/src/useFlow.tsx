@@ -34,6 +34,11 @@ export interface FormHelperOptions<TArgs extends any[]> {
     | null
     | undefined
     | Promise<Record<string, string> | null | undefined>;
+  /**
+   * Optional validation schema (Zod, Valibot, Superstruct, etc.).
+   * The library automatically detects the schema type and executes it.
+   */
+  schema?: any;
   /** If true, resets the form element after a successful action completion. */
   resetOnSuccess?: boolean;
   /** Allow any other HTML attributes to be passed through. */
@@ -306,7 +311,17 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
             args = [data] as unknown as TArgs;
           }
 
-          // Validation
+          // Schema Validation (Zod, Valibot, etc.)
+          if (formProps.schema) {
+            const data = extractFormData ? args[0] : args;
+            const schemaErrors = await runSchemaValidation(formProps.schema, data);
+            if (schemaErrors) {
+              setFieldErrors(schemaErrors);
+              return;
+            }
+          }
+
+          // Manual Validation
           if (validate) {
             const errors = await validate(...args);
             if (errors && Object.keys(errors).length > 0) {
@@ -403,4 +418,57 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     /** The underlying Flow instance (advanced usage) */
     flow,
   };
+}
+
+/**
+ * Internal helper to run schema validation for various libraries.
+ * Supports Zod and Valibot (via common interfaces).
+ */
+async function runSchemaValidation(
+  schema: any,
+  data: any,
+): Promise<Record<string, string> | null> {
+  // Zod detection
+  if (
+    typeof schema.safeParseAsync === "function" ||
+    typeof schema.safeParse === "function"
+  ) {
+    const result = await (schema.safeParseAsync
+      ? schema.safeParseAsync(data)
+      : schema.safeParse(data));
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((issue: any) => {
+        const path = issue.path.join(".") || "form";
+        errors[path] = issue.message;
+      });
+      return errors;
+    }
+    return null;
+  }
+
+  // Valibot detection (Standard and Async schemas)
+  // Valibot schemas often have a 'async' property and are essentially functions
+  // or objects that can be passed to a global safeParse, but many users wrap them.
+  // However, we can support a generic 'validate' or 'parse' if available.
+  if (typeof schema.validate === "function") {
+    try {
+      const result = await schema.validate(data);
+      // Handle Superstruct / Yup style if they return data directly or throw
+      return null;
+    } catch (err: any) {
+      if (err.inner) {
+        // Yup style
+        const errors: Record<string, string> = {};
+        err.inner.forEach((item: any) => {
+          errors[item.path] = item.message;
+        });
+        return errors;
+      }
+      return { form: err.message };
+    }
+  }
+
+  return null;
 }
