@@ -1,7 +1,11 @@
+// Core logic
 export * from "./flow";
-export * from "./constants";
-export * from "./error-utils";
 export * from "./sequence";
 export * from "./parallel";
-export * from "./testing";
-export * from "./persistence";
+
+// Utilities
+export * from "./utils/constants";
+export * from "./utils/error-utils";
+export * from "./utils/testing";
+export * from "./utils/persistence";
+export * from "./utils/storage";

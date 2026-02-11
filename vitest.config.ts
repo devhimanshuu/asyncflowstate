@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    setupFiles: ["./vitest.setup.ts"],
     alias: {
       "@asyncflowstate/core": path.resolve(__dirname, "./packages/core/src"),
       "@asyncflowstate/react": path.resolve(__dirname, "./packages/react/src"),
