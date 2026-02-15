@@ -1,6 +1,6 @@
 # AsyncFlowState
 
-> **AsyncFlowState — the async UI behavior engine**
+> **AsyncFlowState — The industry-standard engine for predictable async UI behavior.**
 
 Eliminate boilerplate and bugs in async interactions. Built for React, works everywhere.
 
