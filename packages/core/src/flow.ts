@@ -13,13 +13,38 @@ import {
 } from "./utils/storage";
 
 /**
+ * A simple signal class for inter-flow communication.
+ */
+export class FlowSignal<TPayload = any> {
+  private listeners = new Set<(payload: TPayload) => void>();
+
+  public subscribe(listener: (payload: TPayload) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  public emit(payload: TPayload): void {
+    this.listeners.forEach((l) => l(payload));
+  }
+}
+
+/**
+ * Sources that can trigger a flow execution.
+ */
+export type FlowTriggerSource =
+  | FlowSignal<any>
+  | { subscribe: (cb: any) => () => void }
+  | boolean;
+
+/**
  * Status of the flow.
  * - `idle`: Initial state or after reset.
  * - `loading`: Action is currently executing.
  * - `success`: Action completed successfully.
  * - `error`: Action failed after all retry attempts.
+ * - `streaming`: Action is currently returning a stream of data.
  */
-export type FlowStatus = "idle" | "loading" | "success" | "error";
+export type FlowStatus = "idle" | "loading" | "success" | "error" | "streaming";
 
 /**
  * Types of events emitted by a Flow instance.
@@ -32,13 +57,15 @@ export type FlowEventType =
   | "cancel"
   | "reset"
   | "progress"
-  | "blocked";
+  | "blocked"
+  | "stream";
 
 /**
  * An event emitted for debugging purposes.
  */
 export interface FlowEvent {
   type: FlowEventType;
+  flowId: string;
   flowName: string;
   timestamp: number;
   state: FlowState;
@@ -88,7 +115,7 @@ export interface FlowError<TError = any> {
  */
 export type FlowAction<TData, TArgs extends any[]> = (
   ...args: TArgs
-) => Promise<TData>;
+) => Promise<TData | AsyncIterable<any> | ReadableStream<any>>;
 
 /**
  * Options for automatic retry logic.
@@ -154,7 +181,7 @@ export interface FlowMiddleware<
   onStart?: (
     args: TArgs,
     context: FlowMiddlewareContext<TData, TError, TArgs>,
-  ) => void;
+  ) => TArgs | void;
   onSuccess?: (
     data: TData,
     context: FlowMiddlewareContext<TData, TError, TArgs>,
@@ -166,6 +193,11 @@ export interface FlowMiddleware<
   onSettled?: (
     data: TData | null,
     error: TError | null,
+    context: FlowMiddlewareContext<TData, TError, TArgs>,
+  ) => void;
+  onStream?: (
+    chunk: any,
+    accumulated: TData,
     context: FlowMiddlewareContext<TData, TError, TArgs>,
   ) => void;
 }
@@ -200,6 +232,8 @@ export interface FlowOptions<
   onCancel?: () => void;
   /** Callback fired after either success or error (like finally) */
   onSettled?: (data: TData | null, error: TError | null) => void;
+  /** Callback fired when a new chunk of data arrives in streaming mode */
+  onStream?: (chunk: any, accumulated: TData) => void;
   /** Callback fired when a precondition fails */
   onBlocked?: () => void;
   /**
@@ -342,6 +376,12 @@ export interface FlowOptions<
    */
   circuitBreaker?: CircuitBreakerOptions;
   /**
+   * Optional triggers that will automatically execute this flow.
+   * If a boolean is provided, it triggers when it becomes true.
+   * If a FlowSignal or subscribable is provided, it triggers when it emits.
+   */
+  triggerOn?: FlowTriggerSource[];
+  /**
    * Unique key to identify the circuit breaker scope.
    * If not provided, it defaults to `dedupKey`.
    */
@@ -469,6 +509,7 @@ export interface FlowOptions<
 export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   // --- Debugger Support ---
   private static eventListeners = new Set<(event: FlowEvent) => void>();
+  private readonly id = Math.random().toString(36).substr(2, 9);
 
   public static onEvent(listener: (event: FlowEvent) => void): () => void {
     this.eventListeners.add(listener);
@@ -478,6 +519,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private emit(type: FlowEventType, payload?: any): void {
     const event: FlowEvent = {
       type,
+      flowId: this.id,
       flowName: this.options.debugName || "Unnamed Flow",
       timestamp: Date.now(),
       state: this.state,
@@ -536,6 +578,19 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
   private isTimeout = false;
 
+  // --- Signals ---
+  public readonly signals = {
+    start: new FlowSignal<TArgs>(),
+    success: new FlowSignal<TData>(),
+    error: new FlowSignal<TError>(),
+    cancel: new FlowSignal<void>(),
+    reset: new FlowSignal<void>(),
+    stream: new FlowSignal<any>(),
+    restore: new FlowSignal<any>(),
+  };
+
+  private triggerSubscriptions: (() => void)[] = [];
+
   // --- Middleware ---
   private middlewares: FlowMiddleware<TData, TError, TArgs>[] = [];
   private static globalMiddlewares: FlowMiddleware[] = [];
@@ -558,6 +613,48 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       state: "CLOSED" | "OPEN" | "HALF_OPEN";
     }
   > = new Map();
+  private static circuitRegistryLoaded = false;
+  private static readonly CIRCUIT_STORAGE_KEY = "asyncflow_circuit_registry";
+
+  /**
+   * Loads the circuit breaker registry from local storage on first use.
+   */
+  private static loadCircuitRegistry(): void {
+    if (this.circuitRegistryLoaded) return;
+
+    const storage = getStorage("local");
+    const data = restoreData<Record<string, any>>(
+      this.CIRCUIT_STORAGE_KEY,
+      storage,
+    );
+
+    if (data) {
+      Object.entries(data).forEach(([key, value]) => {
+        this.circuitRegistry.set(key, value);
+      });
+    }
+
+    this.circuitRegistryLoaded = true;
+  }
+
+  /**
+   * Updates a circuit breaker state and persists it to storage.
+   */
+  private static updateCircuitState(key: string, state: any): void {
+    this.circuitRegistry.set(key, state);
+
+    // Persist to storage
+    const storage = getStorage("local");
+    const currentData: Record<string, any> = {};
+    this.circuitRegistry.forEach((v, k) => {
+      // Don't persist HALF_OPEN, save as OPEN to be safe on restart
+      const valueToSave = { ...v };
+      if (valueToSave.state === "HALF_OPEN") valueToSave.state = "OPEN";
+      currentData[k] = valueToSave;
+    });
+
+    persistData(this.CIRCUIT_STORAGE_KEY, currentData, storage);
+  }
 
   /**
    * Registers a global middleware that applies to ALL Flow instances.
@@ -597,28 +694,50 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.middlewares.push(...options.middleware);
     }
 
-    // Initialize new persistence system
-    this.initializePersistence();
-
-    // Backward compatibility: support old persistKey
-    if (this.options.persistKey && !this.options.persist) {
-      const storage = getStorage(this.options.persistStorage);
-      const data = restoreData<TData>(this.options.persistKey, storage);
-      if (data) {
-        this._state = {
-          ...this._state,
-          status: "success",
-          data,
-          progress: PROGRESS.COMPLETE,
-        };
-        this.hasRestoredState = true;
-      }
-    }
-
     // Initialize Sync
     if (this.options.sync?.channel && typeof BroadcastChannel !== "undefined") {
       this.bc = new BroadcastChannel(this.options.sync.channel);
       this.bc.onmessage = this.handleSyncMessage.bind(this);
+    }
+
+    // Load persistent circuit registry on first instantiation
+    Flow.loadCircuitRegistry();
+
+    // Initialize triggers
+    this.initializeTriggers();
+
+    // Initialize persistence (async fire-and-forget)
+    this.initializePersistence();
+  }
+
+  private initializeTriggers(): void {
+    if (!this.options.triggerOn) return;
+
+    this.options.triggerOn.forEach((source) => {
+      if (typeof source === "boolean") {
+        // Booleans are handled by the framework wrapper (e.g. useFlow)
+        // because the core Flow instance doesn't have a reactive cycle itself
+        return;
+      }
+
+      if (source && typeof (source as any).subscribe === "function") {
+        const unsub = (source as any).subscribe(() => {
+          this.execute(...([] as unknown as TArgs));
+        });
+        this.triggerSubscriptions.push(unsub);
+      }
+    });
+  }
+
+  /**
+   * Cleanup any subscriptions or timers before disposing.
+   */
+  public dispose(): void {
+    this.clearAllTimers();
+    this.triggerSubscriptions.forEach((unsub) => unsub());
+    this.triggerSubscriptions = [];
+    if (this.bc) {
+      this.bc.close();
     }
   }
 
@@ -650,6 +769,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.hasRestoredState = true;
       this.lastPersistedArgs = persistedState.lastArgs as TArgs;
       this.notify();
+      this.signals.restore.emit(persistedState);
     }
   }
 
@@ -879,13 +999,6 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       progress: PROGRESS.INITIAL,
     });
     this.emit("reset");
-
-    if (this.options.persistKey) {
-      clearData(
-        this.options.persistKey,
-        getStorage(this.options.persistStorage),
-      );
-    }
   }
 
   /**
@@ -950,7 +1063,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           this.options.circuitBreaker.resetTimeout
         ) {
           // Half-Open: Allow one request to pass
-          Flow.circuitRegistry.set(cbKey, { ...circuit, state: "HALF_OPEN" });
+          Flow.updateCircuitState(cbKey, { ...circuit, state: "HALF_OPEN" });
         } else {
           // Fast fail
           const error: FlowError = {
@@ -966,8 +1079,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       }
     }
 
-    // 4. Direct Execution
-    return this.internalExecute(args);
+    // 4. Run Middlewares and allow them to modify arguments
+    const modifiedArgs = this.runOnStartMiddleware(args);
+
+    // 5. Direct Execution
+    return this.internalExecute(modifiedArgs);
   }
 
   // --- Private Internal Logic ---
@@ -1215,21 +1331,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
           // Update Circuit Breaker on timeout failure (treated as failure)
           if (this.options.circuitBreaker && cbKey) {
-            const current = Flow.circuitRegistry.get(cbKey) || {
-              failures: 0,
-              lastFailure: 0,
-              state: "CLOSED",
-            };
-            const newFailures = current.failures + 1;
-            const newState =
-              newFailures >= this.options.circuitBreaker.failureThreshold
-                ? "OPEN"
-                : "CLOSED";
-            Flow.circuitRegistry.set(cbKey, {
-              failures: newFailures,
-              lastFailure: Date.now(),
-              state: newState,
-            });
+            this.handleCircuitFailure(cbKey);
           }
         }
         return;
@@ -1238,7 +1340,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       attempt++;
       try {
         // Race the action against abort signal
-        const data = await Promise.race([
+        const result = await Promise.race([
           this.action(...args),
           new Promise<never>((_, reject) => {
             if (signal.aborted) {
@@ -1252,37 +1354,46 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
         if (signal.aborted) return;
 
-        // Ensure minimum duration for UX if configured
-        await this.waitMinDuration();
+        // --- Streaming Support ---
+        const isAsyncIterable =
+          result != null &&
+          typeof (result as any)[Symbol.asyncIterator] === "function";
+        const isReadableStream =
+          result != null && typeof (result as any).getReader === "function";
 
-        // Clear timeout timer on success
-        this.clearTimer("timeoutTimer");
+        if (isAsyncIterable || isReadableStream) {
+          this.setState({ status: "streaming" });
 
-        this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
-        this.options.onSuccess?.(data);
-        this.runMiddleware("onSuccess", data);
-        this.options.onSettled?.(data, null);
-        this.runMiddleware("onSettled", data, null);
-
-        // Clear snapshot on successful completion
-        this.previousDataSnapshot = null;
-
-        this.finalizeLoading();
-        this.scheduleAutoReset();
-        this.processEnqueuedTasks();
-
-        // Handle Polling
-        if (
-          this.options.polling?.enabled !== false &&
-          this.options.polling?.interval
-        ) {
-          const shouldStop = this.options.polling.stopIf?.(data);
-          if (!shouldStop) {
-            this.scheduleNextPoll(args);
+          if (isAsyncIterable) {
+            for await (const chunk of result as AsyncIterable<any>) {
+              if (signal.aborted) break;
+              this.handleStreamChunk(chunk);
+            }
+          } else {
+            const reader = (result as ReadableStream<any>).getReader();
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done || signal.aborted) break;
+                this.handleStreamChunk(value);
+              }
+            } finally {
+              reader.releaseLock();
+            }
           }
+
+          if (signal.aborted) return;
+
+          // Once stream ends, finalize as success
+          const finalData = this._state.data;
+          this.finalizeSuccess(finalData as TData, cbKey, args);
+          return finalData as TData;
         }
 
-        return data;
+        // Standard Non-Streaming Success
+        await this.waitMinDuration();
+        this.finalizeSuccess(result as TData, cbKey, args);
+        return result as TData;
       } catch (error) {
         // Check if this was a timeout abort
         if (signal.aborted && this.isTimeout) {
@@ -1315,6 +1426,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           // Handle polling stop on error
           if (this.options.polling?.stopOnError !== false) {
             this.stopPolling();
+          }
+
+          // Update Circuit Breaker on timeout failure
+          if (this.options.circuitBreaker && cbKey) {
+            this.handleCircuitFailure(cbKey);
           }
           return;
         }
@@ -1367,35 +1483,9 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             error: finalError,
             progress: PROGRESS.INITIAL,
           });
-
           // Update Circuit Breaker on failure
           if (this.options.circuitBreaker && cbKey) {
-            const current = Flow.circuitRegistry.get(cbKey) || {
-              failures: 0,
-              lastFailure: 0,
-              state: "CLOSED",
-            };
-
-            // If we were HALF_OPEN and failed, go back to OPEN
-            if (current.state === "HALF_OPEN") {
-              Flow.circuitRegistry.set(cbKey, {
-                failures: current.failures + 1,
-                lastFailure: Date.now(),
-                state: "OPEN",
-              });
-            } else {
-              // Normal CLOSED state failure count
-              const newFailures = current.failures + 1;
-              const newState =
-                newFailures >= this.options.circuitBreaker.failureThreshold
-                  ? "OPEN"
-                  : "CLOSED";
-              Flow.circuitRegistry.set(cbKey, {
-                failures: newFailures,
-                lastFailure: Date.now(),
-                state: newState,
-              });
-            }
+            this.handleCircuitFailure(cbKey);
           }
 
           // Clear snapshot after rollback
@@ -1422,6 +1512,102 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
         this.emit("retry", { attempt, maxAttempts, error: finalError });
         this.options.onRetry?.(finalError, attempt, maxAttempts);
         await this.delayRetry(attempt);
+      }
+    }
+  }
+
+  /**
+   * Updates the circuit breaker state on failure.
+   * @private
+   */
+  private handleCircuitFailure(cbKey: string): void {
+    const current = Flow.circuitRegistry.get(cbKey) || {
+      failures: 0,
+      lastFailure: 0,
+      state: "CLOSED",
+    };
+
+    const newFailures = current.failures + 1;
+    const newState =
+      current.state === "HALF_OPEN" ||
+      newFailures >= this.options.circuitBreaker!.failureThreshold
+        ? "OPEN"
+        : "CLOSED";
+
+    Flow.updateCircuitState(cbKey, {
+      failures: newFailures,
+      lastFailure: Date.now(),
+      state: newState,
+    });
+  }
+
+  /**
+   * Processes a single chunk from a stream.
+   * @private
+   */
+  private handleStreamChunk(chunk: any): void {
+    let newData = this._state.data;
+
+    // Accumulate strings, otherwise replace (standard LLM streaming pattern)
+    if (typeof chunk === "string") {
+      newData = (((newData as any) || "") + chunk) as any;
+    } else {
+      newData = chunk;
+    }
+
+    this.setState({ status: "streaming", data: newData });
+
+    // Emit signals and events
+    this.signals.stream.emit(chunk);
+    this.emit("stream", chunk);
+
+    // Call callbacks
+    this.options.onStream?.(chunk, newData as TData);
+    this.runMiddleware("onStream", chunk, newData);
+  }
+
+  /**
+   * Finalizes a successful execution.
+   * @private
+   */
+  private finalizeSuccess(
+    data: TData,
+    cbKey: string | undefined,
+    args: TArgs,
+  ): void {
+    // Clear timeout timer on success
+    this.clearTimer("timeoutTimer");
+
+    this.setState({ status: "success", data, progress: PROGRESS.COMPLETE });
+    this.options.onSuccess?.(data);
+    this.runMiddleware("onSuccess", data);
+    this.options.onSettled?.(data, null);
+    this.runMiddleware("onSettled", data, null);
+
+    // Clear snapshot on successful completion
+    this.previousDataSnapshot = null;
+
+    this.finalizeLoading();
+    this.scheduleAutoReset();
+    this.processEnqueuedTasks();
+
+    // Reset Circuit Breaker on success
+    if (this.options.circuitBreaker && cbKey) {
+      Flow.updateCircuitState(cbKey, {
+        failures: 0,
+        lastFailure: 0,
+        state: "CLOSED",
+      });
+    }
+
+    // Handle Polling
+    if (
+      this.options.polling?.enabled !== false &&
+      this.options.polling?.interval
+    ) {
+      const shouldStop = this.options.polling.stopIf?.(data);
+      if (!shouldStop) {
+        this.scheduleNextPoll(args);
       }
     }
   }
@@ -1602,6 +1788,31 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     }, interval);
   }
 
+  private runOnStartMiddleware(args: TArgs): TArgs {
+    let currentArgs = [...args] as TArgs;
+    const allMiddlewares = [...Flow.globalMiddlewares, ...this.middlewares];
+
+    const context: FlowMiddlewareContext<TData, TError, TArgs> = {
+      meta: this.options.meta || {},
+      options: this.options,
+    };
+
+    allMiddlewares.forEach((mw) => {
+      if (typeof mw.onStart === "function") {
+        try {
+          const modified = (mw.onStart as any)(currentArgs, context);
+          if (Array.isArray(modified)) {
+            currentArgs = modified as TArgs;
+          }
+        } catch (err) {
+          console.error("Flow: Middleware onStart error", err);
+        }
+      }
+    });
+
+    return currentArgs;
+  }
+
   private runMiddleware(hook: keyof FlowMiddleware, ...args: any[]): void {
     const allMiddlewares = [...Flow.globalMiddlewares, ...this.middlewares];
 
@@ -1614,7 +1825,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       const fn = mw[hook];
       if (typeof fn === "function") {
         try {
-          (fn as Function)(...args, context);
+          (fn as Function)(...args, context as any);
         } catch (err) {
           console.error(`Flow: Middleware error in ${hook}`, err);
         }
@@ -1645,8 +1856,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
   private setState(updates: Partial<FlowState<TData, TError>>): void {
     // Record history before updating
-    // We only record significant state changes, ignoring pure progress updates to avoid spamming history
-    if (!updates.progress || Object.keys(updates).length > 1) {
+    // We only record significant state changes, ignoring pure progress updates and streaming chunks to avoid spamming history
+    const isProgressUpdate =
+      updates.progress !== undefined && Object.keys(updates).length === 1;
+    const isStreamingChunk =
+      this._state.status === "streaming" && updates.status === "streaming";
+
+    if (!isProgressUpdate && !isStreamingChunk) {
       this._history.push({ ...this._state });
       if (this._history.length > this.historyLimit) {
         this._history.shift();
@@ -1660,22 +1876,17 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       this.persistCurrentState();
     }
 
-    // Backward compatibility: Handle old persistKey
-    if (
-      this.options.persistKey &&
-      !this.options.persist &&
-      updates.status === "success" &&
-      this._state.data !== null &&
-      this._state.data !== undefined
-    ) {
-      persistData(
-        this.options.persistKey,
-        this._state.data,
-        getStorage(this.options.persistStorage),
-      );
+    this.notify();
+
+    // Emit Signals
+    if (updates.status === "loading" && this._state.status === "loading") {
+      this.signals.start.emit(this.currentExecutionArgs as TArgs);
+    } else if (updates.status === "success") {
+      this.signals.success.emit(this._state.data as TData);
+    } else if (updates.status === "error") {
+      this.signals.error.emit(this._state.error as TError);
     }
 
-    this.notify();
     this.emit(
       updates.status === "loading" ? "progress" : (updates.status as any),
     );

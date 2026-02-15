@@ -16,6 +16,16 @@ export interface TransitionFlowOptions<
    */
   refresh?: boolean;
   /**
+   * Optional path to revalidate using Next.js revalidatePath.
+   * Note: revalidatePath must be called from a Server Action; this option
+   * serves as metadata and ensures router.refresh() is called on the client.
+   */
+  revalidatePath?: string;
+  /**
+   * Optional tag to revalidate using Next.js revalidateTag.
+   */
+  revalidateTag?: string;
+  /**
    * If true, scrolls to the top of the page after the flow succeeds.
    */
   scrollToTop?: boolean;
@@ -41,7 +51,7 @@ export function useTransitionFlow<
     async (...args: TArgs) => {
       const result = await action(...args);
 
-      if (options.refresh) {
+      if (options.refresh || options.revalidatePath || options.revalidateTag) {
         startTransition(() => {
           router.refresh();
         });

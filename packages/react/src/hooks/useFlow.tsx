@@ -76,6 +76,10 @@ export interface ReactFlowOptions<
   /** Accessibility configuration for automatic announcements. */
   a11y?: A11yOptions<TData, TError>;
   /**
+   * Optional triggers that will automatically execute this flow.
+   */
+  triggerOn?: (boolean | any)[];
+  /**
    * Which usually happens when navigating away.
    * Default: true
    */
@@ -198,7 +202,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     };
   }, [flow, options.cancelOnUnmount, options.keepAlive]);
 
-  // Accessibility: Auto-focus error when it appears
+  // Accessibility & Form Recovery: Auto-focus error when it appears
   const errorRef = useRef<any>(null);
 
   useEffect(() => {
@@ -206,6 +210,27 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
       errorRef.current.focus();
     }
   }, [snapshot.status]);
+
+  // Handle Triggers (Boolean)
+  useEffect(() => {
+    if (!options.triggerOn) return;
+
+    options.triggerOn.forEach((trigger) => {
+      if (typeof trigger === "boolean" && trigger) {
+        flow.execute(...([] as unknown as TArgs));
+      }
+    });
+  }, [flow, options.triggerOn]);
+
+  // Handle Restoration Signals
+  useEffect(() => {
+    return flow.signals.restore.subscribe((persistedState) => {
+      // Auto-focus on restored error for form recovery
+      if (persistedState.status === "error" && errorRef.current) {
+        setTimeout(() => errorRef.current?.focus(), 100);
+      }
+    });
+  }, [flow]);
 
   // Accessibility: Handle announcements
   useEffect(() => {
@@ -417,6 +442,8 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     LiveRegion,
     /** The underlying Flow instance (advanced usage) */
     flow,
+    /** Signals for inter-flow communication */
+    signals: flow.signals,
   };
 }
 
