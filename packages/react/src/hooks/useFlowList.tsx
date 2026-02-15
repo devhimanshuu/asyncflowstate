@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { Flow, FlowAction, FlowOptions, FlowState } from "@asyncflowstate/core";
-import { useFlowContext, mergeFlowOptions } from "./FlowProvider";
+import { useFlowContext, mergeFlowOptions } from "../components/FlowProvider";
 
 export function useFlowList<TData = any, TError = any, TArgs extends any[] = any[]>(
     action: FlowAction<TData, TArgs>,

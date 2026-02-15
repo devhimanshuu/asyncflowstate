@@ -1,4 +1,4 @@
-import { FlowOptions } from "./flow";
+import { FlowOptions } from "../flow";
 
 export interface StorageAdapter {
   getItem: (key: string) => string | null;

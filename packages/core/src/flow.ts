@@ -4,8 +4,13 @@ import {
   DEFAULT_CONCURRENCY,
   PROGRESS,
   BACKOFF_MULTIPLIER,
-} from "./constants";
-import { getStorage, restoreData, persistData, clearData } from "./storage";
+} from "./utils/constants";
+import {
+  getStorage,
+  restoreData,
+  persistData,
+  clearData,
+} from "./utils/storage";
 
 /**
  * Status of the flow.
@@ -623,7 +628,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
   private async initializePersistence(): Promise<void> {
     if (!this.options.persist) return;
 
-    const { restoreFlowState } = await import("./persistence");
+    const { restoreFlowState } = await import("./utils/persistence");
 
     const persistedState = await restoreFlowState<TData, TError>({
       key: this.options.persist.key,
@@ -1703,7 +1708,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     if (!this.options.persist) return;
 
     // Dynamic import to avoid bundling persistence code if not used
-    import("./persistence").then(({ persistFlowState }) => {
+    import("./utils/persistence").then(({ persistFlowState }) => {
       persistFlowState(
         this._state,
         {

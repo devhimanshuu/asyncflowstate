@@ -1,4 +1,4 @@
-import { Flow } from "./flow";
+import { Flow } from "../flow";
 
 /**
  * Creates a Flow instance with controllable resolution.

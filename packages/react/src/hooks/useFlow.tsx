@@ -12,7 +12,7 @@ import {
   type FlowOptions,
   type FlowState,
 } from "@asyncflowstate/core";
-import { useFlowContext, mergeFlowOptions } from "./FlowProvider";
+import { useFlowContext, mergeFlowOptions } from "../components/FlowProvider";
 
 /**
  * Options for the `form()` helper.

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, type ReactNode, type FormEvent } from "react";
-import { useFlow, type ReactFlowOptions } from "./useFlow";
+import { useFlow, type ReactFlowOptions } from "../hooks/useFlow";
 
 /**
  * Props for ProgressiveFlow component.

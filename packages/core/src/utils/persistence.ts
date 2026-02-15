@@ -1,4 +1,4 @@
-import { FlowState, FlowStatus } from "./flow";
+import { FlowState, FlowStatus } from "../flow";
 import { getStorage } from "./storage";
 
 /**
@@ -65,7 +65,7 @@ const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours
 export function persistFlowState<TData, TError>(
   state: FlowState<TData, TError>,
   options: PersistenceOptions,
-  lastArgs?: any[]
+  lastArgs?: any[],
 ): void {
   const storage = getStorage(options.storage);
   if (!storage) return;
@@ -96,7 +96,7 @@ export function persistFlowState<TData, TError>(
  * Returns null if no valid state is found or if it's stale.
  */
 export async function restoreFlowState<TData, TError>(
-  options: PersistenceOptions
+  options: PersistenceOptions,
 ): Promise<PersistedFlowState<TData, TError> | null> {
   const storage = getStorage(options.storage);
   if (!storage) return null;
@@ -159,7 +159,7 @@ export function clearFlowState(options: PersistenceOptions): void {
  */
 export function generatePersistenceKey(
   flowName: string,
-  scope?: string
+  scope?: string,
 ): string {
   const base = `asyncflow:${flowName}`;
   return scope ? `${base}:${scope}` : base;
