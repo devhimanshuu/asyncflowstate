@@ -235,14 +235,15 @@ function App() {
 ## ✨ Key Features
 
 - **🌐 Global Config:** Set default options app-wide with `FlowProvider`.
-- **⛓️ Sequential Flows:** Orchestrate complex multi-step workflows with `FlowSequence`.
-- **⚡ Parallel Flows:** Run multiple flows simultaneously with aggregate state via `FlowParallel`.
-- **📋 Flow Lists:** Manage multiple independent instances of the same action with `useFlowList`.
-- **⏲️ Declarative Polling:** Built-in support for auto-refreshing actions with conditions.
+- **⛓️ Declarative Chaining:** Orchestrate complex workflows with `triggerOn` and `signals` instead of manual `useEffect`.
+- **🌊 Streaming Support:** Native support for LLM/AI streaming using `AsyncIterable` or `ReadableStream`.
+- **⚡ Parallel & Sequential:** Orchestrate multiple flows with aggregate state via `FlowParallel` and `FlowSequence`.
+- **⏲️ Declarative Polling:** Built-in support for auto-refreshing actions with conditional stop logic.
 - **💾 Smart Persistence:** Survive page refreshes and resume interrupted operations (file uploads, forms, etc.).
-- **🎯 Visual Debugger:** Real-time timeline of all async activity in your app with `FlowDebugger`.
+- **🛡️ Persistent Circuit Breaker:** Prevent cascading failures with cross-session state persistence.
+- **📊 Visual Sequence Trace:** Real-time Timeline/Gantt view of all async activity with `FlowDebugger`.
+- **🛠️ Form Recovery:** Automatically re-focus fields and restore validation errors after a page refresh.
 - **🔔 Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
-- **🛡️ Guard Rails:** Preconditions to prevent execution based on custom logic.
 - **🧩 Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
 
 ---

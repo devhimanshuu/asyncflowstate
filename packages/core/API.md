@@ -10,13 +10,13 @@
 import { Flow } from "@asyncflowstate/core";
 
 // Create and execute a flow
-const flow = new Flow(async () => {
-  const response = await fetch("/api/data");
+const flow = new Flow(async (id: string) => {
+  const response = await fetch(`/api/user/${id}`);
   return response.json();
 });
 
 flow.subscribe((state) => console.log(state));
-await flow.start();
+await flow.execute("user-123");
 ```
 
 ## Core API
@@ -28,135 +28,102 @@ The main class for managing async operations.
 #### Constructor
 
 ```typescript
-new Flow<TResult>(
-  executor: FlowExecutor<TResult>,
-  options?: FlowOptions<TResult>
+new Flow<TData, TError, TArgs>(
+  action: (...args: TArgs) => Promise<TData> | AsyncIterable<any> | ReadableStream<any>,
+  options?: FlowOptions<TData, TError, TArgs>
 )
 ```
 
+#### Properties
+
+- **`status`** - Current lifecycle phase: `'idle' | 'loading' | 'streaming' | 'success' | 'error'`
+- **`data`** - Result of the last successful execution (or accumulated stream data)
+- **`error`** - Error object from the last failure
+- **`progress`** - Execution progress (0-100)
+- **`state`** - Read-only snapshot of the full state
+- **`signals`** - Inter-flow communication channels (`start`, `success`, `error`, `cancel`, `stream`, `reset`, `restore`)
+
 #### Methods
 
-- **`start()`** - Initiates the flow execution
-- **`cancel()`** - Cancels the flow execution
-- **`reset()`** - Resets flow to idle state
+- **`execute(...args)`** - Initiates the flow execution. Handles debouncing/throttling/circuit breaking.
+- **`cancel()`** - Aborts the current execution
+- **`reset()`** - Resets flow to idle state and clears data/error
 - **`subscribe(listener)`** - Subscribes to state changes
-- **`getState()`** - Gets current flow state
+- **`setOptions(options)`** - Updates options at runtime
+- **`setProgress(val)`** - Manually update progress during execution
 
-#### Events
+### FlowSequence
 
-- **`pending`** - Flow starts executing
-- **`success`** - Flow completed successfully
-- **`error`** - Flow encountered an error
-- **`cancelled`** - Flow was cancelled
-- **`retrying`** - Flow is retrying
-
-### sequence()
-
-Execute multiple operations sequentially.
+Execute multiple flows sequentially.
 
 ```typescript
-import { sequence } from "@asyncflowstate/core";
+import { FlowSequence } from "@asyncflowstate/core";
 
-const result = await sequence([
-  () => fetchUser(id),
-  (user) => fetchPosts(user.id),
-  (posts) => enrichPosts(posts),
+const sequence = new FlowSequence([
+  { name: "Auth", flow: loginFlow },
+  { name: "Fetch", flow: dataFlow, mapInput: (auth) => auth.token },
 ]);
+
+await sequence.execute();
 ```
 
-### parallel()
+### FlowParallel
 
-Execute multiple operations in parallel.
+Execute multiple flows in parallel.
 
 ```typescript
-import { parallel } from "@asyncflowstate/core";
+import { FlowParallel } from "@asyncflowstate/core";
 
-const [users, posts, comments] = await parallel([
-  () => fetchUsers(),
-  () => fetchPosts(),
-  () => fetchComments(),
-]);
+const parallel = new FlowParallel([flow1, flow2], "all");
+await parallel.execute();
 ```
 
 ## Advanced Features
 
-### Error Handling
+### Resilience & Circuit Breaker
 
 ```typescript
 const flow = new Flow(fetchData, {
-  onError: (error) => {
-    console.error("Flow failed:", error);
+  circuitBreaker: {
+    failureThreshold: 5,
+    resetTimeout: 30000,
   },
-  retry: {
-    maxAttempts: 3,
-    delayMs: 1000,
-    backoff: "exponential",
-  },
+  circuitBreakerKey: "api-service-v1", // Persisted to localStorage
 });
 ```
 
-### Persistence
+### Declarative Chaining
 
 ```typescript
-import { withPersistence } from "@asyncflowstate/core";
-
-const persistedFlow = withPersistence(flow, {
-  storage: localStorage,
-  key: "my-flow-state",
+const upload = new Flow(uploadFile);
+const process = new Flow(processFile, {
+  triggerOn: [upload.signals.success],
 });
 ```
+
+### Streaming Support
+
+If the action returns an `AsyncIterable` or `ReadableStream`, the flow treats it as a stream, accumulates data (if strings), and emits `stream` signals for each chunk.
 
 ### Middleware
 
 ```typescript
-flow.use((context) => {
-  console.log("Flow started:", context);
-  return (next) => {
-    const startTime = Date.now();
-    return async () => {
-      const result = await next();
-      console.log("Duration:", Date.now() - startTime);
-      return result;
-    };
-  };
+flow.use({
+  onStart: (context) => console.log("Started", context),
+  onSuccess: (data) => console.log("Success", data),
+  onStream: (chunk) => console.log("Chunk", chunk),
 });
-```
-
-## Testing
-
-```typescript
-import { createMockFlow } from "@asyncflowstate/core";
-
-const mockFlow = createMockFlow(() => ({ data: "test" }));
-await mockFlow.start();
-```
-
-## Storage API
-
-```typescript
-import { createStorage } from "@asyncflowstate/core";
-
-const storage = createStorage(window.localStorage);
-await storage.set("key", { data: "value" });
-const data = await storage.get("key");
 ```
 
 ## Types
 
-All types are exported from the main package:
-
 ```typescript
 import type {
   FlowState,
-  FlowExecutor,
+  FlowStatus,
   FlowOptions,
-  FlowListener,
+  FlowEvent,
   RetryOptions,
+  CircuitBreakerOptions,
 } from "@asyncflowstate/core";
 ```
-
-## See Also
-
-- [Full Documentation](../../documentation/)
-- [Examples](../../examples/core/)
-- [Contributing Guide](../../CONTRIBUTING.md)

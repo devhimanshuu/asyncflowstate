@@ -170,6 +170,22 @@ const flow = useFlow(fetchPrice, {
 });
 ```
 
+### AI Streaming (LLM)
+
+```tsx
+const flow = useFlow(chatAction);
+// flow.status === 'streaming' will be true while chunks arrive
+```
+
+### Declarative Chaining
+
+```tsx
+const save = useFlow(saveAction);
+const sendEmail = useFlow(emailAction, {
+  triggerOn: [save.signals.success],
+});
+```
+
 ## 📚 More Resources
 
 - [Main README](../README.md)

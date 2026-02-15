@@ -157,13 +157,58 @@ await parallel.execute();
 console.log(parallel.state.progress); // Average progress of all flows
 ```
 
+### Streaming Support (LLM/AI)
+
+Native support for `AsyncIterable` and `ReadableStream`. The flow status switches to `'streaming'` until completion.
+
+```typescript
+const flow = new Flow(async (prompt) => {
+  const response = await ai.stream(prompt);
+  return response.body; // ReadableStream
+});
+
+flow.subscribe((state) => {
+  if (state.status === "streaming") {
+    processChunk(state.data);
+  }
+});
+```
+
+### Persistent Circuit Breaker
+
+Prevents cascading failures by "tripping" the circuit after thresholds are met. State is persisted to `localStorage`.
+
+```typescript
+const flow = new Flow(flakeyAPI, {
+  circuitBreaker: {
+    failureThreshold: 5,
+    resetTimeout: 30000,
+  },
+  circuitBreakerKey: "user-api-circuit",
+});
+```
+
+### Declarative Chaining (Signals)
+
+Use signals to chain flows without manual `useEffect` or complex orchestration.
+
+```typescript
+const saveFlow = new Flow(saveUser);
+const emailFlow = new Flow(sendEmail, {
+  triggerOn: [saveFlow.signals.success],
+});
+```
+
 ### Event System (Debugger Support)
 
 Subscribe to global events for monitoring or logging.
 
 ```typescript
 const cleanup = Flow.onEvent((event) => {
-  console.log(`${event.flowName}: ${event.type}`, event.state);
+  console.log(
+    `${event.flowName} [${event.flowId}]: ${event.type}`,
+    event.state,
+  );
 });
 ```
 
@@ -177,7 +222,7 @@ const cleanup = Flow.onEvent((event) => {
 
 #### Properties
 
-- `status`: `'idle' | 'loading' | 'success' | 'error'`
+- `status`: `'idle' | 'loading' | 'streaming' | 'success' | 'error'`
 - `data`: `TData | null`
 - `error`: `TError | null`
 - `progress`: `number` (0-100)

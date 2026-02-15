@@ -10,41 +10,34 @@ pnpm add @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core
 npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core
 ```
 
-## Features
+## Transitions & Revalidation
+
+### `useTransitionFlow`
+
+Perfect for React 19 and Next.js 15. Wraps execution in `startTransition` and provides automatic cache revalidation.
+
+```tsx
+import { useTransitionFlow } from "@asyncflowstate/next";
+
+const flow = useTransitionFlow(submitAction, {
+  refresh: true, // router.refresh() on success
+  revalidatePath: "/dash", // Declarative revalidation hint
+  scrollToTop: true,
+});
+
+return (
+  <button onClick={() => flow.execute()} disabled={flow.isPending}>
+    {flow.isPending ? "Processing..." : "Submit"}
+  </button>
+);
+```
+
+### Features
 
 - **Server Action Support**: Seamlessly wrap Next.js Server Actions with `useServerActionFlow`.
 - **SSR Friendly**: Built-in handling for hydration and server-side state.
 - **App Router Integrated**: Works perfectly with `useTransition` and Next.js navigation.
-
-## Basic Usage
-
-### Using with Server Actions
-
-```tsx
-'use client';
-
-import { useServerActionFlow } from '@asyncflowstate/next';
-import { updateUserProfile } from './actions';
-
-export function ProfileForm() {
-  const { execute, loading, error, success } = useServerActionFlow(updateUserProfile, {
-    onSuccess: (data) => {
-      console.log('Profile updated!', data);
-    }
-  });
-
-  return (
-    <form action={execute}>
-      <input name="name" placeholder="Name" />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Saving...' : 'Save Profile'}
-      </button>
-      {error && <p className="error">{error.message}</p>}
-      {success && <p className="success">Saved!</p>}
-    </form>
-  );
-}
-```
+- **Automatic Revalidation**: Declaratively trigger `revalidatePath` or `revalidateTag` via success hooks.
 
 ## License
 

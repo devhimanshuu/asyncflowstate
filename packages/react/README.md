@@ -176,7 +176,33 @@ const flow = useFlow(async () => {
 return <progress value={flow.progress} max="100" />;
 ```
 
-## Advanced Orchestration
+## Advanced Orchestration & Chaining
+
+### Declarative Chaining (`triggerOn`)
+
+Chain flows without manual `useEffect`. Flows can subscribe to signals from other flows.
+
+```tsx
+const login = useFlow(loginAction);
+const fetchProfile = useFlow(fetchAction, {
+  triggerOn: [login.signals.success],
+});
+```
+
+### Streaming (LLM/AI)
+
+Native support for streaming responses. The flow status will be `'streaming'` while chunks arrive. `flow.data` accumulates string chunks automatically.
+
+```tsx
+const flow = useFlow(chatAction);
+
+return (
+  <div>
+    {flow.status === "streaming" && <span>GPT is typing...</span>}
+    <pre>{flow.data}</pre>
+  </div>
+);
+```
 
 ### `useFlowSequence`
 
@@ -189,76 +215,24 @@ const sequence = useFlowSequence([
   { name: "Upload", flow: uploadFlow },
   { name: "Process", flow: processFlow, mapInput: (file) => file.id },
 ]);
-
-return (
-  <div>
-    <button onClick={() => sequence.execute()}>Start</button>
-    <p>Status: {sequence.status}</p>
-    <p>Step: {sequence.currentStep?.name}</p>
-    <progress value={sequence.progress} max="100" />
-  </div>
-);
 ```
 
-### `useFlowParallel`
+## Monitoring & Debugging
 
-Monitor and control multiple flows running at the same time.
+### `FlowDebugger` (Timeline View)
 
-```tsx
-import { useFlowParallel } from "@asyncflowstate/react";
-
-const parallel = useFlowParallel({
-  profile: profileFlow,
-  settings: settingsFlow,
-});
-
-return (
-  <div>
-    <button onClick={() => parallel.execute()}>Refresh Dashboard</button>
-    {parallel.loading && <p>Loading all components...</p>}
-    <p>Overall Progress: {parallel.progress}%</p>
-  </div>
-);
-```
-
-### `useFlowList`
-
-Manage multiple independent instances of the same action (e.g., list items).
-
-```tsx
-import { useFlowList } from "@asyncflowstate/react";
-
-const list = useFlowList(deleteItem);
-
-return items.map((item) => (
-  <button
-    key={item.id}
-    disabled={list.getStatus(item.id).status === "loading"}
-    onClick={() => list.execute(item.id, item.id)}
-  >
-    Delete
-  </button>
-));
-```
-
-## Monitoring & Notifications
-
-### `FlowDebugger`
-
-A drop-in component to visualize all async flow activity in real-time.
+A powerful drop-in component to visualize all async activity. Features a **Timeline/Gantt** view to identify bottlenecks and parallel execution order.
 
 ```tsx
 import { FlowDebugger } from "@asyncflowstate/react";
 
-function App() {
-  return (
-    <>
-      <Main />
-      <FlowDebugger />
-    </>
-  );
-}
+// Add it once at the root
+<FlowDebugger />;
 ```
+
+### Form Recovery
+
+If a page is refreshed during a validation error or an interrupted loading state, `useFlow` automatically restores the state and **re-focuses** the last active field (or `errorRef`) to provide a seamless recovery experience.
 
 ### `FlowNotificationProvider`
 
