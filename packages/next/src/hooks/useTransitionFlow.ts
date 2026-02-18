@@ -1,6 +1,6 @@
 import { useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useFlow, ReactFlowOptions } from "@asyncflowstate/react";
+import { useFlow, type ReactFlowOptions } from "@asyncflowstate/react";
 
 /**
  * Options for useTransitionFlow.
@@ -63,7 +63,14 @@ export function useTransitionFlow<
 
       return result;
     },
-    [action, options.refresh, options.scrollToTop, router],
+    [
+      action,
+      options.refresh,
+      options.revalidatePath,
+      options.revalidateTag,
+      options.scrollToTop,
+      router,
+    ],
   );
 
   const flow = useFlow(wrappedAction, options);

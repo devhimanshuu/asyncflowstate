@@ -75,7 +75,6 @@ export function useInfiniteFlow<
 
       // We need to cast because TArgs might be complex.
       // Ideally, the user provides a wrapper.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const args = [param] as unknown as TArgs;
       const result = await flow.execute(...args);
 
@@ -109,7 +108,6 @@ export function useInfiniteFlow<
     setIsFetchingNextPage(true);
     try {
       const param = options.initialPageParam;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const args = [param] as unknown as TArgs;
       const result = await flow.execute(...args);
       if (result !== undefined) {
@@ -126,7 +124,7 @@ export function useInfiniteFlow<
     } finally {
       setIsFetchingNextPage(false);
     }
-  }, [flow, options]);
+  }, [flow, options, reset]);
 
   // Initial fetch? Usually handled by user via useEffect or manual call.
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Flow, FlowEvent } from "@asyncflowstate/core";
+import { Flow, type FlowEvent } from "@asyncflowstate/core";
 
 export function FlowDebugger() {
   const [events, setEvents] = useState<FlowEvent[]>([]);
@@ -8,9 +8,35 @@ export function FlowDebugger() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    return Flow.onEvent((event) => {
-      setEvents((prev) => [...prev, event].slice(-100)); // Increased buffer
+    // Buffer incoming events and flush periodically to avoid high-frequency updates
+    const buffer: FlowEvent[] = [];
+    let flushTimer: number | null = null;
+
+    const flush = () => {
+      if (buffer.length === 0) return;
+      setEvents((prev) => {
+        const merged = [...prev, ...buffer];
+        buffer.length = 0;
+        return merged.slice(-200); // keep last 200 events
+      });
+      if (flushTimer) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+      }
+    };
+
+    const unsub = Flow.onEvent((event) => {
+      buffer.push(event);
+      if (!flushTimer) {
+        flushTimer = window.setTimeout(flush, 150);
+      }
     });
+
+    return () => {
+      if (flushTimer) clearTimeout(flushTimer);
+      flush();
+      unsub();
+    };
   }, []);
 
   useEffect(() => {
@@ -63,14 +89,27 @@ export function FlowDebugger() {
   }, [events]);
 
   const minTime = useMemo(
-    () => Math.min(...events.map((e) => e.timestamp)),
+    () =>
+      events.length ? Math.min(...events.map((e) => e.timestamp)) : Date.now(),
     [events],
   );
   const maxTime = useMemo(
-    () => Math.max(...events.map((e) => e.timestamp)),
+    () =>
+      events.length ? Math.max(...events.map((e) => e.timestamp)) : Date.now(),
     [events],
   );
   const duration = maxTime - minTime || 1;
+
+  // Keyboard shortcut: Ctrl+Shift+D toggles the debugger
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "D" || e.key === "d")) {
+        setIsOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   if (!isOpen) {
     return (

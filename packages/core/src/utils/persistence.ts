@@ -1,4 +1,4 @@
-import { FlowState, FlowStatus } from "../flow";
+import type { FlowState, FlowStatus } from "../flow";
 import { getStorage } from "./storage";
 
 /**

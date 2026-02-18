@@ -1,5 +1,10 @@
-import React, { createContext, useEffect, type ReactNode } from "react";
-import { Flow, FlowEvent } from "@asyncflowstate/core";
+import React, {
+  createContext,
+  useEffect,
+  useContext,
+  type ReactNode,
+} from "react";
+import { Flow, type FlowEvent } from "@asyncflowstate/core";
 
 export interface NotificationHandlers {
   onSuccess?: (event: FlowEvent) => void;
@@ -30,4 +35,8 @@ export function FlowNotificationProvider({
       {children}
     </FlowNotificationContext.Provider>
   );
+}
+
+export function useFlowNotifications() {
+  return useContext(FlowNotificationContext);
 }
