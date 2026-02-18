@@ -188,6 +188,26 @@ export function mergeFlowOptions<
     merged.onSettled = localOptions.onSettled || globalOptions.onSettled;
   }
 
+  // onStream
+  if (globalOptions.onStream && localOptions.onStream) {
+    merged.onStream = (chunk: any, accumulated: TData) => {
+      globalOptions.onStream!(chunk, accumulated);
+      localOptions.onStream!(chunk, accumulated);
+    };
+  } else {
+    merged.onStream = localOptions.onStream || globalOptions.onStream;
+  }
+
+  // onBlocked
+  if (globalOptions.onBlocked && localOptions.onBlocked) {
+    merged.onBlocked = () => {
+      globalOptions.onBlocked!();
+      localOptions.onBlocked!();
+    };
+  } else {
+    merged.onBlocked = localOptions.onBlocked || globalOptions.onBlocked;
+  }
+
   // mapError - Merge the results of the mappings
   if (globalOptions.mapError && localOptions.mapError) {
     merged.mapError = (error: any) => ({
@@ -236,6 +256,59 @@ export function mergeFlowOptions<
 
   if (localOptions.throttle !== undefined) {
     merged.throttle = localOptions.throttle;
+  }
+
+  // Pass through additional FlowOptions not explicitly deep-merged above.
+  if (localOptions.autoProgress !== undefined) {
+    merged.autoProgress = localOptions.autoProgress;
+  }
+
+  if (localOptions.persist !== undefined) {
+    merged.persist = localOptions.persist;
+  }
+
+  if (localOptions.persistKey !== undefined) {
+    merged.persistKey = localOptions.persistKey;
+  }
+
+  if (localOptions.persistStorage !== undefined) {
+    merged.persistStorage = localOptions.persistStorage;
+  }
+
+  if (localOptions.circuitBreaker !== undefined) {
+    merged.circuitBreaker = localOptions.circuitBreaker;
+  }
+
+  if (localOptions.triggerOn !== undefined) {
+    merged.triggerOn = localOptions.triggerOn;
+  }
+
+  if (localOptions.circuitBreakerKey !== undefined) {
+    merged.circuitBreakerKey = localOptions.circuitBreakerKey;
+  }
+
+  if (localOptions.polling !== undefined) {
+    merged.polling = localOptions.polling;
+  }
+
+  if (localOptions.sync !== undefined) {
+    merged.sync = localOptions.sync;
+  }
+
+  if (localOptions.debugName !== undefined) {
+    merged.debugName = localOptions.debugName;
+  }
+
+  if (localOptions.precondition !== undefined) {
+    merged.precondition = localOptions.precondition;
+  }
+
+  if (localOptions.dedupKey !== undefined) {
+    merged.dedupKey = localOptions.dedupKey;
+  }
+
+  if (localOptions.staleTime !== undefined) {
+    merged.staleTime = localOptions.staleTime;
   }
 
   return merged;

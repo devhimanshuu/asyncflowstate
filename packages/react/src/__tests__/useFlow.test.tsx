@@ -7,7 +7,7 @@ import {
   waitFor,
   act,
 } from "@testing-library/react";
-import { useFlow } from "./useFlow";
+import { useFlow } from "../hooks/useFlow";
 import "@testing-library/jest-dom";
 
 describe("useFlow Hook", () => {
@@ -45,11 +45,17 @@ describe("useFlow Hook", () => {
     expect(screen.getByTestId("loading")).toHaveTextContent("no");
   });
 
-  it("button() helper should provide loading props", () => {
-    const action = vi.fn().mockResolvedValue("ok");
+  it("button() helper should provide loading props", async () => {
+    let resolveAction: ((value: string) => void) | null = null;
+    const action = vi.fn().mockImplementation(
+      () =>
+        new Promise<string>((resolve) => {
+          resolveAction = resolve;
+        }),
+    );
 
     function TestComponent() {
-      const { button, execute } = useFlow(action);
+      const { button } = useFlow(action);
       return <button {...button({ "data-testid": "btn" })}>Click</button>;
     }
 
@@ -59,10 +65,21 @@ describe("useFlow Hook", () => {
     expect(btn).not.toBeDisabled();
     expect(btn).not.toHaveAttribute("aria-busy", "true");
 
-    fireEvent.click(btn);
+    act(() => {
+      fireEvent.click(btn);
+    });
 
     expect(btn).toBeDisabled();
     expect(btn).toHaveAttribute("aria-busy", "true");
+
+    await act(async () => {
+      resolveAction?.("ok");
+    });
+
+    await waitFor(() => {
+      expect(btn).not.toBeDisabled();
+      expect(btn).toHaveAttribute("aria-busy", "false");
+    });
   });
 
   it("form() helper should handle preventDefault and validation", async () => {

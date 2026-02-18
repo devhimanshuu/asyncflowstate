@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { useServerActionFlow } from "./useServerActionFlow";
+import { useServerActionFlow } from "../hooks/useServerActionFlow";
 import "@testing-library/jest-dom";
 
 describe("useServerActionFlow", () => {

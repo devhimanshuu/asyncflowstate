@@ -1,8 +1,8 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act, waitFor } from "@testing-library/react";
-import { useFlow } from "./useFlow";
-import { FlowProvider } from "./FlowProvider";
+import { useFlow } from "../hooks/useFlow";
+import { FlowProvider } from "../components/FlowProvider";
 
 describe("useFlow Persistence", () => {
     const mockStorage = {

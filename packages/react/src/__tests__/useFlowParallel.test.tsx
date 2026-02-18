@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { Flow } from "@asyncflowstate/core";
-import { useFlowParallel } from "./useFlowParallel";
+import { useFlowParallel } from "../hooks/useFlowParallel";
 
 describe("useFlowParallel", () => {
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

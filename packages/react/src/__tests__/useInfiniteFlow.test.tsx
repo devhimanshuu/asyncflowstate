@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { useInfiniteFlow } from "./useInfiniteFlow";
+import { useInfiniteFlow } from "../hooks/useInfiniteFlow";
 import "@testing-library/jest-dom";
 
 describe("useInfiniteFlow", () => {

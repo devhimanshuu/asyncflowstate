@@ -1,8 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import React from "react";
-import { FlowProvider, useFlowContext, mergeFlowOptions } from "./FlowProvider";
-import { useFlow } from "./useFlow";
+import {
+  FlowProvider,
+  useFlowContext,
+  mergeFlowOptions,
+} from "../components/FlowProvider";
+import { useFlow } from "../hooks/useFlow";
 
 describe("FlowProvider", () => {
   it("should provide global configuration to child components", () => {
@@ -184,5 +188,29 @@ describe("FlowProvider", () => {
     expect(merged.autoReset).toEqual({ enabled: true, delay: 2000 });
     expect(merged.loading).toEqual({ minDuration: 300, delay: 200 });
     expect(merged.concurrency).toBe("keep");
+  });
+
+  it("should preserve advanced local flow options", () => {
+    const globalConfig = {
+      loading: { minDuration: 200 },
+    };
+
+    const localOptions = {
+      persist: { key: "profile-flow", persistLoading: true as const },
+      polling: { interval: 1500 },
+      dedupKey: "profile",
+      staleTime: 10_000,
+      debugName: "ProfileFlow",
+      triggerOn: [true],
+    };
+
+    const merged = mergeFlowOptions(globalConfig, localOptions);
+
+    expect(merged.persist).toEqual(localOptions.persist);
+    expect(merged.polling).toEqual(localOptions.polling);
+    expect(merged.dedupKey).toBe("profile");
+    expect(merged.staleTime).toBe(10_000);
+    expect(merged.debugName).toBe("ProfileFlow");
+    expect(merged.triggerOn).toEqual([true]);
   });
 });

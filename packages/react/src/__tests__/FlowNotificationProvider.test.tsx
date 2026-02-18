@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, act } from "@testing-library/react";
-import { FlowNotificationProvider } from "./FlowNotificationProvider";
+import { FlowNotificationProvider } from "../components/FlowNotificationProvider";
 import { Flow } from "@asyncflowstate/core";
 
 describe("FlowNotificationProvider", () => {

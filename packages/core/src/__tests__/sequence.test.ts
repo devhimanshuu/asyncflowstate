@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { Flow } from "./flow";
-import { FlowSequence, SequenceStep } from "./sequence";
+import { Flow } from "../flow";
+import { FlowSequence, SequenceStep } from "../sequence";
 
 describe("FlowSequence", () => {
   it("should execute steps sequentially", async () => {

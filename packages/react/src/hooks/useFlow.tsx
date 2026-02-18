@@ -162,7 +162,6 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   useEffect(() => {
     actionRef.current = action;
     optionsRef.current = options;
-    optionsRef.current = options;
   }, [action, options]);
 
   // Track last arguments for revalidation
@@ -199,6 +198,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
       if (shouldCancel) {
         flow.cancel();
       }
+      flow.dispose();
     };
   }, [flow, options.cancelOnUnmount, options.keepAlive]);
 
@@ -212,14 +212,25 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   }, [snapshot.status]);
 
   // Handle Triggers (Boolean)
+  const prevBooleanTriggersRef = useRef<boolean[]>([]);
   useEffect(() => {
     if (!options.triggerOn) return;
 
+    const currentBooleans: boolean[] = [];
+    let booleanIndex = 0;
+
     options.triggerOn.forEach((trigger) => {
-      if (typeof trigger === "boolean" && trigger) {
-        flow.execute(...([] as unknown as TArgs));
+      if (typeof trigger === "boolean") {
+        const prev = prevBooleanTriggersRef.current[booleanIndex] || false;
+        currentBooleans.push(trigger);
+        booleanIndex++;
+        if (trigger && !prev) {
+          flow.execute(...([] as unknown as TArgs));
+        }
       }
     });
+
+    prevBooleanTriggersRef.current = currentBooleans;
   }, [flow, options.triggerOn]);
 
   // Handle Restoration Signals

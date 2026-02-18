@@ -1,257 +1,117 @@
-# React Package - API Reference & Usage Guide
+# React Package API
 
 ## Overview
 
-`@asyncflowstate/react` provides declarative React hooks and components for managing async operations, loading states, and error handling.
+`@asyncflowstate/react` provides React-first wrappers around the core `Flow` engine.
 
-## Quick Start
+## Hooks
 
-```typescript
-import { useFlow } from "@asyncflowstate/react";
+### `useFlow(action, options?)`
 
-function MyComponent() {
-  const { state, data, error, start } = useFlow(async () => {
-    const res = await fetch("/api/data");
-    return res.json();
-  });
+Main hook for a single async flow.
 
-  return (
-    <div>
-      {state === "pending" && <p>Loading...</p>}
-      {state === "error" && <p>Error: {error?.message}</p>}
-      {state === "success" && <pre>{JSON.stringify(data, null, 2)}</pre>}
-      <button onClick={start}>Fetch Data</button>
-    </div>
-  );
-}
-```
+Returns:
 
-## Hooks API
+- `status`: `"idle" | "loading" | "streaming" | "success" | "error"`
+- `data`, `error`, `progress`
+- `loading` / `isLoading`
+- `isSuccess`, `isError`
+- `execute(...args)`, `reset()`, `cancel()`, `setProgress(value)`
+- `button(props?)`
+- `form(options?)`
+- `fieldErrors`
+- `errorRef`
+- `LiveRegion`
+- `flow` (core instance)
+- `signals`
 
-### useFlow()
+### `useFlowParallel(input, strategy?)`
 
-Manages a single async operation.
+React wrapper over `FlowParallel`.
 
-```typescript
-const {
-  state, // 'idle' | 'pending' | 'success' | 'error'
-  data, // The result of successful execution
-  error, // Error object if failed
-  start, // Function to start the flow
-  cancel, // Function to cancel the flow
-  reset, // Function to reset to idle
-  isPending, // Boolean shorthand
-  isError, // Boolean shorthand
-  isSuccess, // Boolean shorthand
-} = useFlow(executor, options);
-```
+Returns aggregate state plus:
 
-### useFlowParallel()
+- `execute(...args)`
+- `reset()`
+- `cancel()`
+- `loading`
 
-Executes multiple async operations concurrently.
+### `useFlowSequence(steps)`
 
-```typescript
-const { data, error, start } = useFlowParallel([
-  async () => fetchUsers(),
-  async () => fetchPosts(),
-  async () => fetchComments(),
-]);
-```
+React wrapper over `FlowSequence`.
 
-### useFlowSequence()
+Returns sequence state plus:
 
-Executes async operations sequentially with chaining.
+- `execute(initialInput?)`
+- `reset()`
+- `cancel()`
+- `loading`
+- `currentStep`
 
-```typescript
-const { data, error, start } = useFlowSequence([
-  async () => fetchUser(id),
-  async (user) => fetchUserPosts(user.id),
-]);
-```
+### `useFlowList(action, options?)`
 
-### useFlowList()
+Manages keyed flow instances.
 
-Manages a list of items with async operations.
+Returns:
 
-```typescript
-const {
-  items, // Array of items
-  add, // Add new items
-  update, // Update items
-  remove, // Remove items
-  state, // Overall list state
-  itemStates, // State for each item
-} = useFlowList(initialItems, asyncOperation);
-```
+- `execute(id, ...args)`
+- `reset(id)`
+- `cancel(id)`
+- `getStatus(id)`
+- `states`
+- `isAnyLoading`
 
-### useInfiniteFlow()
+### `useInfiniteFlow(action, options)`
 
-Handles infinite scrolling and pagination.
+Pagination helper built on top of `useFlow`.
 
-```typescript
-const {
-  data, // All loaded pages
-  hasMore, // More data available?
-  loadMore, // Load next page
-  isLoading, // Currently loading?
-} = useInfiniteFlow(async (page) => fetchPage(page), { pageSize: 20 });
-```
+Returns:
 
-### useFlowSuspense()
+- all `useFlow` fields
+- `pages`
+- `pageParams`
+- `hasNextPage`
+- `isFetchingNextPage`
+- `fetchNextPage()`
+- `refetch()`
+- `reset()`
 
-React Suspense integration for async states.
+### `useFlowSuspense(action, options?)`
 
-```typescript
-const { data } = useFlowSuspense(
-  async () => fetchData(),
-  { suspense: true }
-);
+Suspense-aware `useFlow`:
 
-// Use in Suspense boundary
-<Suspense fallback={<Loading />}>
-  <YourComponent />
-</Suspense>
-```
+- throws Promise while loading
+- throws error in error state
+- returns normal `useFlow` result otherwise
 
-## Components API
+## Components
 
-### FlowProvider
+### `FlowProvider`
 
-Context provider for global flow management.
+Provides global flow config via context.
 
-```typescript
-<FlowProvider options={{ debug: true }}>
-  <App />
-</FlowProvider>
-```
+Supports:
 
-### FlowNotificationProvider
+- global retry/loading/autoReset defaults
+- global lifecycle callbacks
+- global middleware via `behaviors`
+- merge/replace mode via `overrideMode`
 
-Toast notifications for flow states.
+### `FlowNotificationProvider`
 
-```typescript
-<FlowNotificationProvider
-  position="top-right"
-  autoHideDuration={3000}
->
-  <App />
-</FlowNotificationProvider>
-```
+Subscribes to global `Flow` events and exposes:
 
-### FlowDebugger
+- `onSuccess(event)`
+- `onError(event)`
 
-Development tool for inspecting flows.
+### `FlowDebugger`
 
-```typescript
-<FlowDebugger
-  enabled={process.env.NODE_ENV === "development"}
-/>
-```
+Dev/debug UI for global flow events and timeline inspection.
 
-### ProgressiveFlow
+### `ProgressiveFlow`
 
-Progressive rendering component.
+Progressive enhancement wrapper for form/link interaction with `useFlow`.
 
-```typescript
-<ProgressiveFlow
-  fallback={<Skeleton />}
-  loading={<LoadingUI />}
-  error={<ErrorUI error={error} />}
->
-  <Content data={data} />
-</ProgressiveFlow>
-```
+## Exports
 
-## Common Patterns
-
-### Form Submission
-
-```typescript
-const { start, state, error } = useFlow(
-  async (formData) => {
-    const res = await fetch("/api/submit", {
-      method: "POST",
-      body: JSON.stringify(formData),
-    });
-    return res.json();
-  }
-);
-
-return (
-  <form onSubmit={(e) => {
-    e.preventDefault();
-    start(new FormData(e.currentTarget));
-  }}>
-    {/* Form fields */}
-    <button disabled={state === "pending"}>
-      {state === "pending" ? "Submitting..." : "Submit"}
-    </button>
-    {error && <span className="error">{error.message}</span>}
-  </form>
-);
-```
-
-### Infinite Scrolling
-
-```typescript
-const { data, loadMore, isLoading, hasMore } = useInfiniteFlow(
-  async (page) => {
-    const res = await fetch(`/api/items?page=${page}`);
-    return res.json();
-  }
-);
-
-return (
-  <IntersectionObserver onVisible={() => hasMore && loadMore()}>
-    {data.map(item => <Item key={item.id} {...item} />)}
-    {isLoading && <Loading />}
-  </IntersectionObserver>
-);
-```
-
-### Loading Skeleton
-
-```typescript
-const { state, data } = useFlow(fetcher);
-
-if (state === "pending") return <Skeleton />;
-if (state === "error") return <ErrorBoundary />;
-return <Content data={data} />;
-```
-
-## Accessibility
-
-All components support:
-
-- ARIA labels and descriptions
-- Keyboard navigation
-- Screen reader announcements
-- Focus management
-- Semantic HTML
-
-```typescript
-<button
-  aria-label="Fetch user data"
-  aria-busy={state === "pending"}
-  aria-disabled={state === "pending"}
->
-  Load
-</button>
-```
-
-## Types
-
-```typescript
-import type {
-  UseFlowResult,
-  UseFlowOptions,
-  FlowProviderProps,
-  FlowNotificationProps,
-} from "@asyncflowstate/react";
-```
-
-## See Also
-
-- [Full Documentation](../../documentation/)
-- [React Examples](../../examples/react/)
-- [Contributing Guide](../../CONTRIBUTING.md)
+`@asyncflowstate/react` re-exports all public APIs from `@asyncflowstate/core`.

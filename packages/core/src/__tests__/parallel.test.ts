@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { Flow } from "./flow";
-import { FlowParallel } from "./parallel";
+import { Flow } from "../flow";
+import { FlowParallel } from "../parallel";
 
 describe("FlowParallel", () => {
   const delay = (ms: number) =>

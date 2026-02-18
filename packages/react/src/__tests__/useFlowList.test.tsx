@@ -1,8 +1,8 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useFlowList } from "./useFlowList";
-import { FlowProvider } from "./FlowProvider";
+import { useFlowList } from "../hooks/useFlowList";
+import { FlowProvider } from "../components/FlowProvider";
 
 describe("useFlowList", () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (

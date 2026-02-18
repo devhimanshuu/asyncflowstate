@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Flow } from "./flow";
+import { Flow } from "../flow";
 
 describe("Smart Persistence", () => {
   const mockStorage = {

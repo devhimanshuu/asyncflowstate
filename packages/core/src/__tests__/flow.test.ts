@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Flow, type FlowState, FlowErrorType } from "./flow";
+import { Flow, type FlowState, FlowErrorType } from "../flow";
 
 describe("Flow Core", () => {
   it("should start in idle state", () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useFlowSequence } from "./useFlowSequence";
+import { useFlowSequence } from "../hooks/useFlowSequence";
 import { Flow } from "@asyncflowstate/core";
 
 describe("useFlowSequence Hook", () => {

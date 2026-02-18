@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Flow } from "./flow";
+import { Flow } from "../flow";
 
 describe("Flow - Lifecycle Hooks", () => {
   beforeEach(() => {
