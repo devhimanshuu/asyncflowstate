@@ -194,7 +194,8 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   // Cleanup: Cancel flow on unmount
   useEffect(() => {
     return () => {
-      const shouldCancel = options.cancelOnUnmount !== false && !options.keepAlive;
+      const shouldCancel =
+        options.cancelOnUnmount !== false && !options.keepAlive;
       if (shouldCancel) {
         flow.cancel();
       }
@@ -350,7 +351,10 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
           // Schema Validation (Zod, Valibot, etc.)
           if (formProps.schema) {
             const data = extractFormData ? args[0] : args;
-            const schemaErrors = await runSchemaValidation(formProps.schema, data);
+            const schemaErrors = await runSchemaValidation(
+              formProps.schema,
+              data,
+            );
             if (schemaErrors) {
               setFieldErrors(schemaErrors);
               return;
@@ -492,7 +496,7 @@ async function runSchemaValidation(
   // However, we can support a generic 'validate' or 'parse' if available.
   if (typeof schema.validate === "function") {
     try {
-      const result = await schema.validate(data);
+      await schema.validate(data);
       // Handle Superstruct / Yup style if they return data directly or throw
       return null;
     } catch (err: any) {

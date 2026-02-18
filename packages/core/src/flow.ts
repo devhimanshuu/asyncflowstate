@@ -5,12 +5,7 @@ import {
   PROGRESS,
   BACKOFF_MULTIPLIER,
 } from "./utils/constants";
-import {
-  getStorage,
-  restoreData,
-  persistData,
-  clearData,
-} from "./utils/storage";
+import { getStorage, restoreData, persistData } from "./utils/storage";
 
 /**
  * A simple signal class for inter-flow communication.

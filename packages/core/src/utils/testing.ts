@@ -26,7 +26,7 @@ export function createMockFlow<
   let resolvePromise: ((data: TData) => void) | undefined;
   let rejectPromise: ((error: TError) => void) | undefined;
 
-  const action = async (...args: TArgs) => {
+  const action = async (..._args: TArgs) => {
     return new Promise<TData>((res, rej) => {
       resolvePromise = res;
       rejectPromise = rej;

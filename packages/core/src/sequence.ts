@@ -1,5 +1,4 @@
-import { Flow, FlowState, FlowStatus } from "./flow";
-import { PROGRESS } from "./utils/constants";
+import type { Flow, FlowStatus } from "./flow";
 
 export interface SequenceStep<TInput = any, TOutput = any> {
   name: string;

@@ -58,6 +58,7 @@ describe("FlowProvider", () => {
 
     const globalConfig = {
       onError: globalOnError,
+      retry: { maxAttempts: 3 },
     };
 
     const localOptions = {

@@ -1,4 +1,4 @@
-import { Flow, FlowStatus } from "./flow";
+import type { Flow, FlowStatus } from "./flow";
 
 export type ParallelStrategy = "all" | "allSettled" | "race";
 
@@ -24,7 +24,7 @@ export class FlowParallel {
 
   constructor(
     input: Flow<any, any, any>[] | Record<string, Flow<any, any, any>>,
-    private strategy: ParallelStrategy = "all"
+    private strategy: ParallelStrategy = "all",
   ) {
     if (Array.isArray(input)) {
       this.flows = input;
@@ -72,24 +72,24 @@ export class FlowParallel {
 
     const flowEntries = this.isMap
       ? Object.entries(this.flowMap)
-      : this.flows.map((f, i) => [i.toString(), f] as [string, Flow<any, any, any>]);
+      : this.flows.map(
+          (f, i) => [i.toString(), f] as [string, Flow<any, any, any>],
+        );
 
     const updateAggregateState = () => {
       let totalProgress = 0;
       let finishedCount = 0;
       let hasError = false;
-      let allFinished = true;
 
       const results: any = this.isMap ? {} : [];
       const errors: any = this.isMap ? {} : [];
 
-      flowEntries.forEach(([key, flow], index) => {
+      flowEntries.forEach(([key, flow]) => {
         totalProgress += flow.progress;
         if (flow.status !== "loading" && flow.status !== "idle") {
           finishedCount++;
         }
         if (flow.status === "error") hasError = true;
-        if (flow.status === "loading") allFinished = false;
 
         const idx = this.isMap ? key : parseInt(key);
         results[idx] = flow.data;
@@ -108,7 +108,9 @@ export class FlowParallel {
         }
       } else if (this.strategy === "race") {
         if (finishedCount > 0) {
-          const firstFinished = this.flows.find(f => f.status === "success" || f.status === "error");
+          const firstFinished = this.flows.find(
+            (f) => f.status === "success" || f.status === "error",
+          );
           nextStatus = firstFinished?.status === "error" ? "error" : "success";
         }
       }
@@ -127,7 +129,7 @@ export class FlowParallel {
     const unsubs = this.flows.map((flow) =>
       flow.subscribe(() => {
         updateAggregateState();
-      })
+      }),
     );
 
     try {
@@ -141,7 +143,7 @@ export class FlowParallel {
 
       const status = updateAggregateState();
       return status === "success" ? this._state.results : undefined;
-    } catch (error) {
+    } catch {
       updateAggregateState();
       return undefined;
     } finally {

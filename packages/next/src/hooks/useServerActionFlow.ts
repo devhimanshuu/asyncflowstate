@@ -1,5 +1,4 @@
-import { useFlow, ReactFlowOptions } from "@asyncflowstate/react";
-import { useCallback } from "react";
+import { useFlow, type ReactFlowOptions } from "@asyncflowstate/react";
 
 /**
  * A specialized hook for Next.js Server Actions.
