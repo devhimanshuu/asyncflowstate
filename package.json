@@ -48,7 +48,7 @@
     "prepublishOnly": "pnpm build",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish --access public"
   },
   "packageManager": "pnpm@10.28.2",
   "engines": {
