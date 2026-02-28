@@ -281,4 +281,4 @@ import { FlowNotificationProvider } from "@asyncflowstate/react";
 
 ## License
 
-MIT © [AsyncFlowState Contributors](https://github.com/asyncflowstate/asyncflowstate)
+MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowstate)

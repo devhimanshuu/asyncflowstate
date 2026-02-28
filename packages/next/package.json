@@ -18,11 +18,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/asyncflowstate/asyncflowstate.git",
+    "url": "https://github.com/devhimanshuu/asyncflowstate.git",
     "directory": "packages/next"
   },
-  "bugs": "https://github.com/asyncflowstate/asyncflowstate/issues",
-  "homepage": "https://github.com/asyncflowstate/asyncflowstate#readme",
+  "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
+  "homepage": "https://github.com/devhimanshuu/asyncflowstate#readme",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

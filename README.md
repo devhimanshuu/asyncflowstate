@@ -264,7 +264,7 @@ We are currently in **🚧 Early development**. If you're interested in contribu
 
 ## 📜 License
 
-MIT © [AsyncFlowState Contributors](https://github.com/asyncflowstate/asyncflowstate)
+MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowstate)
 
 ---
 
