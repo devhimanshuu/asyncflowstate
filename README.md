@@ -111,9 +111,9 @@ AsyncFlowState is built as a modular system:
 
 | Package                                     | Version | Description                               |
 | :------------------------------------------ | :------ | :---------------------------------------- |
-| [`@asyncflowstate/core`](./packages/core)   | `1.0.0` | Framework-agnostic logic engine           |
-| [`@asyncflowstate/react`](./packages/react) | `1.0.0` | React hooks & accessibility-first helpers |
-| [`@asyncflowstate/next`](./packages/next)   | `1.0.0` | Next.js Server Actions & SSR integration  |
+| [`@asyncflowstate/core`](./packages/core)   | `1.0.1` | Framework-agnostic logic engine           |
+| [`@asyncflowstate/react`](./packages/react) | `1.0.1` | React hooks & accessibility-first helpers |
+| [`@asyncflowstate/next`](./packages/next)   | `1.0.1` | Next.js Server Actions & SSR integration  |
 
 ---
 
