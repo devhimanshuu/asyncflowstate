@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/next",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "Next.js optimized integration for AsyncFlowState. Handle SSR, server actions, and app router transitions with declarative loading states.",
   "keywords": [
