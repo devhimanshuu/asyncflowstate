@@ -258,7 +258,7 @@ function App() {
 
 ## 🧑‍💻 Contributing
 
-We are currently in **🚧 Early development**. If you're interested in contributing or have feedback, please open an issue or a discussion.
+We are currently in **Initial Release Available!**. If you're interested in contributing or have feedback, please open an issue or a discussion.
 
 ---
 
