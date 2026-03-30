@@ -1,0 +1,68 @@
+name: Bug Report
+description: File a report to help us improve asyncflowstate.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: |
+        Current behavior: `asyncFlow` fails to catch error when...
+        Expected behavior: It should catch the error and...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: |
+        Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example).
+        This will help us fix the bug much faster.
+      placeholder: |
+        1. Initialize `createFlow` with...
+        2. Call `flow.start()` inside a...
+        3. See error...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: AsyncFlowState Version
+      description: Which version of the library are you using? (e.g., 1.0.1)
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where are you running this?
+      multiple: true
+      options:
+        - React
+        - Next.js (App Router)
+        - Next.js (Pages Router)
+        - Vanilla JavaScript / TypeScript
+        - Node.js
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Error Messages
+      description: Please paste any console logs or error messages here.
+      render: bash
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have checked existing issues to see if this has already been reported.
+          required: true
+        - label: I have provided a minimal reproduction.
+          required: true

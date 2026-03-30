@@ -1,0 +1,39 @@
+name: Feature Request
+description: Suggest an idea or enhancement for asyncflowstate.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: |
+        A clear and concise description of what the feature is and why it's beneficial.
+      placeholder: |
+        I would like to have a built-in `debounce` transition for my flow because...
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / Use Case
+      description: |
+        Explain the use case or problem you're trying to solve.
+        Why would this feature be useful for others?
+      placeholder: |
+        When building search inputs, it's cumbersome to manually wrap `flow.start()` with a debounce function.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution (Optional)
+      description: |
+        If you have a specific idea for how to implement this, please describe it here!
+      placeholder: |
+        We can add a `debounce` option to the `createFlow` config or as a parameter to `.start(data, { debounce: 300 })`.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Help Wanted
+      options:
+        - label: I am willing to contribute an implementation for this feature if requested!
