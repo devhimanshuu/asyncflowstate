@@ -14,7 +14,7 @@ Thank you for your interest in contributing to AsyncFlowState! This document pro
 
 ## Code of Conduct
 
-We are committed to providing a welcoming and inclusive environment. Please be respectful and professional in all interactions.
+We are committed to providing a welcoming and inclusive environment. Please refer to our [Code of Conduct](./CODE_OF_CONDUCT.md) for details on our expectations for community behavior. By participating in this project, you agree to abide by its terms.
 
 ## Getting Started
 

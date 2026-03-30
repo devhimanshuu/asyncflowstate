@@ -258,7 +258,23 @@ function App() {
 
 ## 🧑‍💻 Contributing
 
-We are currently in **Initial Release Available!**. If you're interested in contributing or have feedback, please open an issue or a discussion.
+We love contributions! Whether you're fixing a bug, improving documentation, or suggesting a new feature, your help is welcome.
+
+1.  **Check for Issues**: Look at our [Issue Tracker](https://github.com/devhimanshuu/asyncflowstate/issues) to see if your idea or bug is already being addressed.
+2.  **Follow the Guide**: Read our [Contributing Guide](./CONTRIBUTING.md) for local setup, development workflows, and coding standards.
+3.  **Submit a PR**: When you're ready, use our [Pull Request Template](./PULL_REQUEST_TEMPLATE.md) to ensure your contribution meets our quality standards.
+
+---
+
+## 🛡️ Security Policy
+
+We take the security of AsyncFlowState seriously. If you find a potential vulnerability, please do not open a public issue. Instead, follow the instructions in our [Security Policy](./SECURITY.md) to report it responsibly.
+
+---
+
+## ⚖️ Code of Conduct
+
+To ensure a welcoming, diverse, and inclusive community, we adhere to the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
 
 ---
 
