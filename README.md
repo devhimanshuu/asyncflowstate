@@ -1,11 +1,15 @@
-# AsyncFlowState
+<div align="center">
+  <img src="./assets/AsyncFlowState_logo.png" width="160" height="160" alt="AsyncFlowState Logo" />
+  <h1>AsyncFlowState</h1>
+  <p><b>The industry-standard engine for predictable async UI behavior.</b></p>
+  <p>Eliminate boilerplate and bugs in async interactions. Built for React, works everywhere.</p>
 
-> **AsyncFlowState — The industry-standard engine for predictable async UI behavior.**
-
-Eliminate boilerplate and bugs in async interactions. Built for React, works everywhere.
-
-[![Tests](https://github.com/devhimanshuu/asyncflowstate/actions/workflows/test.yml/badge.svg)](https://github.com/devhimanshuu/asyncflowstate/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  <p>
+    <a href="https://github.com/devhimanshuu/asyncflowstate/actions"><img src="https://github.com/devhimanshuu/asyncflowstate/actions/workflows/test.yml/badge.svg" alt="Tests" /></a>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-emerald.svg" alt="License: MIT" /></a>
+    <a href="https://www.npmjs.com/package/@asyncflowstate/core"><img src="https://img.shields.io/npm/v/@asyncflowstate/core?color=indigo" alt="NPM Version" /></a>
+  </p>
+</div>
 
 ---
 

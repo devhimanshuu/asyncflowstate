@@ -1,6 +1,18 @@
-# @asyncflowstate/next
+<div align="center">
+  <a href="https://github.com/devhimanshuu/asyncflowstate">
+    <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
+  </a>
+  <h1>@asyncflowstate/next</h1>
+  <p><b>Next.js optimized integration for AsyncFlowState.</b></p>
+  <p>Handle SSR, Server Actions, and App Router transitions with declarative behavior orchestration.</p>
 
-Next.js optimized integration for **AsyncFlowState**. Handle SSR, Server Actions, and App Router transitions with declarative loading, error, and success states.
+  <p>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-emerald.svg" alt="License: MIT" /></a>
+    <a href="https://www.npmjs.com/package/@asyncflowstate/next"><img src="https://img.shields.io/npm/v/@asyncflowstate/next?color=indigo" alt="NPM Version" /></a>
+  </p>
+</div>
+
+---
 
 ## Installation
 

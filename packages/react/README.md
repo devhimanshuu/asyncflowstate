@@ -1,6 +1,17 @@
-# @asyncflowstate/react
+<div align="center">
+  <a href="https://github.com/devhimanshuu/asyncflowstate">
+    <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
+  </a>
+  <h1>@asyncflowstate/react</h1>
+  <p><b>React hooks and helpers for elegant, accessible async UI behavior management.</b></p>
 
-> React hooks and helpers for elegant, accessible async UI behavior management.
+  <p>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-emerald.svg" alt="License: MIT" /></a>
+    <a href="https://www.npmjs.com/package/@asyncflowstate/react"><img src="https://img.shields.io/npm/v/@asyncflowstate/react?color=indigo" alt="NPM Version" /></a>
+  </p>
+</div>
+
+---
 
 ## Installation
 
