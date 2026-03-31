@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/AsyncFlowState_logo.png" width="160" height="160" alt="AsyncFlowState Logo" />
+  <img src="./assets/AsyncFlowState_logo.png" width="300" height="300" alt="AsyncFlowState Logo" />
   <h1>AsyncFlowState</h1>
   <p><b>The industry-standard engine for predictable async UI behavior.</b></p>
   <p>Eliminate boilerplate and bugs in async interactions. Built for React, works everywhere.</p>
