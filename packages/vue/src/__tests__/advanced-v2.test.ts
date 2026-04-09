@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { useFlow } from "../composables/useFlow";
 import { effectScope, nextTick } from "vue";
 
-describe("useFlow Vue Advanced Features (v2.0.0)", () => {
+describe("useFlow Vue Advanced Features (v2.0.2)", () => {
   it("should expose triggerUndo for Purgatory", async () => {
     const action = vi.fn().mockResolvedValue("ok");
     const scope = effectScope();

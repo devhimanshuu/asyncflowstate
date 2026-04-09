@@ -4,9 +4,13 @@ Stay informed about the evolution of **AsyncFlowState**. We're committed to buil
 
 ---
 
-## <i class="fa-solid fa-star text-amber-400 mr-2"></i> v2.0.0 (Stable) — The "Universal" Release
+## <i class="fa-solid fa-star text-amber-400 mr-2"></i> v2.0.2 (Stable)
 
-**Released on April 15, 2026**
+This release marks the final stabilization of the v2.0 series, featuring improved cross-framework consistency and updated documentation links.
+
+---
+
+## <i class="fa-solid fa-clock-rotate-left text-gray-400 mr-2"></i> v2.0.0 — The "Universal" Release
 
 The v2.0 release is a complete ground-up rewrite of AsyncFlowState. It transforms the library from a React hook collection into a framework-agnostic **behavior engine** with native adapters for every modern frontend stack.
 

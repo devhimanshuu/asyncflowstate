@@ -10,7 +10,7 @@ import {
 import { useFlow } from "../hooks/useFlow";
 import "@testing-library/jest-dom";
 
-describe("useFlow Advanced Features (v2.0.0)", () => {
+describe("useFlow Advanced Features (v2.0.2)", () => {
   it("should expose triggerUndo and handle Purgatory", async () => {
     const action = vi.fn().mockResolvedValue("success");
 

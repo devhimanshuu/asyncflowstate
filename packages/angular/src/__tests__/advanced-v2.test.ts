@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createFlow } from "../services/createFlow";
 
-describe("createFlow Angular Advanced Features (v2.0.0)", () => {
+describe("createFlow Angular Advanced Features (v2.0.2)", () => {
   it("should expose triggerUndo/loading signal behavior", async () => {
     const action = vi.fn().mockResolvedValue("ok");
     const flow = createFlow(action, { purgatory: { duration: 100 } });

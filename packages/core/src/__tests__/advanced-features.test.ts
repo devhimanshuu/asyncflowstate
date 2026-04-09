@@ -6,7 +6,7 @@ import { simulateJitter } from "../utils/testing";
 import { withAutoHealing } from "../utils/auto-healer";
 import { streamAISkeleton } from "../utils/stream-skeleton";
 
-describe("Advanced Features (AsyncFlowState 2.0.0)", () => {
+describe("Advanced Features (AsyncFlowState 2.0.2)", () => {
   describe("Global Undo (Purgatory)", () => {
     it("should delay execution and allow undoing", async () => {
       vi.useFakeTimers();

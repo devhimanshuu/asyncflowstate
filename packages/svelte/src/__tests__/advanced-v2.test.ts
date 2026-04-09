@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createFlow } from "../stores/createFlow";
 import { get } from "svelte/store";
 
-describe("createFlow Svelte Advanced Features (v2.0.0)", () => {
+describe("createFlow Svelte Advanced Features (v2.0.2)", () => {
   it("should expose triggerUndo store method", async () => {
     const action = vi.fn().mockResolvedValue("ok");
     const flow = createFlow(action, { purgatory: { duration: 100 } });

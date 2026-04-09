@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/angular",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "private": false,
   "description": "Official Angular bindings for AsyncFlowState. Signal-based services (injectFlow, FlowService) for managing async loading, error, and success states with Angular 17+ signals.",
   "keywords": [

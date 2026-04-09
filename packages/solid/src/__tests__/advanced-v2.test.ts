@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createFlow } from "../primitives/createFlow";
 import { createRoot } from "solid-js";
 
-describe("createFlow Solid Advanced Features (v2.0.0)", () => {
+describe("createFlow Solid Advanced Features (v2.0.2)", () => {
   it("should expose triggerUndo function", async () => {
     const action = vi.fn().mockResolvedValue("ok");
 

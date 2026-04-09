@@ -118,13 +118,13 @@ AsyncFlowState is built as a modular system:
 
 | Package                                         | Version | Description                                 | NPM                                                                                                                                |
 | :---------------------------------------------- | :------ | :------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- |
-| [`@asyncflowstate/core`](./packages/core)       | `2.0.0` | Framework-agnostic logic engine             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/core?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/core)       |
-| [`@asyncflowstate/react`](./packages/react)     | `2.0.0` | React hooks & accessibility-first helpers   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/react?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/react)     |
-| [`@asyncflowstate/next`](./packages/next)       | `2.0.0` | Next.js Server Actions & SSR integration    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/next?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/next)       |
-| [`@asyncflowstate/vue`](./packages/vue)         | `2.0.0` | Vue 3 composables & provide/inject config   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/vue?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/vue)         |
-| [`@asyncflowstate/svelte`](./packages/svelte)   | `2.0.0` | Svelte stores with `$` auto-subscription    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/svelte?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/svelte)   |
-| [`@asyncflowstate/angular`](./packages/angular) | `2.0.0` | Angular Observable/BehaviorSubject bindings | [![npm](https://img.shields.io/npm/v/@asyncflowstate/angular?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/angular) |
-| [`@asyncflowstate/solid`](./packages/solid)     | `2.0.0` | SolidJS fine-grained reactive signals       | [![npm](https://img.shields.io/npm/v/@asyncflowstate/solid?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/solid)     |
+| [`@asyncflowstate/core`](./packages/core)       | `2.0.2` | Framework-agnostic logic engine             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/core?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/core)       |
+| [`@asyncflowstate/react`](./packages/react)     | `2.0.2` | React hooks & accessibility-first helpers   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/react?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/react)     |
+| [`@asyncflowstate/next`](./packages/next)       | `2.0.2` | Next.js Server Actions & SSR integration    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/next?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/next)       |
+| [`@asyncflowstate/vue`](./packages/vue)         | `2.0.2` | Vue 3 composables & provide/inject config   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/vue?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/vue)         |
+| [`@asyncflowstate/svelte`](./packages/svelte)   | `2.0.2` | Svelte stores with `$` auto-subscription    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/svelte?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/svelte)   |
+| [`@asyncflowstate/angular`](./packages/angular) | `2.0.2` | Angular Observable/BehaviorSubject bindings | [![npm](https://img.shields.io/npm/v/@asyncflowstate/angular?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/angular) |
+| [`@asyncflowstate/solid`](./packages/solid)     | `2.0.2` | SolidJS fine-grained reactive signals       | [![npm](https://img.shields.io/npm/v/@asyncflowstate/solid?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/solid)     |
 
 ---
 

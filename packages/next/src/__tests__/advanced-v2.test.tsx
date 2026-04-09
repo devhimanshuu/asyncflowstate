@@ -10,7 +10,7 @@ import {
 import { useServerActionFlow } from "../hooks/useServerActionFlow";
 import "@testing-library/jest-dom";
 
-describe("useServerActionFlow Advanced Features (v2.0.0)", () => {
+describe("useServerActionFlow Advanced Features (v2.0.2)", () => {
   it("should support Purgatory and triggerUndo", async () => {
     const action = vi.fn().mockResolvedValue("success");
 

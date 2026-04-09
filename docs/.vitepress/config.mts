@@ -135,8 +135,8 @@ export default defineConfig({
         text: "Releases",
         items: [
           {
-            text: 'Latest: v2.0.0 <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
-            link: "/release-notes#latest-version-v2-0-0",
+            text: 'Latest: v2.0.2 <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/release-notes#v2-0-2-stable-release", 
           },
           {
             text: "Previous",

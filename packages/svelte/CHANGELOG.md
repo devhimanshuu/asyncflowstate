@@ -1,5 +1,27 @@
 # @asyncflowstate/svelte
 
+## 2.0.2
+
+### Major Changes
+
+- final v2.0.2 release
+
+### Patch Changes
+
+- Updated dependencies
+  - @asyncflowstate/core@2.0.2
+
+## 2.0.1
+
+### Minor Changes
+
+- update documentation links
+
+### Patch Changes
+
+- Updated dependencies
+  - @asyncflowstate/core@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

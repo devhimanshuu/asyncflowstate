@@ -311,7 +311,7 @@ export function mergeFlowOptions<
     merged.staleTime = localOptions.staleTime;
   }
 
-  // 2.0.0 Advanced Features
+  // 2.0.2 Advanced Features
   if (localOptions.purgatory !== undefined) {
     merged.purgatory = localOptions.purgatory;
   }
