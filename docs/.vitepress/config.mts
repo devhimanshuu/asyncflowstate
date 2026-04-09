@@ -136,7 +136,7 @@ export default defineConfig({
         items: [
           {
             text: 'Latest: v2.0.2 <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
-            link: "/release-notes#v2-0-2-stable-release", 
+            link: "/release-notes#v2-0-2-stable-release",
           },
           {
             text: "Previous",
