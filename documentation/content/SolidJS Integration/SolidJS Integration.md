@@ -21,24 +21,22 @@ pnpm add @asyncflowstate/solid @asyncflowstate/core
 States are explicitly wrapped inside `()` accessor bindings to capture direct updates.
 
 ```tsx
-import { createFlow } from '@asyncflowstate/solid';
-import { Show } from 'solid-js';
+import { createFlow } from "@asyncflowstate/solid";
+import { Show } from "solid-js";
 
 export function UserBlock() {
-  const accountFlow = createFlow(
-    async (id: string) => {
-      const res = await fetch(`/api/user/${id}`);
-      return res.json();
-    }
-  );
+  const accountFlow = createFlow(async (id: string) => {
+    const res = await fetch(`/api/user/${id}`);
+    return res.json();
+  });
 
   return (
     <div>
-      <button 
-        onClick={() => accountFlow.execute('123')}
+      <button
+        onClick={() => accountFlow.execute("123")}
         disabled={accountFlow.loading()}
       >
-        {accountFlow.loading() ? 'Loading...' : 'Go'}
+        {accountFlow.loading() ? "Loading..." : "Go"}
       </button>
 
       <Show when={accountFlow.data()}>
@@ -56,8 +54,8 @@ export function UserBlock() {
 Handling dynamically managed keys and independent execution streams runs blazing fast in Solid.
 
 ```tsx
-import { createFlowList } from '@asyncflowstate/solid';
-import { For } from 'solid-js';
+import { createFlowList } from "@asyncflowstate/solid";
+import { For } from "solid-js";
 
 const deletionEngine = createFlowList(async (id: string) => api.deleteData(id));
 
@@ -69,17 +67,17 @@ const deletionEngine = createFlowList(async (id: string) => api.deleteData(id));
       return (
         <li>
           {item.name}
-          <button 
+          <button
             onClick={() => deletionEngine.execute(item.id, item.id)}
-            disabled={status() === 'loading'}
+            disabled={status() === "loading"}
           >
-            {status() === 'loading' ? 'Deleting' : 'Delete'}
+            {status() === "loading" ? "Deleting" : "Delete"}
           </button>
         </li>
       );
     }}
   </For>
-</ul>
+</ul>;
 ```
 
 ### `<FlowProvider>` Configurations
@@ -87,14 +85,16 @@ const deletionEngine = createFlowList(async (id: string) => api.deleteData(id));
 Easily intercept signals globally, matching contexts with simple declarative roots:
 
 ```tsx
-import { FlowProvider } from '@asyncflowstate/solid';
+import { FlowProvider } from "@asyncflowstate/solid";
 
 function App() {
   return (
-    <FlowProvider config={{
-      loading: { minDuration: 400 },
-      retry: { maxAttempts: 4 }
-    }}>
+    <FlowProvider
+      config={{
+        loading: { minDuration: 400 },
+        retry: { maxAttempts: 4 },
+      }}
+    >
       <MyRoutedApplication />
     </FlowProvider>
   );
@@ -102,5 +102,6 @@ function App() {
 ```
 
 ## Best Practices
-1. **Never destructure accessors locally:** It is highly important in SolidJS *not* to destructure properties out of derived accessors unless explicitly executing reactive bindings. Keep derivations local (e.g. `flow.loading()` instead of `const load = flow.loading();`).
+
+1. **Never destructure accessors locally:** It is highly important in SolidJS _not_ to destructure properties out of derived accessors unless explicitly executing reactive bindings. Keep derivations local (e.g. `flow.loading()` instead of `const load = flow.loading();`).
 2. **Optimistic Updates API:** Due to accurate proxy-data propagation models, pairing Solid models directly to `optimisticResult` within `options` allows UI synchronization updates with sub-millisecond precision.

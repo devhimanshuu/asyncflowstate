@@ -22,7 +22,7 @@ The central building block for capturing loading, success, and error states of a
 
 ```vue
 <script setup lang="ts">
-import { useFlow } from '@asyncflowstate/vue';
+import { useFlow } from "@asyncflowstate/vue";
 
 const { loading, data, error, execute, button } = useFlow(
   async (id: string) => {
@@ -31,14 +31,14 @@ const { loading, data, error, execute, button } = useFlow(
   },
   {
     retry: { maxAttempts: 3 },
-    onSuccess: (user) => console.log('Loaded:', user),
-  }
+    onSuccess: (user) => console.log("Loaded:", user),
+  },
 );
 </script>
 
 <template>
   <button v-bind="button()" @click="execute('123')">
-    {{ loading ? 'Loading...' : 'Fetch User' }}
+    {{ loading ? "Loading..." : "Fetch User" }}
   </button>
   <div v-if="data">{{ data.name }}</div>
   <div v-if="error">Error: {{ error.message }}</div>
@@ -46,20 +46,19 @@ const { loading, data, error, execute, button } = useFlow(
 ```
 
 ### Form Handling with Validation
+
 Vue's `useFlow` comes bundled with robust schema validation helpers tailored for form `<form onSubmit>` binding:
 
 ```vue
 <script setup lang="ts">
-import { useFlow } from '@asyncflowstate/vue';
-import { z } from 'zod';
+import { useFlow } from "@asyncflowstate/vue";
+import { z } from "zod";
 
 const schema = z.object({
   email: z.string().email(),
 });
 
-const { form, fieldErrors, loading } = useFlow(
-  async (data) => api.login(data)
-);
+const { form, fieldErrors, loading } = useFlow(async (data) => api.login(data));
 </script>
 
 <template>
@@ -75,34 +74,35 @@ const { form, fieldErrors, loading } = useFlow(
 ## Advanced Workflows
 
 ### `useFlowSequence`
+
 For pipelines that require stepped validation followed by submissions or chained interactions.
 
 ```vue
 <script setup lang="ts">
-import { useFlowSequence } from '@asyncflowstate/vue';
+import { useFlowSequence } from "@asyncflowstate/vue";
 
 const sequence = useFlowSequence([
-  { name: 'Validate', flow: validateFlow.flow },
-  { name: 'Fetch Metadata', flow: metadataFlow.flow }
+  { name: "Validate", flow: validateFlow.flow },
+  { name: "Fetch Metadata", flow: metadataFlow.flow },
 ]);
 </script>
 
 <template>
-  <button @click="sequence.execute()">Run Sequential Job ({{ sequence.progress }}%)</button>
+  <button @click="sequence.execute()">
+    Run Sequential Job ({{ sequence.progress }}%)
+  </button>
 </template>
 ```
 
 ### `useInfiniteFlow`
+
 For infinite scrolling paginated tasks.
 
 ```ts
-const postsFlow = useInfiniteFlow(
-  async (cursor) => fetchPosts(cursor),
-  {
-    initialPageParam: 0,
-    getNextPageParam: (last) => last.nextCursor
-  }
-);
+const postsFlow = useInfiniteFlow(async (cursor) => fetchPosts(cursor), {
+  initialPageParam: 0,
+  getNextPageParam: (last) => last.nextCursor,
+});
 
 // Access via postsFlow.pages or trigger postsFlow.fetchNextPage()
 ```
@@ -113,12 +113,12 @@ You can provide global behaviors across your Vue application out-of-the-box via 
 
 ```vue
 <script setup lang="ts">
-import { provideFlowConfig } from '@asyncflowstate/vue';
+import { provideFlowConfig } from "@asyncflowstate/vue";
 
 // Typically injected in App.vue to cascade down the tree
 provideFlowConfig({
   loading: { minDuration: 300 }, // Prevent UI flashes
-  retry: { backoff: 'exponential' }
+  retry: { backoff: "exponential" },
 });
 </script>
 ```

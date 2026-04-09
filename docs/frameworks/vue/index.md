@@ -176,13 +176,15 @@ Building a professional async experience in Vue requires leveraging the Composit
 
 ::: tip Destructuring correctly
 Always destructure the return of `useFlow` if you need single properties. Because they are standard Vue `Refs`, they maintain reactivity.
+
 ```ts
 const { loading, data, execute } = useFlow(fetchUser);
 ```
+
 :::
 
 ::: tip Prefer Callbacks over Watchers
-While you *can* use `watch(status)`, it's often cleaner to use the built-in `onSuccess` and `onError` callbacks. This keeps your redirect or toast logic co-located with the flow definition.
+While you _can_ use `watch(status)`, it's often cleaner to use the built-in `onSuccess` and `onError` callbacks. This keeps your redirect or toast logic co-located with the flow definition.
 :::
 
 ### <i class="fa-solid fa-layer-group text-cyan-500 mr-2"></i> Global State & Configuration

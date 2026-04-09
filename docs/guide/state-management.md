@@ -6,14 +6,14 @@ Understanding how AsyncFlowState manages state is key to using it effectively.
 
 Every flow has exactly one of these states at any given time:
 
-| State | `status` | `loading` | `data` | `error` | Description |
-|-------|----------|-----------|--------|---------|-------------|
-| **Idle** | `"idle"` | `false` | `null` | `null` | Initial state, ready to execute |
-| **Loading** | `"loading"` | `true` | `null`* | `null` | Action is in progress |
-| **Success** | `"success"` | `false` | `TOutput` | `null` | Action completed successfully |
-| **Error** | `"error"` | `false` | `null` | `Error` | Action failed with an error |
+| State       | `status`    | `loading` | `data`    | `error` | Description                     |
+| ----------- | ----------- | --------- | --------- | ------- | ------------------------------- |
+| **Idle**    | `"idle"`    | `false`   | `null`    | `null`  | Initial state, ready to execute |
+| **Loading** | `"loading"` | `true`    | `null`\*  | `null`  | Action is in progress           |
+| **Success** | `"success"` | `false`   | `TOutput` | `null`  | Action completed successfully   |
+| **Error**   | `"error"`   | `false`   | `null`    | `Error` | Action failed with an error     |
 
-<small>* During optimistic updates, `data` holds the optimistic result while loading.</small>
+<small>\* During optimistic updates, `data` holds the optimistic result while loading.</small>
 
 ## Reading State
 
@@ -23,15 +23,15 @@ Every flow has exactly one of these states at any given time:
 const flow = useFlow(async () => api.fetchUser());
 
 // Direct state properties
-flow.status    // "idle" | "loading" | "success" | "error"
-flow.loading   // boolean shorthand
-flow.data      // TOutput | null
-flow.error     // Error | null
+flow.status; // "idle" | "loading" | "success" | "error"
+flow.loading; // boolean shorthand
+flow.data; // TOutput | null
+flow.error; // Error | null
 
 // Derived state
-flow.idle      // status === "idle"
-flow.success   // status === "success"
-flow.failed    // status === "error"
+flow.idle; // status === "idle"
+flow.success; // status === "success"
+flow.failed; // status === "error"
 ```
 
 ### In Vue
@@ -67,21 +67,25 @@ const flow = createFlow(fetchUser);
 ## State Transitions
 
 ### Normal Flow
+
 ```
 idle → loading → success
 ```
 
 ### Error Flow
+
 ```
 idle → loading → error
 ```
 
 ### Retry Flow
+
 ```
 idle → loading → error → loading (retry 1) → error → loading (retry 2) → success
 ```
 
 ### Reset Flow
+
 ```
 success → idle (manual or auto-reset)
 error → idle (manual reset)
@@ -101,6 +105,7 @@ const flow = useFlow(saveData, {
 ```
 
 This is perfect for:
+
 - Toast-style success messages that disappear
 - Submit buttons that return to their original state
 - Status indicators that clear themselves

@@ -24,7 +24,11 @@ import type { SolidFlowOptions } from "../types";
  * }
  * ```
  */
-export function createFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
+export function createFlow<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+>(
   action: FlowAction<TData, TArgs>,
   options: SolidFlowOptions<TData, TError, TArgs> = {},
 ) {
@@ -39,7 +43,9 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
   const [progress, setProgressSignal] = createSignal<number>(flow.progress);
   const [rollbackDiff, setRollbackDiff] = createSignal<any[] | null>(null);
   const [isLoadingSignal, setIsLoading] = createSignal<boolean>(flow.isLoading);
-  const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>(
+    {},
+  );
 
   const loading = isLoadingSignal;
   const isLoading = isLoadingSignal;
@@ -70,21 +76,37 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
       disabled: loading(),
       "aria-busy": loading(),
       onClick: (e: Event) => {
-        if (onClick) { onClick(e); }
-        else { (flow.execute as any)(); }
+        if (onClick) {
+          onClick(e);
+        } else {
+          (flow.execute as any)();
+        }
       },
       ...rest,
     };
   }
 
-  function form(formProps: {
-    extractFormData?: boolean;
-    validate?: (...args: TArgs) => Record<string, string> | null | Promise<Record<string, string> | null>;
-    schema?: any;
-    resetOnSuccess?: boolean;
-    [key: string]: any;
-  } = {}) {
-    const { extractFormData = false, validate, schema, resetOnSuccess = false, ...rest } = formProps;
+  function form(
+    formProps: {
+      extractFormData?: boolean;
+      validate?: (
+        ...args: TArgs
+      ) =>
+        | Record<string, string>
+        | null
+        | Promise<Record<string, string> | null>;
+      schema?: any;
+      resetOnSuccess?: boolean;
+      [key: string]: any;
+    } = {},
+  ) {
+    const {
+      extractFormData = false,
+      validate,
+      schema,
+      resetOnSuccess = false,
+      ...rest
+    } = formProps;
 
     return {
       "aria-busy": loading(),
@@ -101,13 +123,22 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
         }
 
         if (schema) {
-          const schemaErrors = await runSchemaValidation(schema, extractFormData ? args[0] : args);
-          if (schemaErrors) { setFieldErrors(schemaErrors); return; }
+          const schemaErrors = await runSchemaValidation(
+            schema,
+            extractFormData ? args[0] : args,
+          );
+          if (schemaErrors) {
+            setFieldErrors(schemaErrors);
+            return;
+          }
         }
 
         if (validate) {
           const errors = await validate(...args);
-          if (errors && Object.keys(errors).length > 0) { setFieldErrors(errors); return; }
+          if (errors && Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+          }
         }
 
         const result = await execute(...args);
@@ -121,7 +152,8 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
   if (typeof window !== "undefined") {
     if (options.revalidateOnFocus) {
       const handleFocus = () => {
-        if (document.visibilityState === "visible" && lastArgs) flow.execute(...lastArgs);
+        if (document.visibilityState === "visible" && lastArgs)
+          flow.execute(...lastArgs);
       };
       window.addEventListener("focus", handleFocus);
       document.addEventListener("visibilitychange", handleFocus);
@@ -131,7 +163,9 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
       });
     }
     if (options.revalidateOnReconnect) {
-      const handleOnline = () => { if (lastArgs) flow.execute(...lastArgs); };
+      const handleOnline = () => {
+        if (lastArgs) flow.execute(...lastArgs);
+      };
       window.addEventListener("online", handleOnline);
       onCleanup(() => window.removeEventListener("online", handleOnline));
     }
@@ -144,8 +178,17 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
   });
 
   return {
-    status, data, error, progress, rollbackDiff,
-    loading, isLoading, isSuccess, isError, isIdle, isStreaming,
+    status,
+    data,
+    error,
+    progress,
+    rollbackDiff,
+    loading,
+    isLoading,
+    isSuccess,
+    isError,
+    isIdle,
+    isStreaming,
     execute,
     reset: flow.reset.bind(flow),
     cancel: flow.cancel.bind(flow),
@@ -154,7 +197,9 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
     importState: flow.importState.bind(flow),
     triggerUndo: flow.triggerUndo.bind(flow),
     worker: flow.worker.bind(flow),
-    button, form, fieldErrors,
+    button,
+    form,
+    fieldErrors,
     flow,
     signals: flow.signals,
   };

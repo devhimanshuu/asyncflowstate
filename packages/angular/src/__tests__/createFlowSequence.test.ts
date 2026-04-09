@@ -19,7 +19,7 @@ describe("Angular createFlowSequence", () => {
     expect(sequenceService.state$.getValue().loading).toBe(false);
 
     const promise = sequenceService.execute();
-    
+
     expect(sequenceService.state$.getValue().status).toBe("loading");
     expect(sequenceService.state$.getValue().loading).toBe(true);
 
@@ -27,8 +27,11 @@ describe("Angular createFlowSequence", () => {
 
     expect(sequenceService.state$.getValue().status).toBe("success");
     expect(sequenceService.state$.getValue().loading).toBe(false);
-    expect(sequenceService.state$.getValue().results).toEqual(["data 1", "data 2"]);
-    
+    expect(sequenceService.state$.getValue().results).toEqual([
+      "data 1",
+      "data 2",
+    ]);
+
     sequenceService.destroy();
   });
 });

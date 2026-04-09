@@ -19,7 +19,7 @@ const saveFlow = useFlow(saveData);
 <template>
   <!-- Auto injects :disabled="loading" and :aria-busy="loading" -->
   <button v-bind="saveFlow.button()" @click="saveFlow.execute(payload)">
-    {{ saveFlow.loading ? 'Saving...' : 'Save' }}
+    {{ saveFlow.loading ? "Saving..." : "Save" }}
   </button>
 </template>
 ```
@@ -32,7 +32,7 @@ The `form()` utility intercepts submit events, automatically extracts DOM payloa
 
 ```vue
 <script setup>
-import { z } from 'zod';
+import { z } from "zod";
 const schema = z.object({ title: z.string().min(5) });
 
 const flow = useFlow(submitData);
@@ -50,6 +50,7 @@ const flow = useFlow(submitData);
 ```
 
 ### `fieldErrors` Validation
+
 When `schema` validation fails (Zod, Valibot, Yup), the flow is fundamentally halted **before** network interactions occur, and `fieldErrors` reactive ref updates populated dynamically.
 
 - `flow.fieldErrors` (`Ref<Record<string, string>>`): Reactive object mapping `name` attributes to localized validation errors!

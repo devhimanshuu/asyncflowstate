@@ -48,13 +48,11 @@ const flow = useFlow(async (prompt: string) => {
 For uploads, downloads, and long-running operations:
 
 ```ts
-const flow = useFlow(
-  async (file: File) => {
-    return await uploadWithProgress(file, (progress) => {
-      flow.setProgress(progress); // 0-100
-    });
-  }
-);
+const flow = useFlow(async (file: File) => {
+  return await uploadWithProgress(file, (progress) => {
+    flow.setProgress(progress); // 0-100
+  });
+});
 ```
 
 ```tsx
@@ -75,7 +73,7 @@ Auto-refresh data with conditional stop logic:
 ```ts
 const flow = useFlow(checkDeploymentStatus, {
   polling: {
-    interval: 5000,       // Poll every 5 seconds
+    interval: 5000, // Poll every 5 seconds
     stopWhen: (data) => data.status === "deployed",
   },
 });
@@ -92,16 +90,16 @@ flow.stopPolling();
 If you know the schema of the data the LLM will eventually return, you can generate an intelligent streaming loading skeleton using the `streamAISkeleton` generator. This creates a realistic "building up" effect.
 
 ```ts
-import { streamAISkeleton } from '@asyncflowstate/core';
+import { streamAISkeleton } from "@asyncflowstate/core";
 
 const skeletonFlow = useFlow(async function* () {
   const stream = streamAISkeleton({
-    schema: { name: 'string', age: 'number', connected: 'boolean' },
-    streamingDelay: 50 // ms between chunks
+    schema: { name: "string", age: "number", connected: "boolean" },
+    streamingDelay: 50, // ms between chunks
   });
 
   for await (const piece of stream) {
-    yield piece; 
+    yield piece;
   }
 });
 

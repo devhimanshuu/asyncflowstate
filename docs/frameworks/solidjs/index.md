@@ -198,10 +198,12 @@ Building a professional async experience in SolidJS requires leaning into its fi
 
 ::: tip Don't destructure signals
 Avoid destructuring the state properties of the object returned by `createFlow`. Because they are getter functions (signals), they must be called as functions in your JSX to maintain reactivity tracking.
+
 ```tsx
 // Good
-<span>{flow.loading() ? '...' : 'Ready'}</span>
+<span>{flow.loading() ? "..." : "Ready"}</span>
 ```
+
 :::
 
 ::: tip Use `Show` and `Switch`
@@ -212,9 +214,11 @@ Solid's control flow components are highly optimized for signal-based updates. P
 
 ::: info Prop-Driven Flows
 To re-run a flow when a prop or signal changes, wrap the `execute()` call in a `createEffect`. Solid will automatically track the dependency and trigger the flow whenever the underlying value updates.
+
 ```tsx
 createEffect(() => flow.execute(props.id));
 ```
+
 :::
 
 ### <i class="fa-solid fa-universal-access text-purple-400 mr-2"></i> UX & Refinement

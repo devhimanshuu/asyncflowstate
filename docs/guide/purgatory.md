@@ -9,14 +9,14 @@ Purgatory is a high-end UX pattern that holds an action in suspension for a conf
 Enable Purgatory by configuring the `purgatory` option.
 
 ```ts
-import { useFlow } from '@asyncflowstate/react';
+import { useFlow } from "@asyncflowstate/react";
 
 const { loading, triggerUndo } = useFlow(deleteUserAccount, {
   purgatory: {
     duration: 5000, // Wait 5 seconds before hitting the API
     showPending: true, // Keep loading state true during purgatory
   },
-  onSuccess: () => toast.success('Account deleted!'),
+  onSuccess: () => toast.success("Account deleted!"),
 });
 ```
 

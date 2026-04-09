@@ -12,18 +12,23 @@ Global options inject completely natively over the standard standard generic Sol
 Configure standard system behaviors effectively at the literal root index module wrapping application routing.
 
 ```tsx
-import { FlowProvider } from '@asyncflowstate/solid';
-import { render } from 'solid-js/web';
-import App from './App';
+import { FlowProvider } from "@asyncflowstate/solid";
+import { render } from "solid-js/web";
+import App from "./App";
 
-render(() => (
-  <FlowProvider config={{
-    retry: { maxAttempts: 5, delay: 1000 },
-    loading: { minDuration: 400 }, // Stop UI flashing globally across ALL signals dynamically!
-  }}>
-    <App />
-  </FlowProvider>
-), document.getElementById('root')!);
+render(
+  () => (
+    <FlowProvider
+      config={{
+        retry: { maxAttempts: 5, delay: 1000 },
+        loading: { minDuration: 400 }, // Stop UI flashing globally across ALL signals dynamically!
+      }}
+    >
+      <App />
+    </FlowProvider>
+  ),
+  document.getElementById("root")!,
+);
 ```
 
 ## Behavior Cascade Details

@@ -37,7 +37,11 @@ import type { SvelteFlowOptions } from "../types";
  * {/if}
  * ```
  */
-export function createFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
+export function createFlow<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+>(
   action: FlowAction<TData, TArgs>,
   options: SvelteFlowOptions<TData, TError, TArgs> = {},
 ) {

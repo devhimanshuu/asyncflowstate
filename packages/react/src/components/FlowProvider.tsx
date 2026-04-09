@@ -315,7 +315,7 @@ export function mergeFlowOptions<
   if (localOptions.purgatory !== undefined) {
     merged.purgatory = localOptions.purgatory;
   }
-  
+
   if (localOptions.ghost !== undefined) {
     merged.ghost = localOptions.ghost;
   }

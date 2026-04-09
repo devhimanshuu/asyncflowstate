@@ -14,7 +14,9 @@ export function createInfiniteFlow<
   const flowPrimitive = createFlow(action, options);
 
   const [pages, setPages] = createSignal<TData[]>([]);
-  const [pageParams, setPageParams] = createSignal<any[]>([options.initialPageParam]);
+  const [pageParams, setPageParams] = createSignal<any[]>([
+    options.initialPageParam,
+  ]);
   const [hasNextPage, setHasNextPage] = createSignal(true);
   const [isFetchingNextPage, setIsFetchingNextPage] = createSignal(false);
 

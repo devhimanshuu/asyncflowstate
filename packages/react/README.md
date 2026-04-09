@@ -230,12 +230,12 @@ const sequence = useFlowSequence([
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
 
-*   **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
-*   **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions.
-*   **Worker Offloading:** Move heavy tasks to background threads via `useFlow(task, { worker: true })`.
-*   **Optimistic UI with Deep-Diff Rollbacks:** Instant updates with perfect state recovery.
-*   **Streaming & AI Support:** Optimized for LLM streaming with `status === 'streaming'`.
-*   **Cross-Tab Sync:** Keep all open tabs in sync with the same async state.
+- **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
+- **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions.
+- **Worker Offloading:** Move heavy tasks to background threads via `useFlow(task, { worker: true })`.
+- **Optimistic UI with Deep-Diff Rollbacks:** Instant updates with perfect state recovery.
+- **Streaming & AI Support:** Optimized for LLM streaming with `status === 'streaming'`.
+- **Cross-Tab Sync:** Keep all open tabs in sync with the same async state.
 
 ## Monitoring & Debugging
 

@@ -30,7 +30,7 @@ return (
 
 ## How It Avoids Spam
 
-AsyncFlowState internally relies on your `concurrency`, `debounce`, and `staleTime` settings to ensure that rapid hovers do not launch duplicate requests. 
+AsyncFlowState internally relies on your `concurrency`, `debounce`, and `staleTime` settings to ensure that rapid hovers do not launch duplicate requests.
 
 If they hover over the button, the request fires. If they then click the button 300ms later, the library will reuse the `in-flight` request promise rather than spawning a new one.
 

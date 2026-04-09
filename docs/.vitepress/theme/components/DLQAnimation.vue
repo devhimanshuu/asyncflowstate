@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const queue = ref([]);
 let idCounter = 1;
@@ -8,11 +8,11 @@ let simInterval;
 const spawnFailure = () => {
   const types = ["Timeout", "500 Internal", "Network Drop"];
   const id = `err_${idCounter++}`;
-  
+
   queue.value.unshift({
     id,
     type: types[Math.floor(Math.random() * types.length)],
-    time: "Just now"
+    time: "Just now",
   });
 
   if (queue.value.length > 4) {
@@ -21,11 +21,11 @@ const spawnFailure = () => {
 };
 
 const replay = (id) => {
-  const item = queue.value.find(i => i.id === id);
+  const item = queue.value.find((i) => i.id === id);
   if (item) {
     item.replaying = true;
     setTimeout(() => {
-      queue.value = queue.value.filter(i => i.id !== id);
+      queue.value = queue.value.filter((i) => i.id !== id);
     }, 1000);
   }
 };
@@ -34,7 +34,7 @@ onMounted(() => {
   // spawn some initial items
   spawnFailure();
   setTimeout(spawnFailure, 1000);
-  
+
   simInterval = setInterval(() => {
     if (Math.random() > 0.5) spawnFailure();
   }, 2500);
@@ -48,14 +48,23 @@ onUnmounted(() => {
 <template>
   <div class="animation-container">
     <div class="header">
-      <div class="title"><i class="fa-regular fa-envelope-open"></i> Dead Letter Queue</div>
+      <div class="title">
+        <i class="fa-regular fa-envelope-open"></i> Dead Letter Queue
+      </div>
       <div class="badge">{{ queue.length }} errors pending</div>
     </div>
-    
+
     <div class="list">
       <transition-group name="list-anim">
-        <div class="row" v-for="item in queue" :key="item.id" :class="{ returning: item.replaying }">
-          <div class="icon"><i class="fa-solid fa-skull-crossbones text-red-500"></i></div>
+        <div
+          class="row"
+          v-for="item in queue"
+          :key="item.id"
+          :class="{ returning: item.replaying }"
+        >
+          <div class="icon">
+            <i class="fa-solid fa-skull-crossbones text-red-500"></i>
+          </div>
           <div class="details">
             <div class="name">API Request Failed</div>
             <div class="desc">{{ item.type }} - {{ item.time }}</div>
@@ -76,7 +85,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .header {
@@ -169,7 +178,8 @@ onUnmounted(() => {
   margin-top: 2rem;
 }
 
-.list-anim-enter-active, .list-anim-leave-active {
+.list-anim-enter-active,
+.list-anim-leave-active {
   transition: all 0.4s ease;
 }
 .list-anim-enter-from {

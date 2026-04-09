@@ -47,9 +47,7 @@ export function useFlowList<
   const states = reactive<Record<string, FlowState<TData, TError>>>({});
 
   const isAnyLoading = computed(() =>
-    Object.values(states).some(
-      (s: any) => s.status === "loading",
-    ),
+    Object.values(states).some((s: any) => s.status === "loading"),
   );
 
   function getMergedOptions() {

@@ -1,22 +1,25 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const chunks = "The quick brown fox jumps over the lazy dog to demonstrate a streaming AI response.".split(' ');
+const chunks =
+  "The quick brown fox jumps over the lazy dog to demonstrate a streaming AI response.".split(
+    " ",
+  );
 const displayedWords = ref([]);
 const isStreaming = ref(false);
-const status = ref('idle');
+const status = ref("idle");
 let index = 0;
 let timer;
 
 const runSimulation = () => {
-  status.value = 'loading';
+  status.value = "loading";
   displayedWords.value = [];
   isStreaming.value = false;
   index = 0;
-  
+
   // Start streaming after slight delay
   timer = setTimeout(() => {
-    status.value = 'streaming';
+    status.value = "streaming";
     isStreaming.value = true;
     streamNext();
   }, 800);
@@ -31,7 +34,7 @@ const streamNext = () => {
     timer = setTimeout(streamNext, delay);
   } else {
     // Done
-    status.value = 'success';
+    status.value = "success";
     isStreaming.value = false;
     timer = setTimeout(runSimulation, 3000);
   }
@@ -56,18 +59,25 @@ onUnmounted(() => {
         <div class="title">AI Assistant Stream</div>
       </div>
       <div class="chat-body">
-        <div class="user-bubble">
-          Can you show me a streaming example?
-        </div>
+        <div class="user-bubble">Can you show me a streaming example?</div>
         <div class="ai-bubble-container" v-if="status !== 'idle'">
-          <div class="ai-avatar"><i class="fa-solid fa-sparkles text-amber-500"></i></div>
-          <div class="ai-bubble" :class="{ 'is-loading': status === 'loading' }">
+          <div class="ai-avatar">
+            <i class="fa-solid fa-sparkles text-amber-500"></i>
+          </div>
+          <div
+            class="ai-bubble"
+            :class="{ 'is-loading': status === 'loading' }"
+          >
             <span v-if="status === 'loading'" class="typing-indicator">
               <span></span><span></span><span></span>
             </span>
             <span v-else class="streamed-text">
-              <span v-for="(word, i) in displayedWords" :key="i" class="word-anim">
-                {{ word }} 
+              <span
+                v-for="(word, i) in displayedWords"
+                :key="i"
+                class="word-anim"
+              >
+                {{ word }}
               </span>
               <span v-if="isStreaming" class="cursor"></span>
             </span>
@@ -87,7 +97,7 @@ onUnmounted(() => {
   border-radius: 16px;
   display: flex;
   justify-content: center;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .chat-mockup {
@@ -97,12 +107,12 @@ onUnmounted(() => {
   border-radius: 12px;
   border: 1px solid var(--vp-c-divider);
   overflow: hidden;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
 }
 
 .chat-header {
   height: 40px;
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-bottom: 1px solid var(--vp-c-divider);
   display: flex;
   align-items: center;
@@ -111,7 +121,9 @@ onUnmounted(() => {
   position: relative;
 }
 
-.dark .chat-header { background: rgba(255,255,255,0.02); }
+.dark .chat-header {
+  background: rgba(255, 255, 255, 0.02);
+}
 
 .dot {
   width: 10px;
@@ -120,9 +132,15 @@ onUnmounted(() => {
   background: var(--vp-c-divider);
 }
 
-.dot:nth-child(1) { background: #ff5f56; }
-.dot:nth-child(2) { background: #ffbd2e; }
-.dot:nth-child(3) { background: #27c93f; }
+.dot:nth-child(1) {
+  background: #ff5f56;
+}
+.dot:nth-child(2) {
+  background: #ffbd2e;
+}
+.dot:nth-child(3) {
+  background: #27c93f;
+}
 
 .title {
   position: absolute;
@@ -196,8 +214,12 @@ onUnmounted(() => {
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 .word-anim {
   animation: fadeIn 0.15s ease-out forwards;
@@ -214,17 +236,34 @@ onUnmounted(() => {
 }
 
 @keyframes bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(2px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 </style>

@@ -1,5 +1,10 @@
 import { createSignal, createMemo, onCleanup } from "solid-js";
-import { FlowParallel, type ParallelState, type ParallelStrategy, type Flow } from "@asyncflowstate/core";
+import {
+  FlowParallel,
+  type ParallelState,
+  type ParallelStrategy,
+  type Flow,
+} from "@asyncflowstate/core";
 
 export function createFlowParallel(
   input: Flow<any, any, any>[] | Record<string, Flow<any, any, any>>,
@@ -10,7 +15,9 @@ export function createFlowParallel(
 
   const loading = createMemo(() => state().status === "loading");
 
-  const unsubscribe = parallel.subscribe((newState) => setState({ ...newState }));
+  const unsubscribe = parallel.subscribe((newState) =>
+    setState({ ...newState }),
+  );
   onCleanup(() => unsubscribe());
 
   return {

@@ -19,7 +19,7 @@ Normally, iterating mapping elements across list deletion engines locks the main
 
 {#each items as item}
   <!-- Only disables the SPECIFIC item button! -->
-  <button 
+  <button
     on:click={() => deletionEngine.execute(item.id, item.id)}
     disabled={$deletionEngine.states[item.id]?.status === 'loading'}
   >

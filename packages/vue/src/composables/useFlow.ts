@@ -1,11 +1,4 @@
-import {
-  ref,
-  reactive,
-  computed,
-  watch,
-  onUnmounted,
-  type Ref,
-} from "vue";
+import { ref, reactive, computed, watch, onUnmounted, type Ref } from "vue";
 import {
   Flow,
   type FlowAction,
@@ -53,7 +46,10 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   options: VueFlowOptions<TData, TError, TArgs> = {},
 ) {
   const globalConfig = useFlowConfig();
-  const mergedOptions: VueFlowOptions<TData, TError, TArgs> = mergeFlowOptions(globalConfig, options);
+  const mergedOptions: VueFlowOptions<TData, TError, TArgs> = mergeFlowOptions(
+    globalConfig,
+    options,
+  );
 
   // Create the core Flow instance
   const flow = new Flow<TData, TError, TArgs>(action, mergedOptions);

@@ -1,7 +1,5 @@
 # Form Handling Examples
 
-
-
 Comprehensive form patterns with AsyncFlowState.
 
 ## Basic Form Submission
@@ -11,11 +9,11 @@ Comprehensive form patterns with AsyncFlowState.
 ```tsx
 function ContactForm() {
   const flow = useFlow(async (data) => {
-    return await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    return await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).then(r => r.json());
+    }).then((r) => r.json());
   });
 
   return (
@@ -25,10 +23,14 @@ function ContactForm() {
       <textarea name="message" placeholder="Message" required />
 
       <button type="submit" disabled={flow.loading}>
-        {flow.loading ? 'Sending...' : 'Send Message'}
+        {flow.loading ? "Sending..." : "Send Message"}
       </button>
 
-      {flow.success && <p className="success"><i class="fa-solid fa-circle-check mr-2"></i> Message sent!</p>}
+      {flow.success && (
+        <p className="success">
+          <i class="fa-solid fa-circle-check mr-2"></i> Message sent!
+        </p>
+      )}
       {flow.error && <p className="error">{flow.error.message}</p>}
     </form>
   );
@@ -40,21 +42,23 @@ function ContactForm() {
 <RealWorldPattern type="form-validation" class="my-8" />
 
 ```tsx
-import { z } from 'zod';
+import { z } from "zod";
 
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine(
-  (d) => d.password === d.confirmPassword,
-  { message: "Passwords don't match", path: ["confirmPassword"] }
-);
+const registerSchema = z
+  .object({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 function RegistrationForm() {
   const flow = useFlow(api.register, {
-    onSuccess: () => router.push('/dashboard'),
+    onSuccess: () => router.push("/dashboard"),
   });
 
   return (
@@ -92,7 +96,7 @@ function RegistrationForm() {
       </div>
 
       <button type="submit" disabled={flow.loading}>
-        {flow.loading ? 'Creating Account...' : 'Sign Up'}
+        {flow.loading ? "Creating Account..." : "Sign Up"}
       </button>
 
       {flow.error && (
@@ -111,18 +115,15 @@ function RegistrationForm() {
 
 ```tsx
 function LoginForm() {
-  const flow = useFlow(
-    async (credentials) => api.login(credentials),
-    {
-      onSuccess: (user) => {
-        setUser(user);
-        router.push('/dashboard');
-      },
-      a11y: {
-        announceError: "Login failed. Please check your credentials.",
-      },
-    }
-  );
+  const flow = useFlow(async (credentials) => api.login(credentials), {
+    onSuccess: (user) => {
+      setUser(user);
+      router.push("/dashboard");
+    },
+    a11y: {
+      announceError: "Login failed. Please check your credentials.",
+    },
+  });
 
   return (
     <form {...flow.form({ extractFormData: true })}>
@@ -130,7 +131,7 @@ function LoginForm() {
       <input name="password" type="password" placeholder="Password" />
 
       <button type="submit" disabled={flow.loading}>
-        {flow.loading ? 'Signing in...' : 'Sign In'}
+        {flow.loading ? "Signing in..." : "Sign In"}
       </button>
 
       {flow.error && (
@@ -168,7 +169,15 @@ function SettingsForm({ settings }) {
       ))}
 
       <button type="submit" disabled={flow.loading}>
-        {flow.loading ? "Updating..." : flow.success ? <><i class="fa-solid fa-circle-check mr-2"></i> Updated!</> : "Save Settings"}
+        {flow.loading ? (
+          "Updating..."
+        ) : flow.success ? (
+          <>
+            <i class="fa-solid fa-circle-check mr-2"></i> Updated!
+          </>
+        ) : (
+          "Save Settings"
+        )}
       </button>
     </form>
   );
@@ -184,22 +193,32 @@ Perfect for document editors or profile settings where you want to save in the b
 ```tsx
 function ProfileEditor() {
   const flow = useFlow(api.updateProfile, {
-    debounce: 1000,         // Wait for 1s of inactivity
+    debounce: 1000, // Wait for 1s of inactivity
     concurrency: "restart", // New edits cancel pending saves
-    loading: { delay: 500 } // Don't show "Saving..." for quick edits
+    loading: { delay: 500 }, // Don't show "Saving..." for quick edits
   });
 
   return (
     <div>
-      <input 
-        onChange={(e) => flow.execute({ bio: e.target.value })} 
+      <input
+        onChange={(e) => flow.execute({ bio: e.target.value })}
         placeholder="Tell us about yourself..."
       />
-      
+
       <div className="status-indicator">
-        {flow.loading && <span><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Saving...</span>}
-        {flow.success && <span><i class="fa-solid fa-circle-check mr-2"></i> All changes saved</span>}
-        {flow.error && <span className="error">Save failed. We'll try again.</span>}
+        {flow.loading && (
+          <span>
+            <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Saving...
+          </span>
+        )}
+        {flow.success && (
+          <span>
+            <i class="fa-solid fa-circle-check mr-2"></i> All changes saved
+          </span>
+        )}
+        {flow.error && (
+          <span className="error">Save failed. We'll try again.</span>
+        )}
       </div>
     </div>
   );
@@ -225,7 +244,8 @@ function EnrollmentWizard() {
   return (
     <div className="wizard">
       <header>
-        Step {sequence.currentStep + 1}: {sequence.steps[sequence.currentStep].name}
+        Step {sequence.currentStep + 1}:{" "}
+        {sequence.steps[sequence.currentStep].name}
       </header>
 
       <div className="step-content">
@@ -233,7 +253,7 @@ function EnrollmentWizard() {
       </div>
 
       <div className="actions">
-        <button 
+        <button
           onClick={() => sequence.execute(formData)}
           disabled={sequence.loading}
         >

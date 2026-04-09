@@ -9,24 +9,24 @@ Primary composable for managing async actions with reactive Refs in Vue 3.
 ```ts
 function useFlow<TInput, TOutput>(
   action: (...args: TInput[]) => Promise<TOutput>,
-  options?: FlowOptions<TInput, TOutput>
-): UseFlowResult<TInput, TOutput>
+  options?: FlowOptions<TInput, TOutput>,
+): UseFlowResult<TInput, TOutput>;
 ```
 
 ### Return Value (Reactive Refs)
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `status` | `Ref<string>` | Current flow status |
-| `loading` | `Ref<boolean>` | `true` if action is currently running |
-| `data` | `Ref<T \| null>` | Last successful execution result |
-| `error` | `Ref<Error \| null>` | Last execution error |
-| `execute` | `(...args) => Promise<T>` | Trigger action execution |
-| `reset` | `() => void` | Reset state to idle |
-| `button` | `() => object` | Generates `v-bind` props for buttons |
-| `form` | `(opts) => object` | Generates `v-bind` props for forms |
-| `fieldErrors` | `Reactive<Record>` | Live validation errors |
-| `executionCount`| `Ref<number>` | Total completion counter |
+| Property         | Type                      | Description                           |
+| ---------------- | ------------------------- | ------------------------------------- |
+| `status`         | `Ref<string>`             | Current flow status                   |
+| `loading`        | `Ref<boolean>`            | `true` if action is currently running |
+| `data`           | `Ref<T \| null>`          | Last successful execution result      |
+| `error`          | `Ref<Error \| null>`      | Last execution error                  |
+| `execute`        | `(...args) => Promise<T>` | Trigger action execution              |
+| `reset`          | `() => void`              | Reset state to idle                   |
+| `button`         | `() => object`            | Generates `v-bind` props for buttons  |
+| `form`           | `(opts) => object`        | Generates `v-bind` props for forms    |
+| `fieldErrors`    | `Reactive<Record>`        | Live validation errors                |
+| `executionCount` | `Ref<number>`             | Total completion counter              |
 
 ---
 
@@ -39,7 +39,7 @@ import { provideFlowConfig } from "@asyncflowstate/vue";
 
 provideFlowConfig({
   loading: { minDuration: 400 },
-  retry: { maxAttempts: 3 }
+  retry: { maxAttempts: 3 },
 });
 ```
 

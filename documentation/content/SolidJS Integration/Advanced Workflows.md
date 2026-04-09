@@ -13,8 +13,8 @@ Integrate advanced pipelines inside heavily isolated mapping `<For>` iterators.
 When you map `<For>` dynamically across iterative rendering contexts safely, Solid binds references explicitly internally efficiently ensuring items securely isolate execution streams properly without re-triggering sibling renders!
 
 ```tsx
-import { createFlowList } from '@asyncflowstate/solid';
-import { For } from 'solid-js';
+import { createFlowList } from "@asyncflowstate/solid";
+import { For } from "solid-js";
 
 const deletionEngine = createFlowList(deleteItemAPI);
 
@@ -24,16 +24,16 @@ const deletionEngine = createFlowList(deleteItemAPI);
     const status = () => deletionEngine.getStatus(item.id).status;
     return (
       <li>
-        <button 
+        <button
           onClick={() => deletionEngine.execute(item.id, item.id)}
-          disabled={status() === 'loading'}
+          disabled={status() === "loading"}
         >
-          {status() === 'loading' ? 'Deleting' : 'Delete'}
+          {status() === "loading" ? "Deleting" : "Delete"}
         </button>
       </li>
     );
   }}
-</For>
+</For>;
 ```
 
 ## `createFlowSequence`

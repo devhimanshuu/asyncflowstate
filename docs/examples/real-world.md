@@ -1,7 +1,5 @@
 # Real-World Patterns
 
-
-
 Production-ready patterns for common application scenarios.
 
 ## E-Commerce: Add to Cart
@@ -10,24 +8,29 @@ Production-ready patterns for common application scenarios.
 
 ```tsx
 function AddToCartButton({ product }) {
-  const flow = useFlow(
-    async (item) => api.cart.add(item),
-    {
-      concurrency: "keep",
-      onSuccess: () => {
-        toast.success(`${product.name} added to cart`);
-        updateCartCount((c) => c + 1);
-      },
-      loading: { minDuration: 300 },
-    }
-  );
+  const flow = useFlow(async (item) => api.cart.add(item), {
+    concurrency: "keep",
+    onSuccess: () => {
+      toast.success(`${product.name} added to cart`);
+      updateCartCount((c) => c + 1);
+    },
+    loading: { minDuration: 300 },
+  });
 
   return (
     <button
       {...flow.button({ onClick: () => flow.execute(product) })}
       className="add-to-cart"
     >
-      {flow.loading ? "Adding..." : flow.success ? <><i class="fa-solid fa-circle-check mr-2"></i> Added!</> : "Add to Cart"}
+      {flow.loading ? (
+        "Adding..."
+      ) : flow.success ? (
+        <>
+          <i class="fa-solid fa-circle-check mr-2"></i> Added!
+        </>
+      ) : (
+        "Add to Cart"
+      )}
     </button>
   );
 }
@@ -56,11 +59,12 @@ function DashboardStats() {
     <div className="dashboard">
       {flow.loading && !flow.data && <DashboardSkeleton />}
       {flow.error && (
-        <ErrorCard message={flow.error.message} onRetry={() => flow.execute()} />
+        <ErrorCard
+          message={flow.error.message}
+          onRetry={() => flow.execute()}
+        />
       )}
-      {flow.data && (
-        <StatsGrid stats={flow.data} isRefreshing={flow.loading} />
-      )}
+      {flow.data && <StatsGrid stats={flow.data} isRefreshing={flow.loading} />}
     </div>
   );
 }
@@ -144,7 +148,7 @@ function ChatInterface() {
         { role: "assistant", content: fullResponse },
       ]);
     },
-    { concurrency: "keep" }
+    { concurrency: "keep" },
   );
 
   return (
@@ -170,7 +174,7 @@ function BulkDeleteButton({ selectedIds }) {
   const flow = useFlow(
     async (ids: string[]) => {
       const results = await Promise.allSettled(
-        ids.map((id) => api.deleteItem(id))
+        ids.map((id) => api.deleteItem(id)),
       );
       const failed = results.filter((r) => r.status === "rejected");
       if (failed.length > 0) {
@@ -184,7 +188,7 @@ function BulkDeleteButton({ selectedIds }) {
         toast.success(`Deleted ${result.deleted} items`);
         refetchItems();
       },
-    }
+    },
   );
 
   return (
@@ -217,13 +221,15 @@ function SearchBar() {
 
   return (
     <div>
-      <input 
-        onChange={(e) => execute(e.target.value)} 
-        placeholder="Type to search..." 
+      <input
+        onChange={(e) => execute(e.target.value)}
+        placeholder="Type to search..."
       />
       {loading && <Spinner />}
       <ul>
-        {data?.map(item => <li key={item.id}>{item.name}</li>)}
+        {data?.map((item) => (
+          <li key={item.id}>{item.name}</li>
+        ))}
       </ul>
     </div>
   );
@@ -245,7 +251,11 @@ function LikeButton({ post }) {
 
   return (
     <button onClick={() => execute(post.id)}>
-      {isLiked ? <i class="fa-solid fa-heart text-red-500"></i> : <i class="fa-regular fa-heart opacity-40"></i>}
+      {isLiked ? (
+        <i class="fa-solid fa-heart text-red-500"></i>
+      ) : (
+        <i class="fa-regular fa-heart opacity-40"></i>
+      )}
     </button>
   );
 }
@@ -258,9 +268,9 @@ function LikeButton({ post }) {
 ```tsx
 function FileUploader() {
   const { execute, loading, status } = useFlow(api.upload, {
-    retry: { 
-      maxAttempts: 5, 
-      shouldRetry: (err) => err.isNetworkError 
+    retry: {
+      maxAttempts: 5,
+      shouldRetry: (err) => err.isNetworkError,
     },
   });
 
@@ -273,7 +283,12 @@ function FileUploader() {
     <div className="upload-zone">
       <input type="file" onChange={onFileChange} disabled={loading} />
       {status === "loading" && <ProgressBar />}
-      {status === "success" && <p><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Upload complete!</p>}
+      {status === "success" && (
+        <p>
+          <i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Upload
+          complete!
+        </p>
+      )}
     </div>
   );
 }
@@ -298,7 +313,9 @@ function ItemList() {
 
   return (
     <div onScroll={onScroll}>
-      {items.map(i => <Item key={i.id} {...i} />)}
+      {items.map((i) => (
+        <Item key={i.id} {...i} />
+      ))}
       {status === "loading" && <SkeletonLoader />}
     </div>
   );
@@ -337,7 +354,7 @@ function SubscriptionWizard() {
 function DocumentEditor() {
   const saveFlow = useFlow(api.saveDocument, {
     concurrency: "restart", // New saves trump old ones
-    debounce: 1000,         // Wait for user to stop typing
+    debounce: 1000, // Wait for user to stop typing
   });
 
   const onContentChange = (content) => {

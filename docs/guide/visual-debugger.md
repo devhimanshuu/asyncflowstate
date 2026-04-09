@@ -14,8 +14,10 @@ import { Flow } from "@asyncflowstate/core";
 // Register global listener
 Flow.onEvent((event) => {
   // Capture: flowId, flowName, type ('start' | 'success' | 'error'), timestamp, state
-  console.log(`[Debugger] ${event.flowName}: ${event.type} at ${event.timestamp}`);
-  
+  console.log(
+    `[Debugger] ${event.flowName}: ${event.type} at ${event.timestamp}`,
+  );
+
   // Custom Gantt/Timeline logic goes here
   dashboard.addEvent(event);
 });
@@ -48,9 +50,9 @@ const flow = useFlow(saveProfile, {
     // Export full history of what led to this failure
     const diagnosticPayload = flow.exportState();
     Sentry.captureException(flow.error, {
-      extra: { diagnosticPayload }
+      extra: { diagnosticPayload },
     });
-  }
+  },
 });
 ```
 
@@ -60,7 +62,7 @@ To prevent memory leaks in production, the state history is limited to 50 events
 
 ```ts
 const flow = useFlow(action, {
-  historyLimit: 100 // Retain last 100 transitions
+  historyLimit: 100, // Retain last 100 transitions
 });
 ```
 

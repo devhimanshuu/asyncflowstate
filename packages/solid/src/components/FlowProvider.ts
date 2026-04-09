@@ -45,15 +45,26 @@ export function mergeFlowOptions<TData, TError, TArgs extends any[]>(
   }
 
   const callbacks: (keyof FlowOptions)[] = [
-    "onStart", "onSuccess", "onError", "onRetry",
-    "onCancel", "onSettled", "onStream", "onBlocked",
+    "onStart",
+    "onSuccess",
+    "onError",
+    "onRetry",
+    "onCancel",
+    "onSettled",
+    "onStream",
+    "onBlocked",
   ];
 
   for (const key of callbacks) {
-    const globalCb = globalOptions[key] as ((...args: any[]) => void) | undefined;
+    const globalCb = globalOptions[key] as
+      | ((...args: any[]) => void)
+      | undefined;
     const localCb = local[key] as ((...args: any[]) => void) | undefined;
     if (globalCb && localCb) {
-      (merged as any)[key] = (...args: any[]) => { globalCb(...args); localCb(...args); };
+      (merged as any)[key] = (...args: any[]) => {
+        globalCb(...args);
+        localCb(...args);
+      };
     } else {
       (merged as any)[key] = localCb || globalCb;
     }
@@ -65,19 +76,38 @@ export function mergeFlowOptions<TData, TError, TArgs extends any[]>(
 
   if (behaviors || (local as any).middleware) {
     const globalMiddleware = behaviors || [];
-    const localMiddleware = ((local as any).middleware as FlowMiddleware[]) || [];
+    const localMiddleware =
+      ((local as any).middleware as FlowMiddleware[]) || [];
     (merged as any).middleware = [...globalMiddleware, ...localMiddleware];
   }
 
   const passthrough: (keyof FlowOptions)[] = [
-    "concurrency", "optimisticResult", "rollbackOnError", "timeout",
-    "debounce", "throttle", "autoProgress", "persist", "circuitBreaker",
-    "triggerOn", "circuitBreakerKey", "polling", "sync", "debugName",
-    "precondition", "dedupKey", "staleTime", "mapError", "middleware",
-    "purgatory", "ghost", "deadLetter"
+    "concurrency",
+    "optimisticResult",
+    "rollbackOnError",
+    "timeout",
+    "debounce",
+    "throttle",
+    "autoProgress",
+    "persist",
+    "circuitBreaker",
+    "triggerOn",
+    "circuitBreakerKey",
+    "polling",
+    "sync",
+    "debugName",
+    "precondition",
+    "dedupKey",
+    "staleTime",
+    "mapError",
+    "middleware",
+    "purgatory",
+    "ghost",
+    "deadLetter",
   ];
   for (const key of passthrough) {
-    if ((local as any)[key] !== undefined) (merged as any)[key] = (local as any)[key];
+    if ((local as any)[key] !== undefined)
+      (merged as any)[key] = (local as any)[key];
   }
 
   return merged;

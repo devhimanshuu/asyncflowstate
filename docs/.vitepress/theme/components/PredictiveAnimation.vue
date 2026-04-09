@@ -1,47 +1,50 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const cursorPosition = ref(-100);
-const buttonState = ref('idle'); // idle, hovered
-const requestState = ref('none'); // none, fetching, ready
+const buttonState = ref("idle"); // idle, hovered
+const requestState = ref("none"); // none, fetching, ready
 let animationFrameId;
 
 const animateCursor = () => {
   let direction = 1;
   let speed = 2; // px per frame
-  
+
   const step = () => {
     cursorPosition.value += speed * direction;
-    
+
     // Bounds checking
     if (cursorPosition.value > 200) {
       direction = -1;
-      setTimeout(() => { requestState.value = 'none'; buttonState.value = 'idle'; }, 500); // Reset after moving away
+      setTimeout(() => {
+        requestState.value = "none";
+        buttonState.value = "idle";
+      }, 500); // Reset after moving away
     } else if (cursorPosition.value < -100) {
       direction = 1;
     }
-    
+
     // Hover logic hit detection (simulate hovering over the button area)
     const isHovering = cursorPosition.value > 20 && cursorPosition.value < 100;
-    
-    if (isHovering && buttonState.value === 'idle') {
-      buttonState.value = 'hovered';
+
+    if (isHovering && buttonState.value === "idle") {
+      buttonState.value = "hovered";
       // Automatically prefetch without a click
-      if (requestState.value === 'none') {
-        requestState.value = 'fetching';
+      if (requestState.value === "none") {
+        requestState.value = "fetching";
         setTimeout(() => {
-          if(requestState.value === 'fetching') {
-            requestState.value = 'ready';
+          if (requestState.value === "fetching") {
+            requestState.value = "ready";
           }
         }, 1000); // Simulating network lag
       }
-    } else if (!isHovering && buttonState.value === 'hovered') {
-      buttonState.value = 'idle';
+    } else if (!isHovering && buttonState.value === "hovered") {
+      buttonState.value = "idle";
     }
 
     animationFrameId = requestAnimationFrame(step);
   };
-  
+
   animationFrameId = requestAnimationFrame(step);
 };
 
@@ -58,18 +61,28 @@ onUnmounted(() => {
   <div class="animation-container">
     <div class="subtitle">Intent-based Prefetching (No Click Required)</div>
     <div class="scene-zone">
-      <div class="cursor" :style="{ transform: `translateX(${cursorPosition}px) translateY(10px)` }"><i class="fa-solid fa-hand-pointer"></i></div>
-      <div class="mock-btn" :class="buttonState">
-        User Profile
+      <div
+        class="cursor"
+        :style="{
+          transform: `translateX(${cursorPosition}px) translateY(10px)`,
+        }"
+      >
+        <i class="fa-solid fa-hand-pointer"></i>
       </div>
+      <div class="mock-btn" :class="buttonState">User Profile</div>
     </div>
-    
+
     <div class="network-monitor">
       <div class="net-status">
         <span class="dot" :class="requestState"></span>
         <span v-if="requestState === 'none'">Idle</span>
-        <span v-else-if="requestState === 'fetching'" class="fetching-text">Prefetching payload...</span>
-        <span v-else-if="requestState === 'ready'" class="ready-text">Data ready BEFORE click! <i class="fa-solid fa-bolt text-yellow-400"></i></span>
+        <span v-else-if="requestState === 'fetching'" class="fetching-text"
+          >Prefetching payload...</span
+        >
+        <span v-else-if="requestState === 'ready'" class="ready-text"
+          >Data ready BEFORE click!
+          <i class="fa-solid fa-bolt text-yellow-400"></i
+        ></span>
       </div>
     </div>
   </div>
@@ -83,7 +96,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -104,7 +117,13 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 20px);
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.02) 10px,
+    rgba(0, 0, 0, 0.02) 20px
+  );
   border-radius: 8px;
   border: 1px dashed var(--vp-c-divider);
 }
@@ -157,14 +176,30 @@ onUnmounted(() => {
   background: var(--vp-c-divider);
 }
 
-.dot.fetching { background: #3b82f6; animation: pulsenet 1s infinite alternate; }
-.dot.ready { background: #10b981; }
+.dot.fetching {
+  background: #3b82f6;
+  animation: pulsenet 1s infinite alternate;
+}
+.dot.ready {
+  background: #10b981;
+}
 
-.fetching-text { color: #3b82f6; }
-.ready-text { color: #10b981; font-weight: bold; }
+.fetching-text {
+  color: #3b82f6;
+}
+.ready-text {
+  color: #10b981;
+  font-weight: bold;
+}
 
 @keyframes pulsenet {
-  from { opacity: 0.5; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1.2); }
+  from {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 </style>

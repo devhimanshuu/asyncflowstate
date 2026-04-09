@@ -18,6 +18,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -30,10 +31,13 @@
 10. [Appendices](#appendices)
 
 ## Introduction
+
 This document provides a comprehensive API reference for the @asyncflowstate/react package. It focuses on the useFlow React hook and the FlowProvider component, detailing their parameters, return types, React integration patterns, accessibility features, and how they extend the core Flow class. It also covers global configuration, subscription management, lifecycle integration, and practical usage examples.
 
 ## Project Structure
+
 The React package exports two primary APIs:
+
 - useFlow: A React hook that wraps the core Flow engine and exposes a concise state and helper interface.
 - FlowProvider: A React context provider enabling global configuration that flows down to all useFlow hooks within its subtree.
 
@@ -51,18 +55,22 @@ FP --> RF
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L50-L66)
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 
 **Section sources**
+
 - [package.json (React)](file://packages/react/package.json#L28-L39)
 - [package.json (Core)](file://packages/core/package.json#L28-L39)
 
 ## Core Components
+
 This section documents the primary APIs and their types and behaviors.
 
 ### useFlow hook
+
 useFlow is a React hook that orchestrates asynchronous actions and their UI states. It returns a comprehensive object combining Flow state, derived loading flags, action methods, and helper utilities for buttons and forms.
 
 - Hook signature
@@ -113,11 +121,13 @@ useFlow is a React hook that orchestrates asynchronous actions and their UI stat
   - Field-level validation errors: fieldErrors
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L177)
 - [README.md (React)](file://packages/react/README.md#L179-L207)
 
 ### FlowProvider component
+
 FlowProvider enables global configuration shared across all useFlow hooks within its subtree. It merges global options with local options, allowing fine-grained control per component.
 
 - Props
@@ -137,10 +147,12 @@ FlowProvider enables global configuration shared across all useFlow hooks within
   - Supports overrideMode "merge" (default) or "replace"
 
 **Section sources**
+
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L27-L139)
 - [README.md (React)](file://packages/react/README.md#L33-L81)
 
 ## Architecture Overview
+
 The React integration builds on the core Flow engine, adding React-specific concerns like subscriptions, refs, and helpers.
 
 ```mermaid
@@ -164,6 +176,7 @@ Hook-->>Comp : re-render with new state
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L84-L253)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L64-L139)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
@@ -171,6 +184,7 @@ Hook-->>Comp : re-render with new state
 ## Detailed Component Analysis
 
 ### useFlow hook internals and relationships
+
 - Initialization
   - Reads global config via useFlowContext
   - Merges global and local options with mergeFlowOptions
@@ -217,14 +231,17 @@ useFlow --> Flow : "wraps"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L84-L281)
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 
 ### FlowProvider configuration merging
+
 - Merging strategy
   - overrideMode "merge": Merge nested options; local values override global
   - overrideMode "replace": Use only local options
@@ -247,12 +264,15 @@ UseLocal --> Done
 ```
 
 **Diagram sources**
+
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L76-L138)
 
 **Section sources**
+
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L76-L139)
 
 ### Accessibility and screen reader support
+
 - LiveRegion component
   - Renders an aria-live region with atomic updates
   - Uses configurable rel ("polite"|"assertive")
@@ -263,10 +283,12 @@ UseLocal --> Done
   - form() injects aria-busy
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L147-L168)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L117-L141)
 
 ### React integration patterns and examples
+
 - Button props generation
   - Use button() to get disabled and aria-busy props
   - Optionally provide onClick; if absent, clicking triggers flow.execute()
@@ -282,11 +304,13 @@ UseLocal --> Done
   - Use errorRef on error message elements for auto-focus
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L174-L249)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L420-L490)
 - [comparison.tsx](file://examples/react/comparison.tsx#L156-L201)
 
 ## Dependency Analysis
+
 - useFlow depends on:
   - @asyncflowstate/core Flow class and FlowOptions/FlowState types
   - React context (FlowProvider) for global configuration
@@ -302,14 +326,17 @@ Core --> Node["Node.js runtime"]
 ```
 
 **Diagram sources**
+
 - [package.json (React)](file://packages/react/package.json#L54-L66)
 - [package.json (Core)](file://packages/core/package.json#L45-L56)
 
 **Section sources**
+
 - [package.json (React)](file://packages/react/package.json#L54-L66)
 - [package.json (Core)](file://packages/core/package.json#L45-L56)
 
 ## Performance Considerations
+
 - Loading perception
   - Use loading.delay and loading.minDuration to prevent UI flicker and ensure perceived responsiveness
 - Concurrency
@@ -320,11 +347,13 @@ Core --> Node["Node.js runtime"]
   - Enable autoReset to automatically revert success state after a delay, keeping UI clean
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L99-L127)
 - [flow.ts](file://packages/core/src/flow.ts#L400-L415)
 - [README.md (Core)](file://packages/core/README.md#L51-L65)
 
 ## Troubleshooting Guide
+
 - Hook does not update UI
   - Ensure you spread helper props (button(), form()) onto DOM elements
   - Verify execute(...) is being called and not silently returning undefined due to concurrency strategy
@@ -340,10 +369,12 @@ Core --> Node["Node.js runtime"]
   - See tests for expected behavior of button(), form(), LiveRegion, and option merging
 
 **Section sources**
+
 - [useFlow.test.tsx](file://packages/react/src/useFlow.test.tsx#L1-L142)
 - [FlowProvider.test.tsx](file://packages/react/src/FlowProvider.test.tsx#L1-L184)
 
 ## Conclusion
+
 The @asyncflowstate/react package provides a powerful, accessible, and ergonomic way to manage asynchronous UI behavior in React. By leveraging the core Flow engine and React-specific helpers, developers can reduce boilerplate, improve UX, and maintain consistent behavior across an application. Use FlowProvider for global configuration and useFlow for component-level control, integrating helpers like button() and form() to streamline common patterns.
 
 ## Appendices
@@ -374,6 +405,7 @@ The @asyncflowstate/react package provides a powerful, accessible, and ergonomic
   - children: ReactNode
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L58-L80)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L7-L32)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L58-L79)
@@ -393,6 +425,7 @@ The @asyncflowstate/react package provides a powerful, accessible, and ergonomic
   - Override locally when needed
 
 **Section sources**
+
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L186-L245)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L420-L490)
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L59-L95)

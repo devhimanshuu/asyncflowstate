@@ -9,9 +9,10 @@ The **Purgatory** pattern (or "The Grace Period") is a sophisticated UX strategy
 ## Why "Purgatory"?
 
 Modern users expect to be able to undo "soft" actions like:
-*   **Archiving** an email.
-*   **Deleting** a message.
-*   **Updating** a profile setting.
+
+- **Archiving** an email.
+- **Deleting** a message.
+- **Updating** a profile setting.
 
 Waiting for a confirmation dialog is annoying. Purgatory solves this by letting the user "archive" instantly, but giving them a 5-second window to change their mind.
 
@@ -30,25 +31,25 @@ function ArchiveButton({ itemId }) {
     purgatory: {
       duration: 5000, // 5 seconds grace period
     },
-    
+
     // 2. Update the UI instantly
     onStart: () => setIsArchived(true),
-    
+
     // 3. Rollback if the user hits "Undo" OR server fails
     onRescind: () => {
-        setIsArchived(false);
-        toast.info("Action canceled");
+      setIsArchived(false);
+      toast.info("Action canceled");
     },
-    
+
     onError: () => {
-        setIsArchived(false);
-        toast.error("Failed to archive");
-    }
+      setIsArchived(false);
+      toast.error("Failed to archive");
+    },
   });
 
   return (
     <>
-      <button 
+      <button
         onClick={() => flow.execute(itemId)}
         className={isArchived ? "hidden" : "visible"}
       >
@@ -57,9 +58,9 @@ function ArchiveButton({ itemId }) {
 
       {flow.inPurgatory && (
         <div className="undo-toast">
-            Item archived! 
-            <button onClick={() => flow.rescind()}>Undo</button>
-            <ProgressBar duration={5000} />
+          Item archived!
+          <button onClick={() => flow.rescind()}>Undo</button>
+          <ProgressBar duration={5000} />
         </div>
       )}
     </>
@@ -68,10 +69,11 @@ function ArchiveButton({ itemId }) {
 ```
 
 ### <i class="fa-solid fa-circle-check text-emerald-500"></i> What's happening?
-*   **`flow.execute()`**: Instantly calls `onStart` and moves the item into a "limbo" state.
-*   **`flow.inPurgatory`**: Becomes true for the duration specified.
-*   **`flow.rescind()`**: If called while `inPurgatory` is true, it cancels the timer and never calls the server.
-*   **Automatic Commit**: If the timer expires without `rescind()` being called, the server function is automatically executed.
+
+- **`flow.execute()`**: Instantly calls `onStart` and moves the item into a "limbo" state.
+- **`flow.inPurgatory`**: Becomes true for the duration specified.
+- **`flow.rescind()`**: If called while `inPurgatory` is true, it cancels the timer and never calls the server.
+- **Automatic Commit**: If the timer expires without `rescind()` being called, the server function is automatically executed.
 
 ---
 
@@ -84,16 +86,16 @@ const flow = useFlow(archiveItem, {
   purgatory: {
     duration: 5000,
     persistence: "localStorage", // action will persist until commit or rescind
-    key: `archive-${itemId}`
-  }
+    key: `archive-${itemId}`,
+  },
 });
 ```
 
 ## 3. Best Practices for Undo UX
 
-*   **Visibility**: Always show a clear "Undo" button and a visual representation of the remaining time (like a progress bar).
-*   **Conflict Resolution**: If the user tries to edit the "archived" item while it's in Purgatory, you should either block the edit or automatically "Commit" the archive immediately before the edit starts.
-*   **Auto-Scroll**: If an item disappears from a list, showing an "Item Archived" toast at the bottom of the screen is better than an inline undo button that jumps the list scroll.
+- **Visibility**: Always show a clear "Undo" button and a visual representation of the remaining time (like a progress bar).
+- **Conflict Resolution**: If the user tries to edit the "archived" item while it's in Purgatory, you should either block the edit or automatically "Commit" the archive immediately before the edit starts.
+- **Auto-Scroll**: If an item disappears from a list, showing an "Item Archived" toast at the bottom of the screen is better than an inline undo button that jumps the list scroll.
 
 ---
 

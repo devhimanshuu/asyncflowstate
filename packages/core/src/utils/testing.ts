@@ -49,7 +49,7 @@ export function createMockFlow<
 /**
  * Creates an action wrapper that simulates real-world network conditions.
  * Adds artificial latency, random failures (jitter), and bandwidth constraints.
- * 
+ *
  * @example
  * ```ts
  * const flakyAction = simulateJitter(api.fetchUser, {
@@ -67,16 +67,20 @@ export function simulateJitter<TData, TArgs extends any[]>(
     failureRate?: number;
     /** The error object to throw on random failure */
     errorObj?: any;
-  } = {}
+  } = {},
 ): (...args: TArgs) => Promise<TData> {
   return async (...args: TArgs) => {
-    const { latency = 0, failureRate = 0, errorObj = new Error("Simulated Network Jitter Error") } = options;
+    const {
+      latency = 0,
+      failureRate = 0,
+      errorObj = new Error("Simulated Network Jitter Error"),
+    } = options;
 
     if (latency) {
-      const ms = Array.isArray(latency) 
+      const ms = Array.isArray(latency)
         ? Math.floor(Math.random() * (latency[1] - latency[0] + 1)) + latency[0]
         : latency;
-      await new Promise(res => setTimeout(res, ms));
+      await new Promise((res) => setTimeout(res, ms));
     }
 
     if (failureRate > 0 && Math.random() < failureRate) {

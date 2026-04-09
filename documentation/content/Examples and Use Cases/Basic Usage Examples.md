@@ -18,6 +18,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -30,7 +31,9 @@
 10. [Appendices](#appendices)
 
 ## Introduction
+
 This document provides comprehensive basic usage examples for AsyncFlowState’s core functionality. It focuses on:
+
 - Simple async action execution
 - Retry logic with backoff strategies
 - Optimistic UI patterns with instant feedback
@@ -41,7 +44,9 @@ This document provides comprehensive basic usage examples for AsyncFlowState’s
 It also documents the Flow class constructor, execute method, subscribe mechanism, and state management patterns, with practical use cases and integration guidance for different application architectures.
 
 ## Project Structure
+
 The repository is organized into:
+
 - Core engine: a framework-agnostic package that orchestrates async actions and UI states
 - React bindings: hooks and helpers for React applications
 - Examples: runnable examples demonstrating patterns and best practices
@@ -75,6 +80,7 @@ PROVIDER_EX --> PROVIDER
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L1-L177)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
@@ -87,11 +93,13 @@ PROVIDER_EX --> PROVIDER
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L1-L368)
 
 **Section sources**
+
 - [README.md](file://README.md#L1-L224)
 - [packages/core/README.md](file://packages/core/README.md#L1-L134)
 - [packages/react/README.md](file://packages/react/README.md#L1-L212)
 
 ## Core Components
+
 This section documents the Flow class and its core APIs, along with related types and utilities.
 
 - Flow class
@@ -112,6 +120,7 @@ This section documents the Flow class and its core APIs, along with related type
 - FlowAction and FlowState types define the shape of async actions and state snapshots.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L223)
 - [flow.ts](file://packages/core/src/flow.ts#L246-L286)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
@@ -124,6 +133,7 @@ This section documents the Flow class and its core APIs, along with related type
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L39)
 
 ## Architecture Overview
+
 The core engine is framework-agnostic and can be used in vanilla JavaScript environments. React bindings provide convenience hooks and helpers that wrap the core Flow instance.
 
 ```mermaid
@@ -184,6 +194,7 @@ Flow --> FlowState
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L223)
 - [flow.ts](file://packages/core/src/flow.ts#L99-L127)
 - [flow.ts](file://packages/core/src/flow.ts#L21-L30)
@@ -192,6 +203,7 @@ Flow --> FlowState
 ## Detailed Component Analysis
 
 ### Simple Async Action
+
 - Goal: Execute an async action and observe state changes.
 - Implementation steps:
   - Create a Flow with an async action.
@@ -219,16 +231,19 @@ Flow-->>Dev : "listener(state)"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L425-L473)
 - [flow.ts](file://packages/core/src/flow.ts#L482-L533)
 - [core-examples.ts](file://examples/basic/core-examples.ts#L14-L38)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L14-L38)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 - [flow.ts](file://packages/core/src/flow.ts#L400-L415)
 
 ### Retry Logic with Backoff Strategies
+
 - Goal: Automatically retry failed actions with configurable delay and backoff.
 - Implementation steps:
   - Configure retry options: maxAttempts, delay, backoff.
@@ -265,17 +280,20 @@ DelayRetry --> TryAction
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L425-L473)
 - [flow.ts](file://packages/core/src/flow.ts#L482-L533)
 - [flow.ts](file://packages/core/src/flow.ts#L603-L638)
 - [constants.ts](file://packages/core/src/constants.ts#L47-L50)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L44-L73)
 - [flow.ts](file://packages/core/src/flow.ts#L603-L638)
 - [constants.ts](file://packages/core/src/constants.ts#L47-L50)
 
 ### Optimistic UI Patterns with Instant Feedback
+
 - Goal: Provide immediate UI feedback while the server action completes.
 - Implementation steps:
   - Provide optimisticResult in FlowOptions.
@@ -306,15 +324,18 @@ end
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L446-L452)
 - [flow.ts](file://packages/core/src/flow.ts#L502-L508)
 - [core-examples.ts](file://examples/basic/core-examples.ts#L79-L111)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L79-L111)
 - [flow.ts](file://packages/core/src/flow.ts#L446-L452)
 
 ### Double Submission Prevention Techniques
+
 - Goal: Prevent multiple simultaneous executions when the action is already running.
 - Implementation steps:
   - Choose concurrency strategy: keep (default) ignores new requests while loading.
@@ -336,14 +357,17 @@ D --> |enqueue| G["Queue and resolve later"]
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L429-L440)
 - [flow.ts](file://packages/core/src/flow.ts#L587-L592)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L117-L144)
 - [flow.ts](file://packages/core/src/flow.ts#L429-L440)
 
 ### Cancellation Handling
+
 - Goal: Allow users to cancel long-running actions and reset the flow to idle.
 - Implementation steps:
   - Call cancel() to abort the current action and reset state.
@@ -366,14 +390,17 @@ Flow->>Flow : "setState({status : 'idle', error : null, progress : INITIAL})"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L344-L351)
 - [flow.ts](file://packages/core/src/flow.ts#L442-L443)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L150-L177)
 - [flow.ts](file://packages/core/src/flow.ts#L344-L351)
 
 ### Auto-Reset Functionality
+
 - Goal: Automatically reset the flow to idle after a successful execution.
 - Implementation steps:
   - Configure autoReset with enabled=true and delay (milliseconds).
@@ -395,14 +422,17 @@ CheckStatus --> |No| End
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L502-L508)
 - [flow.ts](file://packages/core/src/flow.ts#L658-L668)
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L183-L203)
 - [flow.ts](file://packages/core/src/flow.ts#L658-L668)
 
 ### Flow Class Constructor, Execute Method, Subscribe Mechanism, and State Management
+
 - Constructor
   - new Flow(action, options?)
   - Initializes internal state, timers, listeners, and abort controller.
@@ -418,12 +448,14 @@ CheckStatus --> |No| End
   - notify() broadcasts state to all subscribers.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L220-L223)
 - [flow.ts](file://packages/core/src/flow.ts#L400-L415)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 - [flow.ts](file://packages/core/src/flow.ts#L672-L679)
 
 ### React Integration Patterns
+
 - useFlow hook
   - Wraps a Flow instance and synchronizes React state with Flow state snapshots.
   - Provides helpers: button(), form(), LiveRegion, errorRef, fieldErrors.
@@ -435,6 +467,7 @@ CheckStatus --> |No| End
   - Login forms, like buttons, delete confirmations, profile editing, file uploads, search with debouncing, and advanced forms with validation and accessibility.
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L50-L139)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L14-L491)
@@ -442,6 +475,7 @@ CheckStatus --> |No| End
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L59-L95)
 
 ## Dependency Analysis
+
 The core Flow class depends on constants and error utilities for default behavior and error categorization. React bindings depend on the core Flow and provide additional helpers and accessibility features.
 
 ```mermaid
@@ -453,6 +487,7 @@ PROVIDER["FlowProvider.tsx"] --> CORE
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L7)
@@ -460,10 +495,12 @@ PROVIDER["FlowProvider.tsx"] --> CORE
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L2-L2)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L7)
 
 ## Performance Considerations
+
 - Loading perception
   - Use loading.minDuration to prevent UI flashes for fast actions.
   - Use loading.delay to avoid showing spinners for near-instant actions.
@@ -477,6 +514,7 @@ PROVIDER["FlowProvider.tsx"] --> CORE
 [No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
+
 - Double submissions
   - Ensure concurrency is set appropriately. keep prevents new requests while loading; restart cancels and starts fresh; enqueue queues subsequent executions.
 - Retries not triggering
@@ -490,6 +528,7 @@ PROVIDER["FlowProvider.tsx"] --> CORE
   - Confirm autoReset.enabled is true and delay is greater than 0; verify that the status is success when the timer fires.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L429-L440)
 - [flow.ts](file://packages/core/src/flow.ts#L603-L638)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L130-L143)
@@ -497,6 +536,7 @@ PROVIDER["FlowProvider.tsx"] --> CORE
 - [flow.ts](file://packages/core/src/flow.ts#L658-L668)
 
 ## Conclusion
+
 AsyncFlowState provides a robust, framework-agnostic foundation for managing async UI behavior. By leveraging the Flow class and React bindings, developers can eliminate boilerplate, prevent common pitfalls like double submissions and inconsistent loading UX, and build resilient, accessible applications with minimal effort.
 
 [No sources needed since this section summarizes without analyzing specific files]
@@ -504,6 +544,7 @@ AsyncFlowState provides a robust, framework-agnostic foundation for managing asy
 ## Appendices
 
 ### Practical Use Cases and Integration Guidance
+
 - Vanilla JavaScript apps
   - Use @asyncflowstate/core directly to manage async actions and UI states.
   - Subscribe to state changes and drive UI updates.
@@ -514,6 +555,7 @@ AsyncFlowState provides a robust, framework-agnostic foundation for managing asy
   - Core engine can be used alongside state managers (Redux, Zustand) or data-fetching libraries (React Query, SWR) to orchestrate action behavior independently.
 
 **Section sources**
+
 - [packages/core/README.md](file://packages/core/README.md#L1-L134)
 - [packages/react/README.md](file://packages/react/README.md#L1-L212)
 - [README.md](file://README.md#L187-L198)

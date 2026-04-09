@@ -10,12 +10,14 @@ The "Delete User" pattern is a classic use-case for Purgatory. Instead of confir
 
 ```tsx
 const { loading, triggerUndo } = useFlow(deleteUser, {
-  purgatory: { duration: 5000 }
+  purgatory: { duration: 5000 },
 });
 
 return (
   <div>
-    <button onClick={deleteUser} disabled={loading}>Delete Account</button>
+    <button onClick={deleteUser} disabled={loading}>
+      Delete Account
+    </button>
     {loading && (
       <div className="undo-toast">
         Deleting in 5 seconds...
@@ -68,7 +70,7 @@ Ghost workflows are perfect for background "Likes" or "Save Draft" patterns wher
 
 ```ts
 const { execute } = useFlow(likePost, {
-  ghost: { enabled: true, strategy: 'queue' }
+  ghost: { enabled: true, strategy: "queue" },
 });
 
 // User can spam this button 20 times!
@@ -101,13 +103,13 @@ Stitch together multiple reliable steps into a single reusable workflow.
 <CompositionAnimation />
 
 ```ts
-import { pipe } from '@asyncflowstate/core';
+import { pipe } from "@asyncflowstate/core";
 
 // Create a complex workflow from simple atoms
 const checkoutFlow = pipe(
   validateInventory,
   processPayment,
-  sendConfirmationEmail
+  sendConfirmationEmail,
 );
 
 // Executing checkoutFlow ensures all steps run in order

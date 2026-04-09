@@ -5,6 +5,7 @@ Master sequential and parallel execution using `useFlowSequence` and `useFlowPar
 ---
 
 In complex applications, a single user action often triggers multiple steps. For example, "Checkout" might involve:
+
 1.  **Validating** the cart inventory.
 2.  **Processing** the payment.
 3.  **Sending** a confirmation email.
@@ -19,22 +20,22 @@ Instead of nesting `async/await` calls manually, `useFlowSequence` tracks the pr
 import { useFlowSequence } from "@asyncflowstate/react";
 
 const steps = [
-  { 
-    name: "Validate Inventory", 
-    flow: checkStockFlow 
+  {
+    name: "Validate Inventory",
+    flow: checkStockFlow,
   },
-  { 
-    name: "Process Payment", 
-    flow: paymentFlow, 
-    mapInput: (prevResult) => ({ 
-      orderId: prevResult.id, 
-      amount: 100 
-    })
+  {
+    name: "Process Payment",
+    flow: paymentFlow,
+    mapInput: (prevResult) => ({
+      orderId: prevResult.id,
+      amount: 100,
+    }),
   },
-  { 
-    name: "Confirm Order", 
-    flow: finalizeFlow 
-  }
+  {
+    name: "Confirm Order",
+    flow: finalizeFlow,
+  },
 ];
 
 function Checkout() {
@@ -42,7 +43,9 @@ function Checkout() {
 
   return (
     <div>
-      <p>Current Progress: {sequence.currentStep + 1} / {steps.length}</p>
+      <p>
+        Current Progress: {sequence.currentStep + 1} / {steps.length}
+      </p>
       <p>Current Step: {sequence.activeStep?.name}</p>
 
       <button onClick={() => sequence.execute(cartData)}>
@@ -51,7 +54,7 @@ function Checkout() {
 
       {sequence.error && (
         <div className="error-box">
-           Failed at {sequence.failedStep?.name}: {sequence.error.message}
+          Failed at {sequence.failedStep?.name}: {sequence.error.message}
           <button onClick={() => sequence.retry()}>Retry Step</button>
         </div>
       )}
@@ -61,6 +64,7 @@ function Checkout() {
 ```
 
 ### <i class="fa-solid fa-circle-check text-emerald-500"></i> Why use Sequences?
+
 1.  **State Granularity**: You know exactly which step failed.
 2.  **Auto-Mapping**: `mapInput` avoids messy prop drilling between steps.
 3.  **Recovery**: Call `sequence.retry()` to pick up exactly where you left off without restarting from Step 1.
@@ -77,7 +81,7 @@ import { useFlowParallel } from "@asyncflowstate/react";
 const parallel = useFlowParallel([
   profileFlow,
   notificationsFlow,
-  settingsFlow
+  settingsFlow,
 ]);
 
 // parallel.loading is true if ANY of the flows are loading
@@ -87,8 +91,8 @@ const parallel = useFlowParallel([
 
 ## 3. Best Practices for Chaining
 
-*   **Idempotency**: Ensure that your intermediate steps are idempotent. If a payment fails and you retry, you must ensure the user isn't charged twice.
-*   **Atomic vs non-atomic**: If the final step fails, decide if you need to rollback the previous steps manually in the `onError` handler of the sequence.
+- **Idempotency**: Ensure that your intermediate steps are idempotent. If a payment fails and you retry, you must ensure the user isn't charged twice.
+- **Atomic vs non-atomic**: If the final step fails, decide if you need to rollback the previous steps manually in the `onError` handler of the sequence.
 
 ---
 

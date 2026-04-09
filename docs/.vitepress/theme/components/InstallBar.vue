@@ -1,44 +1,45 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const frameworks = [
-  { 
-    name: 'React', 
-    id: 'react',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg',
-    command: 'npm install @asyncflowstate/react @asyncflowstate/core'
+  {
+    name: "React",
+    id: "react",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+    command: "npm install @asyncflowstate/react @asyncflowstate/core",
   },
-  { 
-    name: 'Next.js', 
-    id: 'nextjs',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg',
-    command: 'npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core',
-    darkInvert: true
+  {
+    name: "Next.js",
+    id: "nextjs",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg",
+    command:
+      "npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core",
+    darkInvert: true,
   },
-  { 
-    name: 'Vue', 
-    id: 'vue',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg',
-    command: 'npm install @asyncflowstate/vue @asyncflowstate/core'
+  {
+    name: "Vue",
+    id: "vue",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg",
+    command: "npm install @asyncflowstate/vue @asyncflowstate/core",
   },
-  { 
-    name: 'Svelte', 
-    id: 'svelte',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg',
-    command: 'npm install @asyncflowstate/svelte @asyncflowstate/core'
+  {
+    name: "Svelte",
+    id: "svelte",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg",
+    command: "npm install @asyncflowstate/svelte @asyncflowstate/core",
   },
-  { 
-    name: 'Angular', 
-    id: 'angular',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg',
-    command: 'npm install @asyncflowstate/angular @asyncflowstate/core'
+  {
+    name: "Angular",
+    id: "angular",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg",
+    command: "npm install @asyncflowstate/angular @asyncflowstate/core",
   },
-  { 
-    name: 'Solid', 
-    id: 'solid',
-    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg',
-    command: 'npm install @asyncflowstate/solid @asyncflowstate/core'
-  }
+  {
+    name: "Solid",
+    id: "solid",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg",
+    command: "npm install @asyncflowstate/solid @asyncflowstate/core",
+  },
 ];
 
 const activeFramework = ref(frameworks[0]);
@@ -57,22 +58,29 @@ const copyCommand = () => {
   <div class="afs-framework-install-wrapper">
     <!-- Framework Selectors -->
     <div class="framework-selectors">
-      <button 
-        v-for="fw in frameworks" 
+      <button
+        v-for="fw in frameworks"
         :key="fw.id"
         class="fw-btn"
         :class="{ active: activeFramework.id === fw.id }"
         @click="activeFramework = fw"
         :title="fw.name"
       >
-        <img :src="fw.icon" :alt="fw.name" :class="{ 'dark-invert': fw.darkInvert }" />
+        <img
+          :src="fw.icon"
+          :alt="fw.name"
+          :class="{ 'dark-invert': fw.darkInvert }"
+        />
       </button>
     </div>
 
     <!-- Command Bar -->
     <div class="afs-install-bar" @click="copyCommand">
-      <div class="flex items-center gap-2 text-[11px] opacity-40 font-bold select-none uppercase tracking-widest">
-        <i class="fa-solid fa-terminal text-[10px]"></i> {{ activeFramework.name }} Install
+      <div
+        class="flex items-center gap-2 text-[11px] opacity-40 font-bold select-none uppercase tracking-widest"
+      >
+        <i class="fa-solid fa-terminal text-[10px]"></i>
+        {{ activeFramework.name }} Install
       </div>
       <div class="flex items-center justify-between gap-3 w-full">
         <code class="afs-install-code">{{ activeFramework.command }}</code>
@@ -81,7 +89,7 @@ const copyCommand = () => {
           <i v-else class="fa-solid fa-check"></i>
         </button>
       </div>
-      
+
       <!-- Tooltip / Indicator -->
       <Transition name="fade">
         <div v-if="copied" class="copy-toast">Copied to clipboard!</div>
@@ -211,7 +219,9 @@ const copyCommand = () => {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-enter-from,

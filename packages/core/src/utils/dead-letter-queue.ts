@@ -1,6 +1,6 @@
 /**
  * Dead Letter Queue (DLQ) — stores failed actions for later inspection or replay.
- * 
+ *
  * When an action fails permanently (after all retries), the DLQ captures the
  * arguments, error, timestamp, and metadata so developers can:
  * - Inspect failures in a dashboard
@@ -28,7 +28,7 @@ export class DeadLetterQueue {
   private entries: DeadLetterEntry[] = [];
   private listeners = new Set<(entries: DeadLetterEntry[]) => void>();
   private maxSize: number;
-  private storageKey = '__asyncflow_dlq__';
+  private storageKey = "__asyncflow_dlq__";
 
   private constructor(maxSize = 100) {
     this.maxSize = maxSize;
@@ -48,7 +48,9 @@ export class DeadLetterQueue {
   /**
    * Push a failed action into the dead letter queue.
    */
-  public push<TArgs extends any[]>(entry: Omit<DeadLetterEntry<TArgs>, 'id' | 'timestamp'>): void {
+  public push<TArgs extends any[]>(
+    entry: Omit<DeadLetterEntry<TArgs>, "id" | "timestamp">,
+  ): void {
     const full: DeadLetterEntry<TArgs> = {
       ...entry,
       id: Math.random().toString(36).substr(2, 9) + Date.now().toString(36),
@@ -85,7 +87,7 @@ export class DeadLetterQueue {
    */
   public remove(id: string): boolean {
     const before = this.entries.length;
-    this.entries = this.entries.filter(e => e.id !== id);
+    this.entries = this.entries.filter((e) => e.id !== id);
     if (this.entries.length !== before) {
       this.persist();
       this.notify();
@@ -120,25 +122,32 @@ export class DeadLetterQueue {
 
   private notify(): void {
     const snapshot = this.getAll();
-    this.listeners.forEach(l => l(snapshot));
+    this.listeners.forEach((l) => l(snapshot));
   }
 
   private persist(): void {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(this.storageKey, JSON.stringify(this.entries));
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(
+          this.storageKey,
+          JSON.stringify(this.entries),
+        );
       }
-    } catch { /* storage unavailable */ }
+    } catch {
+      /* storage unavailable */
+    }
   }
 
   private restore(): void {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
+      if (typeof window !== "undefined" && window.localStorage) {
         const stored = window.localStorage.getItem(this.storageKey);
         if (stored) {
           this.entries = JSON.parse(stored);
         }
       }
-    } catch { /* storage unavailable */ }
+    } catch {
+      /* storage unavailable */
+    }
   }
 }

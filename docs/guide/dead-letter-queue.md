@@ -2,7 +2,7 @@
 
 <DLQAnimation />
 
-When actions fail permanently (after all retry attempts are exhausted), AsyncFlowState automatically captures the failure context and securely stores it in a **Dead Letter Queue (DLQ)**. 
+When actions fail permanently (after all retry attempts are exhausted), AsyncFlowState automatically captures the failure context and securely stores it in a **Dead Letter Queue (DLQ)**.
 
 This allows you to easily build internal dashboards to inspect failed actions, export failure logs for debugging, or replay intercepted failures later.
 
@@ -11,7 +11,7 @@ This allows you to easily build internal dashboards to inspect failed actions, e
 Activate the DLQ by setting `deadLetter: true` in your flow configuration.
 
 ```ts
-import { useFlow } from '@asyncflowstate/react';
+import { useFlow } from "@asyncflowstate/react";
 
 const { loading } = useFlow(submitOrder, {
   retry: { maxAttempts: 3 },
@@ -25,13 +25,13 @@ const { loading } = useFlow(submitOrder, {
 You can interact with the global `DeadLetterQueue` to inspect or replay failed actions.
 
 ```ts
-import { DeadLetterQueue } from '@asyncflowstate/core';
+import { DeadLetterQueue } from "@asyncflowstate/core";
 
 const dlq = DeadLetterQueue.getInstance();
 
-// Subscribe to state changes 
+// Subscribe to state changes
 dlq.subscribe((entries) => {
-  console.log('Failed actions:', entries);
+  console.log("Failed actions:", entries);
 });
 
 // Access the entries manually
@@ -59,7 +59,7 @@ You can clear entries or export them in bulk for reporting.
 const dlq = DeadLetterQueue.getInstance();
 
 // Remove a specific failure once it's been handled
-dlq.remove('abc123xyz');
+dlq.remove("abc123xyz");
 
 // Export all failures as a formatted JSON string
 const logFile = dlq.export();

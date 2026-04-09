@@ -22,16 +22,20 @@ export interface AIHealerOptions {
  */
 export function withAutoHealing<TData, TError, TArgs extends any[]>(
   flow: Flow<TData, TError, TArgs>,
-  options: AIHealerOptions = {}
+  options: AIHealerOptions = {},
 ): Flow<TData, TError, TArgs> {
   flow.use({
     onSettled: async (_data, error, _ctx) => {
       if (error && options.fallbackGenerator) {
         try {
-          console.warn("[AsyncFlowState AI Healer]: Flow failed, attempting healing repair...");
-          const fallbackData = await options.fallbackGenerator(error as unknown as FlowError);
-          
-          // Artificially recover flow state to success 
+          console.warn(
+            "[AsyncFlowState AI Healer]: Flow failed, attempting healing repair...",
+          );
+          const fallbackData = await options.fallbackGenerator(
+            error as unknown as FlowError,
+          );
+
+          // Artificially recover flow state to success
           (flow as any).setState({
             status: "success",
             data: fallbackData,
@@ -39,12 +43,17 @@ export function withAutoHealing<TData, TError, TArgs extends any[]>(
             progress: 100,
           });
           flow.signals.success.emit(fallbackData as unknown as TData);
-          console.info("[AsyncFlowState AI Healer]: Repair successful. Fallback state deployed.");
+          console.info(
+            "[AsyncFlowState AI Healer]: Repair successful. Fallback state deployed.",
+          );
         } catch (healErr) {
-          console.error("[AsyncFlowState AI Healer]: Healing completely failed.", healErr);
+          console.error(
+            "[AsyncFlowState AI Healer]: Healing completely failed.",
+            healErr,
+          );
         }
       }
-    }
+    },
   });
 
   return flow;

@@ -92,9 +92,7 @@ export function createInfiniteFlow<
         store.update((s) => ({
           ...s,
           pages: allPages,
-          pageParams: hasMore
-            ? [...s.pageParams, nextParam]
-            : s.pageParams,
+          pageParams: hasMore ? [...s.pageParams, nextParam] : s.pageParams,
           hasNextPage: hasMore,
           isFetchingNextPage: false,
           loading: false,

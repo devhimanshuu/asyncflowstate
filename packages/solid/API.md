@@ -11,17 +11,16 @@
 Core primitive for managing a single async action. Returns accessor signals.
 
 ```typescript
-import { createFlow } from '@asyncflowstate/solid';
+import { createFlow } from "@asyncflowstate/solid";
 
-const flow = createFlow(
-  async (id: string) => api.fetchUser(id),
-  { retry: { maxAttempts: 3 } }
-);
+const flow = createFlow(async (id: string) => api.fetchUser(id), {
+  retry: { maxAttempts: 3 },
+});
 
-flow.loading()  // boolean (accessor)
-flow.data()     // TData | null (accessor)
-flow.error()    // TError | null (accessor)
-flow.status()   // FlowStatus (accessor)
+flow.loading(); // boolean (accessor)
+flow.data(); // TData | null (accessor)
+flow.error(); // TError | null (accessor)
+flow.status(); // FlowStatus (accessor)
 ```
 
 ### createFlowSequence(steps)
@@ -59,5 +58,5 @@ import type {
   SolidFlowOptions,
   SolidFlowProviderConfig,
   SolidInfiniteFlowOptions,
-} from '@asyncflowstate/solid';
+} from "@asyncflowstate/solid";
 ```

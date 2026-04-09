@@ -115,15 +115,15 @@ return (
 
 AsyncFlowState is built as a modular system:
 
-| Package                                           | Version | Description                               |
-| :------------------------------------------------ | :------ | :---------------------------------------- |
-| [`@asyncflowstate/core`](./packages/core)         | `2.0.0` | Framework-agnostic logic engine           |
-| [`@asyncflowstate/react`](./packages/react)       | `2.0.0` | React hooks & accessibility-first helpers |
-| [`@asyncflowstate/next`](./packages/next)         | `2.0.0` | Next.js Server Actions & SSR integration  |
-| [`@asyncflowstate/vue`](./packages/vue)           | `2.0.0` | Vue 3 composables & provide/inject config |
-| [`@asyncflowstate/svelte`](./packages/svelte)     | `2.0.0` | Svelte stores with `$` auto-subscription  |
-| [`@asyncflowstate/angular`](./packages/angular)   | `2.0.0` | Angular Observable/BehaviorSubject bindings|
-| [`@asyncflowstate/solid`](./packages/solid)       | `2.0.0` | SolidJS fine-grained reactive signals     |
+| Package                                         | Version | Description                                 |
+| :---------------------------------------------- | :------ | :------------------------------------------ |
+| [`@asyncflowstate/core`](./packages/core)       | `2.0.0` | Framework-agnostic logic engine             |
+| [`@asyncflowstate/react`](./packages/react)     | `2.0.0` | React hooks & accessibility-first helpers   |
+| [`@asyncflowstate/next`](./packages/next)       | `2.0.0` | Next.js Server Actions & SSR integration    |
+| [`@asyncflowstate/vue`](./packages/vue)         | `2.0.0` | Vue 3 composables & provide/inject config   |
+| [`@asyncflowstate/svelte`](./packages/svelte)   | `2.0.0` | Svelte stores with `$` auto-subscription    |
+| [`@asyncflowstate/angular`](./packages/angular) | `2.0.0` | Angular Observable/BehaviorSubject bindings |
+| [`@asyncflowstate/solid`](./packages/solid)     | `2.0.0` | SolidJS fine-grained reactive signals       |
 
 ---
 
@@ -135,14 +135,14 @@ AsyncFlowState is built as a modular system:
 
 AsyncFlowState consists of a core engine and native adapters for each framework.
 
-| Framework | Command |
-| :--- | :--- |
-| **React** | `npm install @asyncflowstate/react @asyncflowstate/core` |
+| Framework   | Command                                                                       |
+| :---------- | :---------------------------------------------------------------------------- |
+| **React**   | `npm install @asyncflowstate/react @asyncflowstate/core`                      |
 | **Next.js** | `npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core` |
-| **Vue 3** | `npm install @asyncflowstate/vue @asyncflowstate/core` |
-| **Svelte** | `npm install @asyncflowstate/svelte @asyncflowstate/core` |
-| **Angular** | `npm install @asyncflowstate/angular @asyncflowstate/core` |
-| **SolidJS** | `npm install @asyncflowstate/solid @asyncflowstate/core` |
+| **Vue 3**   | `npm install @asyncflowstate/vue @asyncflowstate/core`                        |
+| **Svelte**  | `npm install @asyncflowstate/svelte @asyncflowstate/core`                     |
+| **Angular** | `npm install @asyncflowstate/angular @asyncflowstate/core`                    |
+| **SolidJS** | `npm install @asyncflowstate/solid @asyncflowstate/core`                      |
 
 ### 2. Basic Usage (React)
 
@@ -255,16 +255,16 @@ pnpm add @asyncflowstate/vue @asyncflowstate/core
 
 ```vue
 <script setup lang="ts">
-import { useFlow } from '@asyncflowstate/vue';
+import { useFlow } from "@asyncflowstate/vue";
 
-const { loading, data, execute, button } = useFlow(
-  async (id: string) => api.fetchUser(id)
+const { loading, data, execute, button } = useFlow(async (id: string) =>
+  api.fetchUser(id),
 );
 </script>
 
 <template>
   <button v-bind="button()">
-    {{ loading ? 'Loading...' : 'Fetch User' }}
+    {{ loading ? "Loading..." : "Fetch User" }}
   </button>
 </template>
 ```
@@ -293,20 +293,22 @@ pnpm add @asyncflowstate/angular @asyncflowstate/core
 ```
 
 ```typescript
-import { createFlow } from '@asyncflowstate/angular';
+import { createFlow } from "@asyncflowstate/angular";
 
 @Component({
   template: `
     <ng-container *ngIf="userFlow.state$ | async as state">
       <button (click)="userFlow.execute('user-123')" [disabled]="state.loading">
-        {{ state.loading ? 'Loading...' : 'Fetch User' }}
+        {{ state.loading ? "Loading..." : "Fetch User" }}
       </button>
     </ng-container>
-  `
+  `,
 })
 export class UserComponent implements OnDestroy {
   userFlow = createFlow(async (id: string) => api.fetchUser(id));
-  ngOnDestroy() { this.userFlow.destroy(); }
+  ngOnDestroy() {
+    this.userFlow.destroy();
+  }
 }
 ```
 
@@ -389,3 +391,4 @@ MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowst
 > **"Stop rewriting the same async logic. Start building features."**
 >
 > AsyncFlowState solves async UI behavior once, correctly, and everywhere.
+```

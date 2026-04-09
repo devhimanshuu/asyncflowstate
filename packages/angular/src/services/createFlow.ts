@@ -1,8 +1,5 @@
 import { BehaviorSubject } from "rxjs";
-import {
-  Flow,
-  type FlowAction,
-} from "@asyncflowstate/core";
+import { Flow, type FlowAction } from "@asyncflowstate/core";
 import type { AngularFlowOptions, FlowSignalState } from "../types";
 
 function mapFlowState<TData, TError, TArgs extends any[]>(
@@ -90,9 +87,7 @@ export function createFlow<
         if (lastArgs) flow.execute(...lastArgs);
       };
       window.addEventListener("online", handleOnline);
-      cleanupFns.push(() =>
-        window.removeEventListener("online", handleOnline),
-      );
+      cleanupFns.push(() => window.removeEventListener("online", handleOnline));
     }
   }
 

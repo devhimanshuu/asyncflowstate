@@ -19,7 +19,7 @@ describe("Vue useFlowSequence", () => {
     expect(sequence.loading).toBe(false);
 
     const promise = sequence.execute();
-    
+
     expect(sequence.status).toBe("loading");
     expect(sequence.loading).toBe(true);
 

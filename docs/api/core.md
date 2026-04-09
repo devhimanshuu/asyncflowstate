@@ -17,18 +17,18 @@ new Flow<TInput, TOutput>(
 
 ### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `status` | `"idle" \| "loading" \| "success" \| "error"` | Current state |
-| `loading` | `boolean` | `true` while executing |
-| `data` | `TOutput \| null` | Last successful result |
-| `error` | `Error \| null` | Last error |
-| `idle` | `boolean` | `status === "idle"` |
-| `success` | `boolean` | `status === "success"` |
-| `failed` | `boolean` | `status === "error"` |
-| `executionCount` | `number` | Total executions |
-| `retryCount` | `number` | Current retry attempt |
-| `progress` | `number` | Progress value (0–100) |
+| Property         | Type                                          | Description            |
+| ---------------- | --------------------------------------------- | ---------------------- |
+| `status`         | `"idle" \| "loading" \| "success" \| "error"` | Current state          |
+| `loading`        | `boolean`                                     | `true` while executing |
+| `data`           | `TOutput \| null`                             | Last successful result |
+| `error`          | `Error \| null`                               | Last error             |
+| `idle`           | `boolean`                                     | `status === "idle"`    |
+| `success`        | `boolean`                                     | `status === "success"` |
+| `failed`         | `boolean`                                     | `status === "error"`   |
+| `executionCount` | `number`                                      | Total executions       |
+| `retryCount`     | `number`                                      | Current retry attempt  |
+| `progress`       | `number`                                      | Progress value (0–100) |
 
 ### Methods
 
@@ -128,9 +128,9 @@ interface FlowOptions<TInput, TOutput> {
 
 ```ts
 interface RetryOptions {
-  maxAttempts?: number;  // default: 1
-  delay?: number;        // default: 1000
-  backoff?: "fixed" | "linear" | "exponential";  // default: "fixed"
+  maxAttempts?: number; // default: 1
+  delay?: number; // default: 1000
+  backoff?: "fixed" | "linear" | "exponential"; // default: "fixed"
   shouldRetry?: (error: Error, attempt: number) => boolean;
 }
 ```
@@ -139,8 +139,8 @@ interface RetryOptions {
 
 ```ts
 interface LoadingOptions {
-  minDuration?: number;  // default: 0
-  delay?: number;        // default: 0
+  minDuration?: number; // default: 0
+  delay?: number; // default: 0
 }
 ```
 
@@ -148,8 +148,8 @@ interface LoadingOptions {
 
 ```ts
 interface AutoResetOptions {
-  enabled?: boolean;  // default: false
-  delay?: number;     // default: 3000
+  enabled?: boolean; // default: false
+  delay?: number; // default: 3000
 }
 ```
 
@@ -189,12 +189,12 @@ const parallel = new FlowParallel(flows);
 const results = await parallel.execute();
 ```
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `loading` | `boolean` | `true` if any flow is loading |
-| `data` | `TOutput[]` | Array of results |
-| `error` | `Error \| null` | First error encountered |
-| `progress` | `number` | Aggregate progress |
+| Property   | Type            | Description                   |
+| ---------- | --------------- | ----------------------------- |
+| `loading`  | `boolean`       | `true` if any flow is loading |
+| `data`     | `TOutput[]`     | Array of results              |
+| `error`    | `Error \| null` | First error encountered       |
+| `progress` | `number`        | Aggregate progress            |
 
 ---
 
@@ -217,12 +217,12 @@ const error = createFlowError("NOT_FOUND", {
 
 ```ts
 // Default values
-DEFAULT_RETRY_ATTEMPTS    // 1
-DEFAULT_RETRY_DELAY       // 1000
-DEFAULT_BACKOFF           // "fixed"
-DEFAULT_CONCURRENCY       // "keep"
-DEFAULT_MIN_DURATION      // 0
-DEFAULT_LOADING_DELAY     // 0
-PROGRESS_MIN              // 0
-PROGRESS_MAX              // 100
+DEFAULT_RETRY_ATTEMPTS; // 1
+DEFAULT_RETRY_DELAY; // 1000
+DEFAULT_BACKOFF; // "fixed"
+DEFAULT_CONCURRENCY; // "keep"
+DEFAULT_MIN_DURATION; // 0
+DEFAULT_LOADING_DELAY; // 0
+PROGRESS_MIN; // 0
+PROGRESS_MAX; // 100
 ```

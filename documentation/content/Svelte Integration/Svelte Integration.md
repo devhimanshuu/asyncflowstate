@@ -30,8 +30,8 @@ The fundamental pipeline for wrapping single executions. Note the `$` prefixes c
   });
 </script>
 
-<button 
-  on:click={() => userFlow.execute('123')} 
+<button
+  on:click={() => userFlow.execute('123')}
   disabled={$userFlow.loading}
 >
   {$userFlow.loading ? 'Fetching...' : 'Load'}
@@ -61,7 +61,7 @@ When managing individual components dynamically tied to separate operations (e.g
 </script>
 
 {#each items as item}
-  <button 
+  <button
     on:click={() => deleteList.execute(item.id, item.id)}
     disabled={$deleteList.states[item.id]?.status === 'loading'}
   >
@@ -88,7 +88,7 @@ Seamless infinite scrolling tied effectively into iterative Svelte blocks tracki
   <div>{page.content}</div>
 {/each}
 
-<button 
+<button
   on:click={() => feed.fetchNextPage()}
   disabled={$feed.isFetchingNextPage}
 >
@@ -99,12 +99,14 @@ Seamless infinite scrolling tied effectively into iterative Svelte blocks tracki
 ## Best Practices
 
 1. **Store Extraction Lifecycle:** Always ensure cleanup inside Svelte components via `.destroy()` if generating local flows that hook document event listeners `window`. E.g.:
+
 ```svelte
 <script>
   import { onDestroy } from 'svelte';
-  
+
   const tempFlow = createFlow(myAction);
   onDestroy(() => tempFlow.destroy());
 </script>
 ```
+
 2. **Signal & Middleware Expansion**: Combine core `FlowMiddleware` interceptors to run cross-store configurations or cache handlers within `createFlow`.

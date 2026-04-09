@@ -10,7 +10,7 @@ type QuantumInput = Flow<any, any, any>[] | Record<string, Flow<any, any, any>>;
 /**
  * useQuantumFlow is a React hook for racing multiple backends/actions.
  * The first one to resolve successfully wins, and all others are automatically cancelled.
- * 
+ *
  * @param input Array or Record of Flow instances to race.
  * @returns State and helper methods for the quantum race.
  */

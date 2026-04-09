@@ -19,7 +19,9 @@ import { Flow, type FlowAction, type FlowOptions } from "../flow";
 export function pipe<TFirst extends (...args: any[]) => any>(
   ...fns: [TFirst, ...((input: any) => any | Promise<any>)[]]
 ): Flow<any, any, Parameters<TFirst>> {
-  const composedAction: FlowAction<any, Parameters<TFirst>> = async (...args: Parameters<TFirst>) => {
+  const composedAction: FlowAction<any, Parameters<TFirst>> = async (
+    ...args: Parameters<TFirst>
+  ) => {
     let result = await fns[0](...args);
     for (let i = 1; i < fns.length; i++) {
       result = await fns[i](result);
@@ -50,7 +52,9 @@ export function chain<TContext = any>(
   steps: ((ctx: TContext) => TContext | Promise<TContext>)[],
   options?: FlowOptions<TContext, any, [TContext]>,
 ): Flow<TContext, any, [TContext]> {
-  const composedAction: FlowAction<TContext, [TContext]> = async (initialCtx: TContext) => {
+  const composedAction: FlowAction<TContext, [TContext]> = async (
+    initialCtx: TContext,
+  ) => {
     let ctx = initialCtx;
     for (const step of steps) {
       ctx = await step(ctx);
@@ -80,7 +84,7 @@ export function raceFlows<TData>(
   ...actions: (() => Promise<TData>)[]
 ): Flow<TData, any, []> {
   const composedAction: FlowAction<TData, []> = async () => {
-    return Promise.race(actions.map(fn => fn()));
+    return Promise.race(actions.map((fn) => fn()));
   };
 
   return new Flow(composedAction);

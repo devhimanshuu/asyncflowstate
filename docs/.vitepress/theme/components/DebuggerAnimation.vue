@@ -1,10 +1,31 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const events = ref([
-  { id: 1, time: '0ms', type: 'start', label: 'EXECUTE', color: 'brand', active: false },
-  { id: 2, time: '1s', type: 'retry', label: 'RETRY', color: 'warning', active: false },
-  { id: 3, time: '2s', type: 'success', label: 'SUCCESS', color: 'accent', active: false },
+  {
+    id: 1,
+    time: "0ms",
+    type: "start",
+    label: "EXECUTE",
+    color: "brand",
+    active: false,
+  },
+  {
+    id: 2,
+    time: "1s",
+    type: "retry",
+    label: "RETRY",
+    color: "warning",
+    active: false,
+  },
+  {
+    id: 3,
+    time: "2s",
+    type: "success",
+    label: "SUCCESS",
+    color: "accent",
+    active: false,
+  },
 ]);
 
 const progress = ref(0);
@@ -14,14 +35,14 @@ let timer;
 const runAnimation = () => {
   progress.value = 0;
   activeEventIndex.value = -1;
-  
+
   timer = setInterval(() => {
     progress.value += 1;
-    
+
     if (progress.value === 1) activeEventIndex.value = 0;
     if (progress.value === 40) activeEventIndex.value = 1;
     if (progress.value === 80) activeEventIndex.value = 2;
-    
+
     if (progress.value >= 100) {
       clearInterval(timer);
       setTimeout(runAnimation, 3000);
@@ -50,19 +71,24 @@ onUnmounted(() => {
         </div>
         <div class="search-bar">Filter events...</div>
       </div>
-      
+
       <!-- Timeline -->
       <div class="timeline-container">
         <div class="timeline">
           <!-- Time Grid Lines -->
-          <div v-for="n in 5" :key="n" class="grid-line" :style="{ left: `${(n-1) * 25}%` }">
-            <span>{{ (n-1) * 0.5 }}s</span>
+          <div
+            v-for="n in 5"
+            :key="n"
+            class="grid-line"
+            :style="{ left: `${(n - 1) * 25}%` }"
+          >
+            <span>{{ (n - 1) * 0.5 }}s</span>
           </div>
-          
+
           <!-- Event Track -->
           <div class="track">
-            <div 
-              v-for="(event, index) in events" 
+            <div
+              v-for="(event, index) in events"
               :key="event.id"
               class="event-marker"
               :class="[event.color, { active: activeEventIndex === index }]"
@@ -74,7 +100,7 @@ onUnmounted(() => {
                 <span class="marker-time">{{ event.time }}</span>
               </div>
             </div>
-            
+
             <!-- Playhead -->
             <div class="playhead" :style="{ left: `${progress}%` }">
               <div class="playhead-line"></div>
@@ -83,14 +109,35 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      
+
       <!-- Event List -->
       <div class="event-details">
         <div class="event-header">State Snapshot</div>
         <div class="event-data">
-          <div class="json-line"><span class="key">"status"</span>: <span class="val">"{{ activeEventIndex === 0 ? 'loading' : activeEventIndex === 1 ? 'retrying' : activeEventIndex === 2 ? 'success' : 'idle' }}"</span></div>
-          <div class="json-line"><span class="key">"retryCount"</span>: <span class="val">{{ activeEventIndex >= 1 ? '1' : '0' }}</span></div>
-          <div class="json-line"><span class="key">"data"</span>: <span class="val">{{ activeEventIndex === 2 ? '{"id": 1, "name": "Flow"}' : 'null' }}</span></div>
+          <div class="json-line">
+            <span class="key">"status"</span>:
+            <span class="val"
+              >"{{
+                activeEventIndex === 0
+                  ? "loading"
+                  : activeEventIndex === 1
+                    ? "retrying"
+                    : activeEventIndex === 2
+                      ? "success"
+                      : "idle"
+              }}"</span
+            >
+          </div>
+          <div class="json-line">
+            <span class="key">"retryCount"</span>:
+            <span class="val">{{ activeEventIndex >= 1 ? "1" : "0" }}</span>
+          </div>
+          <div class="json-line">
+            <span class="key">"data"</span>:
+            <span class="val">{{
+              activeEventIndex === 2 ? '{"id": 1, "name": "Flow"}' : "null"
+            }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -115,7 +162,7 @@ onUnmounted(() => {
   background: var(--vp-c-bg);
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
-  box-shadow: 0 30px 60px -15px rgba(0,0,0,0.2);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -130,8 +177,21 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-.controls { display: flex; gap: 12px; color: var(--vp-c-brand-1); font-size: 0.8rem; }
-.search-bar { flex: 1; font-size: 0.7rem; color: var(--vp-c-text-3); padding: 4px 10px; background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider); border-radius: 4px; }
+.controls {
+  display: flex;
+  gap: 12px;
+  color: var(--vp-c-brand-1);
+  font-size: 0.8rem;
+}
+.search-bar {
+  flex: 1;
+  font-size: 0.7rem;
+  color: var(--vp-c-text-3);
+  padding: 4px 10px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+}
 
 .timeline-container {
   padding: 40px 20px;
@@ -165,7 +225,11 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
-.track { position: relative; width: 100%; height: 100%; }
+.track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 
 .event-marker {
   position: absolute;
@@ -180,10 +244,22 @@ onUnmounted(() => {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.event-marker.active { transform: translateY(-50%) scale(1.5); box-shadow: 0 0 15px currentColor; }
-.event-marker.brand { color: var(--vp-c-brand-1); background: currentColor; }
-.event-marker.warning { color: #f9e2af; background: currentColor; }
-.event-marker.accent { color: #94e2d5; background: currentColor; }
+.event-marker.active {
+  transform: translateY(-50%) scale(1.5);
+  box-shadow: 0 0 15px currentColor;
+}
+.event-marker.brand {
+  color: var(--vp-c-brand-1);
+  background: currentColor;
+}
+.event-marker.warning {
+  color: #f9e2af;
+  background: currentColor;
+}
+.event-marker.accent {
+  color: #94e2d5;
+  background: currentColor;
+}
 
 .marker-info {
   position: absolute;
@@ -196,8 +272,15 @@ onUnmounted(() => {
   gap: 2px;
 }
 
-.marker-type { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
-.marker-time { font-size: 0.5rem; opacity: 0.6; }
+.marker-type {
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.marker-time {
+  font-size: 0.5rem;
+  opacity: 0.6;
+}
 
 .pulse {
   position: absolute;
@@ -213,8 +296,14 @@ onUnmounted(() => {
 }
 
 @keyframes markerPulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(3); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
 }
 
 .playhead {
@@ -226,7 +315,11 @@ onUnmounted(() => {
   transition: left 0.03s linear;
 }
 
-.playhead-line { width: 100%; height: 100%; background: #f38ba8; }
+.playhead-line {
+  width: 100%;
+  height: 100%;
+  background: #f38ba8;
+}
 .playhead-handle {
   position: absolute;
   top: -8px;
@@ -254,8 +347,17 @@ onUnmounted(() => {
   letter-spacing: 0.1em;
 }
 
-.event-data { font-family: var(--vp-font-family-mono); font-size: 0.75rem; }
-.json-line { margin-bottom: 4px; }
-.key { color: #f5e0dc; }
-.val { color: #fab387; }
+.event-data {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.75rem;
+}
+.json-line {
+  margin-bottom: 4px;
+}
+.key {
+  color: #f5e0dc;
+}
+.val {
+  color: #fab387;
+}
 </style>

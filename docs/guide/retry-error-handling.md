@@ -108,9 +108,7 @@ function SaveButton() {
       {flow.error && (
         <div ref={flow.errorRef} role="alert" className="error-message">
           <strong>Error:</strong> {flow.error.message}
-          <button onClick={() => flow.execute(lastData)}>
-            Retry
-          </button>
+          <button onClick={() => flow.execute(lastData)}>Retry</button>
         </div>
       )}
     </div>
@@ -141,9 +139,11 @@ throw createFlowError("VALIDATION_FAILED", {
 Users can manually retry a failed action:
 
 ```tsx
-{flow.error && (
-  <button onClick={() => flow.retry()}>
-    Try Again ({flow.retryCount}/{flow.maxAttempts})
-  </button>
-)}
+{
+  flow.error && (
+    <button onClick={() => flow.retry()}>
+      Try Again ({flow.retryCount}/{flow.maxAttempts})
+    </button>
+  );
+}
 ```

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const items = ref([]);
 let spawnInterval;
@@ -7,12 +7,12 @@ let processInterval;
 
 const start = () => {
   items.value = [];
-  
+
   // User rapidly clicks 5 times
   let clicks = 0;
   spawnInterval = setInterval(() => {
     if (clicks < 5) {
-      items.value.push({ id: clicks, status: 'queued' });
+      items.value.push({ id: clicks, status: "queued" });
       clicks++;
     } else {
       clearInterval(spawnInterval);
@@ -21,13 +21,16 @@ const start = () => {
 
   // Background thread processes them sequentially
   processInterval = setInterval(() => {
-    const queued = items.value.find(i => i.status === 'queued');
+    const queued = items.value.find((i) => i.status === "queued");
     if (queued) {
-      queued.status = 'processing';
+      queued.status = "processing";
       setTimeout(() => {
-        queued.status = 'done';
+        queued.status = "done";
       }, 700);
-    } else if (items.value.every(i => i.status === 'done') && items.value.length === 5) {
+    } else if (
+      items.value.every((i) => i.status === "done") &&
+      items.value.length === 5
+    ) {
       setTimeout(start, 2000);
     }
   }, 800);
@@ -48,7 +51,9 @@ onUnmounted(() => {
     <div class="layout">
       <div class="ui-thread">
         <div class="label">UI Thread (Always 60fps)</div>
-        <button class="btn">Like Post <i class="fa-solid fa-heart text-red-500"></i></button>
+        <button class="btn">
+          Like Post <i class="fa-solid fa-heart text-red-500"></i>
+        </button>
         <div class="helper">Never shows loading!</div>
       </div>
       <div class="divider"></div>
@@ -56,9 +61,18 @@ onUnmounted(() => {
         <div class="label">Ghost Background Queue</div>
         <div class="queue">
           <transition-group name="ghost">
-            <div class="ghost-item" v-for="item in items" :key="item.id" :class="item.status">
-              <span v-if="item.status === 'queued'"><i class="fa-regular fa-clock"></i> Queued</span>
-              <span v-else-if="item.status === 'processing'" class="spin"><i class="fa-solid fa-gear"></i> Processing</span>
+            <div
+              class="ghost-item"
+              v-for="item in items"
+              :key="item.id"
+              :class="item.status"
+            >
+              <span v-if="item.status === 'queued'"
+                ><i class="fa-regular fa-clock"></i> Queued</span
+              >
+              <span v-else-if="item.status === 'processing'" class="spin"
+                ><i class="fa-solid fa-gear"></i> Processing</span
+              >
               <span v-else><i class="fa-solid fa-check"></i> Synced</span>
             </div>
           </transition-group>
@@ -83,7 +97,8 @@ onUnmounted(() => {
   gap: 2rem;
 }
 
-.ui-thread, .background-thread {
+.ui-thread,
+.background-thread {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -114,15 +129,24 @@ onUnmounted(() => {
   transition: transform 0.1s;
 }
 
-.btn:active, .btn {
+.btn:active,
+.btn {
   animation: jiggle 2s infinite;
 }
 
 @keyframes jiggle {
-  0% { transform: scale(1); }
-  5% { transform: scale(0.95); }
-  10% { transform: scale(1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  5% {
+    transform: scale(0.95);
+  }
+  10% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .helper {
@@ -172,11 +196,22 @@ onUnmounted(() => {
   animation: spin 2s linear infinite;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
-.ghost-enter-active, .ghost-leave-active {
+.ghost-enter-active,
+.ghost-leave-active {
   transition: all 0.3s ease;
 }
-.ghost-enter-from { opacity: 0; transform: translateX(20px); }
-.ghost-leave-to { opacity: 0; transform: scale(0.8); }
+.ghost-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.ghost-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
 </style>

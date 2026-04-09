@@ -10,7 +10,7 @@ describe("Angular createFlow", () => {
     expect(flowService.state$.getValue().loading).toBe(false);
 
     const promise = flowService.execute();
-    
+
     expect(flowService.state$.getValue().status).toBe("loading");
     expect(flowService.state$.getValue().loading).toBe(true);
 
@@ -19,7 +19,7 @@ describe("Angular createFlow", () => {
     expect(flowService.state$.getValue().status).toBe("success");
     expect(flowService.state$.getValue().loading).toBe(false);
     expect(flowService.state$.getValue().data).toBe("success data");
-    
+
     flowService.destroy();
   });
 });

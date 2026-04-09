@@ -52,6 +52,7 @@ return (
 - **Automatic Revalidation**: Declaratively trigger `revalidatePath` or `revalidateTag` via success hooks.
 
 ### <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+
 - **Dead Letter Queue (DLQ):** Failed server operations automatically pooled for replay.
 - **Global Purgatory (Undo):** Centralized delay for destructive Next.js actions.
 - **Worker Offloading:** Move client-side heavy lifting to background threads.

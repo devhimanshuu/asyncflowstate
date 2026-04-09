@@ -1,15 +1,15 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const state = ref('idle');
+const state = ref("idle");
 let timer;
 
 const runCycle = () => {
-  state.value = 'loading';
+  state.value = "loading";
   timer = setTimeout(() => {
-    state.value = 'success';
+    state.value = "success";
     timer = setTimeout(() => {
-      state.value = 'idle';
+      state.value = "idle";
     }, 2500);
   }, 2000);
 };
@@ -34,13 +34,17 @@ onUnmounted(() => {
       </div>
       <div class="arrow" :class="{ active: state !== 'idle' }"></div>
       <div class="state-node" :class="{ active: state === 'loading' }">
-        <div class="icon" :class="{ spin: state === 'loading' }"><i class="fa-solid fa-spinner"></i></div>
+        <div class="icon" :class="{ spin: state === 'loading' }">
+          <i class="fa-solid fa-spinner"></i>
+        </div>
         <div class="label">Loading</div>
         <div class="glow" v-if="state === 'loading'"></div>
       </div>
       <div class="arrow" :class="{ active: state === 'success' }"></div>
       <div class="state-node" :class="{ active: state === 'success' }">
-        <div class="icon success-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="icon success-icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
         <div class="label">Success</div>
         <div class="glow success-glow" v-if="state === 'success'"></div>
       </div>
@@ -60,7 +64,7 @@ onUnmounted(() => {
   align-items: center;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .state-machine {
@@ -151,13 +155,18 @@ onUnmounted(() => {
 }
 
 .arrow::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, var(--vp-c-brand-1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--vp-c-brand-1),
+    transparent
+  );
   transition: all 0.4s ease;
 }
 
@@ -166,19 +175,36 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.35; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; }
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.2;
+  }
 }
 
 @keyframes slide {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -191,13 +217,24 @@ onUnmounted(() => {
     height: 30px;
   }
   .arrow::after {
-    background: linear-gradient(180deg, transparent, var(--vp-c-brand-1), transparent);
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--vp-c-brand-1),
+      transparent
+    );
     animation: slide-down 1.5s linear infinite;
   }
 }
 
 @keyframes slide-down {
-  0% { top: -100%; left: 0; }
-  100% { top: 100%; left: 0; }
+  0% {
+    top: -100%;
+    left: 0;
+  }
+  100% {
+    top: 100%;
+    left: 0;
+  }
 }
 </style>

@@ -11,7 +11,7 @@ describe("Svelte createFlow", () => {
     expect(get(flowStore).loading).toBe(false);
 
     const promise = flowStore.execute();
-    
+
     expect(get(flowStore).status).toBe("loading");
     expect(get(flowStore).loading).toBe(true);
 
@@ -20,7 +20,7 @@ describe("Svelte createFlow", () => {
     expect(get(flowStore).status).toBe("success");
     expect(get(flowStore).loading).toBe(false);
     expect(get(flowStore).data).toBe("success data");
-    
+
     flowStore.destroy();
   });
 });

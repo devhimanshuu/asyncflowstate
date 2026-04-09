@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const layers = ref([
-  { id: 1, name: 'Built-in Defaults', opacity: 1, scale: 1, active: true },
-  { id: 2, name: 'Global Config', opacity: 0, scale: 0.8, active: false },
-  { id: 3, name: 'Local Options', opacity: 0, scale: 0.8, active: false },
-  { id: 4, name: 'Runtime Overrides', opacity: 0, scale: 0.8, active: false },
+  { id: 1, name: "Built-in Defaults", opacity: 1, scale: 1, active: true },
+  { id: 2, name: "Global Config", opacity: 0, scale: 0.8, active: false },
+  { id: 3, name: "Local Options", opacity: 0, scale: 0.8, active: false },
+  { id: 4, name: "Runtime Overrides", opacity: 0, scale: 0.8, active: false },
 ]);
 
 let timer;
@@ -23,13 +23,13 @@ const runCycle = () => {
   timer = setInterval(() => {
     step++;
     if (step < layers.value.length) {
-      const prev = layers.value[step-1];
+      const prev = layers.value[step - 1];
       const cur = layers.value[step];
-      
+
       prev.opacity = 0.4;
       prev.scale = 0.9;
       prev.active = false;
-      
+
       cur.opacity = 1;
       cur.scale = 1;
       cur.active = true;
@@ -52,31 +52,49 @@ onUnmounted(() => {
 <template>
   <div class="animation-container">
     <div class="layers-stack">
-      <div 
-        v-for="layer in layers" 
+      <div
+        v-for="layer in layers"
         :key="layer.id"
         class="config-layer"
         :class="{ active: layer.active }"
-        :style="{ 
-          opacity: layer.opacity, 
-          transform: `translateY(${(layer.id-1) * -40}px) scale(${layer.scale})`,
-          zIndex: layer.id
+        :style="{
+          opacity: layer.opacity,
+          transform: `translateY(${(layer.id - 1) * -40}px) scale(${layer.scale})`,
+          zIndex: layer.id,
         }"
       >
         <div class="layer-content">
           <div class="layer-badge">Level {{ layer.id }}</div>
           <div class="layer-name">{{ layer.name }}</div>
           <div class="layer-code">
-            retry: {{ layer.id === 1 ? '1' : layer.id === 2 ? '3' : layer.id === 3 ? '5' : '10' }}
+            retry:
+            {{
+              layer.id === 1
+                ? "1"
+                : layer.id === 2
+                  ? "3"
+                  : layer.id === 3
+                    ? "5"
+                    : "10"
+            }}
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="result-box">
       <div class="result-label">Effective Config:</div>
       <div class="result-value">
-        retry: <span class="highlight">{{ layers[step >= layers.length ? layers.length-1 : step].id === 1 ? '1' : layers[step].id === 2 ? '3' : layers[step].id === 3 ? '5' : '10' }}</span>
+        retry:
+        <span class="highlight">{{
+          layers[step >= layers.length ? layers.length - 1 : step].id === 1
+            ? "1"
+            : layers[step].id === 2
+              ? "3"
+              : layers[step].id === 3
+                ? "5"
+                : "10"
+        }}</span>
       </div>
     </div>
   </div>
@@ -93,7 +111,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 3rem;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
@@ -114,7 +132,7 @@ onUnmounted(() => {
   border: 2px solid var(--vp-c-divider);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -160,7 +178,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .result-label {

@@ -1,13 +1,13 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const inputValue = ref('');
+const inputValue = ref("");
 const isRefreshing = ref(false);
 const showLoader = ref(false);
 let timer;
 
 const sequence = () => {
-  inputValue.value = '';
+  inputValue.value = "";
   isRefreshing.value = false;
   showLoader.value = false;
 
@@ -67,17 +67,28 @@ onUnmounted(() => {
           <span>localhost:3000/register</span>
         </div>
       </div>
-      
+
       <div class="browser-body" :class="{ 'is-loading': showLoader }">
         <div class="mock-form" v-if="!showLoader">
           <div class="form-title">Registration</div>
           <div class="input-group">
             <label>Full Name</label>
-            <div class="input-field" :class="{ 'has-value': inputValue.length > 0 }">
-              {{ inputValue }}<span class="cursor" v-if="!isRefreshing && inputValue.length < 8">|</span>
-              
+            <div
+              class="input-field"
+              :class="{ 'has-value': inputValue.length > 0 }"
+            >
+              {{ inputValue
+              }}<span
+                class="cursor"
+                v-if="!isRefreshing && inputValue.length < 8"
+                >|</span
+              >
+
               <div v-if="isRefreshing && inputValue.length > 0" class="badge">
-                <span class="badge-icon"><i class="fa-solid fa-bolt text-yellow-400"></i></span> Restored
+                <span class="badge-icon"
+                  ><i class="fa-solid fa-bolt text-yellow-400"></i
+                ></span>
+                Restored
               </div>
             </div>
           </div>
@@ -100,7 +111,7 @@ onUnmounted(() => {
   border-radius: 16px;
   display: flex;
   justify-content: center;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .browser-window {
@@ -110,28 +121,41 @@ onUnmounted(() => {
   border-radius: 12px;
   border: 1px solid var(--vp-c-divider);
   overflow: hidden;
-  box-shadow: 0 15px 35px -10px rgba(0,0,0,0.15);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.15);
 }
 
 .browser-header {
   height: 44px;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-bottom: 1px solid var(--vp-c-divider);
   display: flex;
   align-items: center;
   padding: 0 16px;
   gap: 16px;
 }
-.dark .browser-header { background: rgba(255,255,255,0.03); }
+.dark .browser-header {
+  background: rgba(255, 255, 255, 0.03);
+}
 
 .nav-controls {
   display: flex;
   gap: 6px;
 }
-.btn { width: 10px; height: 10px; border-radius: 50%; background: var(--vp-c-divider); }
-.btn:nth-child(1) { background: #ff5f56; }
-.btn:nth-child(2) { background: #ffbd2e; }
-.btn:nth-child(3) { background: #27c93f; }
+.btn {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vp-c-divider);
+}
+.btn:nth-child(1) {
+  background: #ff5f56;
+}
+.btn:nth-child(2) {
+  background: #ffbd2e;
+}
+.btn:nth-child(3) {
+  background: #27c93f;
+}
 
 .url-bar {
   flex: 1;
@@ -252,17 +276,32 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes popIn {
-  0% { transform: translateY(-50%) scale(0.8); opacity: 0; }
-  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+  0% {
+    transform: translateY(-50%) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
 }
 </style>

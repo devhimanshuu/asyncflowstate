@@ -1,12 +1,12 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const items = ref([
-  { id: 1, name: 'Trigger', icon: 'fa-play', color: 'brand', active: false },
-  { id: 2, name: 'Logger', icon: 'fa-list-ul', color: 'accent', active: false },
-  { id: 3, name: 'Sentry', icon: 'fa-bug', color: 'error', active: false },
-  { id: 4, name: 'Toast', icon: 'fa-bell', color: 'warning', active: false },
-  { id: 5, name: 'API', icon: 'fa-cloud', color: 'brand', active: false },
+  { id: 1, name: "Trigger", icon: "fa-play", color: "brand", active: false },
+  { id: 2, name: "Logger", icon: "fa-list-ul", color: "accent", active: false },
+  { id: 3, name: "Sentry", icon: "fa-bug", color: "error", active: false },
+  { id: 4, name: "Toast", icon: "fa-bell", color: "warning", active: false },
+  { id: 5, name: "API", icon: "fa-cloud", color: "brand", active: false },
 ]);
 
 const activeIndex = ref(-1);
@@ -36,8 +36,8 @@ onUnmounted(() => {
 <template>
   <div class="animation-container">
     <div class="pipeline">
-      <div 
-        v-for="(item, index) in items" 
+      <div
+        v-for="(item, index) in items"
         :key="item.id"
         class="pipeline-node"
         :class="{ active: index === activeIndex, passed: index < activeIndex }"
@@ -46,25 +46,50 @@ onUnmounted(() => {
           <i class="fa-solid" :class="item.icon"></i>
         </div>
         <div class="node-name">{{ item.name }}</div>
-        
+
         <div v-if="index < items.length - 1" class="connector">
           <div class="connector-line"></div>
-          <div class="connector-pulse" :class="{ animate: index === activeIndex }"></div>
+          <div
+            class="connector-pulse"
+            :class="{ animate: index === activeIndex }"
+          ></div>
         </div>
       </div>
     </div>
-    
+
     <div class="terminal">
       <div class="terminal-header">
         <div class="dots"><span></span><span></span><span></span></div>
         <div class="title">middleware.log</div>
       </div>
       <div class="terminal-body font-mono text-xs">
-        <div v-if="activeIndex >= 1" class="line text-accent opacity-80 animate-in">> [Logger] Initializing flow...</div>
-        <div v-if="activeIndex >= 2" class="line text-error opacity-80 animate-in">> [Sentry] Tracing error context...</div>
-        <div v-if="activeIndex >= 3" class="line text-warning opacity-80 animate-in">> [Toast] Action in progress...</div>
-        <div v-if="activeIndex >= 4" class="line text-brand opacity-80 animate-in">> [API] Fetching from endpoint...</div>
-        <div v-if="activeIndex === -1" class="line opacity-30">Waiting for trigger...</div>
+        <div
+          v-if="activeIndex >= 1"
+          class="line text-accent opacity-80 animate-in"
+        >
+          > [Logger] Initializing flow...
+        </div>
+        <div
+          v-if="activeIndex >= 2"
+          class="line text-error opacity-80 animate-in"
+        >
+          > [Sentry] Tracing error context...
+        </div>
+        <div
+          v-if="activeIndex >= 3"
+          class="line text-warning opacity-80 animate-in"
+        >
+          > [Toast] Action in progress...
+        </div>
+        <div
+          v-if="activeIndex >= 4"
+          class="line text-brand opacity-80 animate-in"
+        >
+          > [API] Fetching from endpoint...
+        </div>
+        <div v-if="activeIndex === -1" class="line opacity-30">
+          Waiting for trigger...
+        </div>
       </div>
     </div>
   </div>
@@ -172,8 +197,14 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0% { width: 0%; left: 0; }
-  100% { width: 100%; left: 0; }
+  0% {
+    width: 0%;
+    left: 0;
+  }
+  100% {
+    width: 100%;
+    left: 0;
+  }
 }
 
 .terminal {
@@ -182,7 +213,7 @@ onUnmounted(() => {
   background: #1e1e2e;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
 }
 
 .terminal-header {
@@ -193,13 +224,31 @@ onUnmounted(() => {
   gap: 12px;
 }
 
-.dots { display: flex; gap: 6px; }
-.dots span { width: 8px; height: 8px; border-radius: 50%; background: #444; }
-.dots span:nth-child(1) { background: #ff5f56; }
-.dots span:nth-child(2) { background: #ffbd2e; }
-.dots span:nth-child(3) { background: #27c93f; }
+.dots {
+  display: flex;
+  gap: 6px;
+}
+.dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #444;
+}
+.dots span:nth-child(1) {
+  background: #ff5f56;
+}
+.dots span:nth-child(2) {
+  background: #ffbd2e;
+}
+.dots span:nth-child(3) {
+  background: #27c93f;
+}
 
-.title { font-size: 0.7rem; color: #999; font-weight: 600; }
+.title {
+  font-size: 0.7rem;
+  color: #999;
+  font-weight: 600;
+}
 
 .terminal-body {
   padding: 16px;
@@ -207,19 +256,35 @@ onUnmounted(() => {
   color: #cdd6f4;
 }
 
-.line { margin-bottom: 6px; }
+.line {
+  margin-bottom: 6px;
+}
 
 .animate-in {
   animation: slideIn 0.3s ease-out forwards;
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 0.8; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 0.8;
+    transform: translateX(0);
+  }
 }
 
-.text-brand { color: #89b4fa; }
-.text-accent { color: #94e2d5; }
-.text-error { color: #f38ba8; }
-.text-warning { color: #f9e2af; }
+.text-brand {
+  color: #89b4fa;
+}
+.text-accent {
+  color: #94e2d5;
+}
+.text-error {
+  color: #f38ba8;
+}
+.text-warning {
+  color: #f9e2af;
+}
 </style>

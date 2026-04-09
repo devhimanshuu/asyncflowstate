@@ -22,9 +22,9 @@ pnpm add @asyncflowstate/angular @asyncflowstate/core
 ### Basic Usage
 
 ```typescript
-import { Component, OnDestroy } from '@angular/core';
-import { createFlow } from '@asyncflowstate/angular';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { Component, OnDestroy } from "@angular/core";
+import { createFlow } from "@asyncflowstate/angular";
+import { AsyncPipe, NgIf } from "@angular/common";
 
 @Component({
   standalone: true,
@@ -32,12 +32,12 @@ import { AsyncPipe, NgIf } from '@angular/common';
   template: `
     <ng-container *ngIf="userFlow.state$ | async as state">
       <button (click)="userFlow.execute('user-123')" [disabled]="state.loading">
-        {{ state.loading ? 'Loading...' : 'Fetch User' }}
+        {{ state.loading ? "Loading..." : "Fetch User" }}
       </button>
       <p *ngIf="state.data">{{ state.data.name }}</p>
       <p *ngIf="state.error" class="error">{{ state.error.message }}</p>
     </ng-container>
-  `
+  `,
 })
 export class UserComponent implements OnDestroy {
   userFlow = createFlow(
@@ -46,9 +46,9 @@ export class UserComponent implements OnDestroy {
       return res.json();
     },
     {
-      onSuccess: (user) => console.log('Fetched:', user.name),
-      retry: { maxAttempts: 3, backoff: 'exponential' },
-    }
+      onSuccess: (user) => console.log("Fetched:", user.name),
+      retry: { maxAttempts: 3, backoff: "exponential" },
+    },
   );
 
   ngOnDestroy() {
@@ -60,24 +60,22 @@ export class UserComponent implements OnDestroy {
 ### In a Service
 
 ```typescript
-import { Injectable, OnDestroy } from '@angular/core';
-import { createFlow, createFlowList } from '@asyncflowstate/angular';
+import { Injectable, OnDestroy } from "@angular/core";
+import { createFlow, createFlowList } from "@asyncflowstate/angular";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class UserService implements OnDestroy {
   fetchUser = createFlow(
     async (id: string) => {
       const res = await fetch(`/api/users/${id}`);
       return res.json();
     },
-    { retry: { maxAttempts: 3 } }
+    { retry: { maxAttempts: 3 } },
   );
 
-  deleteUser = createFlowList(
-    async (id: string) => {
-      await fetch(`/api/users/${id}`, { method: 'DELETE' });
-    }
-  );
+  deleteUser = createFlowList(async (id: string) => {
+    await fetch(`/api/users/${id}`, { method: "DELETE" });
+  });
 
   ngOnDestroy() {
     this.fetchUser.destroy();
@@ -89,29 +87,31 @@ export class UserService implements OnDestroy {
 ### Using with RxJS
 
 ```typescript
-import { createFlow } from '@asyncflowstate/angular';
-import { filter, map } from 'rxjs/operators';
+import { createFlow } from "@asyncflowstate/angular";
+import { filter, map } from "rxjs/operators";
 
 const flow = createFlow(fetchData);
 
 // Use RxJS operators on the observable
-flow.state.pipe(
-  filter(state => state.isSuccess),
-  map(state => state.data)
-).subscribe(data => {
-  console.log('Success:', data);
-});
+flow.state
+  .pipe(
+    filter((state) => state.isSuccess),
+    map((state) => state.data),
+  )
+  .subscribe((data) => {
+    console.log("Success:", data);
+  });
 ```
 
 ### Sequential Workflows
 
 ```typescript
-import { createFlowSequence } from '@asyncflowstate/angular';
+import { createFlowSequence } from "@asyncflowstate/angular";
 
 const sequence = createFlowSequence([
-  { name: 'Validate', flow: validateFlow.flow },
-  { name: 'Submit', flow: submitFlow.flow },
-  { name: 'Notify', flow: notifyFlow.flow },
+  { name: "Validate", flow: validateFlow.flow },
+  { name: "Submit", flow: submitFlow.flow },
+  { name: "Notify", flow: notifyFlow.flow },
 ]);
 
 // In template:
@@ -124,22 +124,22 @@ const sequence = createFlowSequence([
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
 
-*   **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-*   **Global Purgatory (Undo):** Angular-optimized delay patterns and programmable undo.
-*   **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-*   **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-*   **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-*   **Cross-Tab Sync:** State consistency across the browser session.
+- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
+- **Global Purgatory (Undo):** Angular-optimized delay patterns and programmable undo.
+- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
+- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
+- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
+- **Cross-Tab Sync:** State consistency across the browser session.
 
 ## API Reference
 
-| Function | Description |
-|---|---|
-| `createFlow(action, options?)` | Core factory for managing async actions |
-| `createFlowSequence(steps)` | Orchestrate sequential workflows |
-| `createFlowParallel(flows, strategy?)` | Run flows in parallel |
-| `createFlowList(action, options?)` | Manage multiple keyed flow instances |
-| `createInfiniteFlow(action, options)` | Manage paginated/infinite scrolling data fetching |
+| Function                               | Description                                       |
+| -------------------------------------- | ------------------------------------------------- |
+| `createFlow(action, options?)`         | Core factory for managing async actions           |
+| `createFlowSequence(steps)`            | Orchestrate sequential workflows                  |
+| `createFlowParallel(flows, strategy?)` | Run flows in parallel                             |
+| `createFlowList(action, options?)`     | Manage multiple keyed flow instances              |
+| `createInfiniteFlow(action, options)`  | Manage paginated/infinite scrolling data fetching |
 
 All instances expose `state$` (BehaviorSubject) and `state` (Observable) for template binding.
 

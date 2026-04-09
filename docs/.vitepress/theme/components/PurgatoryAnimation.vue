@@ -1,23 +1,23 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const state = ref('idle');
+const state = ref("idle");
 const countdown = ref(5);
 let timer;
 let intTimer;
 
 const triggerAction = () => {
-  if (state.value !== 'idle') return;
-  state.value = 'purgatory';
+  if (state.value !== "idle") return;
+  state.value = "purgatory";
   countdown.value = 5;
-  
+
   intTimer = setInterval(() => {
     countdown.value--;
     if (countdown.value <= 0) {
       clearInterval(intTimer);
-      state.value = 'loading';
+      state.value = "loading";
       setTimeout(() => {
-        state.value = 'success';
+        state.value = "success";
         timer = setTimeout(() => reset(), 2000);
       }, 1500);
     }
@@ -25,14 +25,14 @@ const triggerAction = () => {
 };
 
 const triggerUndo = () => {
-  if (state.value !== 'purgatory') return;
+  if (state.value !== "purgatory") return;
   clearInterval(intTimer);
-  state.value = 'undo';
+  state.value = "undo";
   timer = setTimeout(() => reset(), 2000);
 };
 
 const reset = () => {
-  state.value = 'idle';
+  state.value = "idle";
   countdown.value = 5;
   clearInterval(intTimer);
   clearTimeout(timer);
@@ -50,20 +50,39 @@ onUnmounted(() => {
 
 <template>
   <div class="animation-container">
-     <div class="header">
+    <div class="header">
       <div class="pill" :class="state">
         <span v-if="state === 'idle'">Waiting for User</span>
-        <span v-else-if="state === 'purgatory'"><i class="fa-solid fa-hourglass-half"></i> Deletion pending... ({{ countdown }}s)</span>
-        <span v-else-if="state === 'loading'"><i class="fa-solid fa-satellite-dish"></i> Processing...</span>
-        <span v-else-if="state === 'success'"><i class="fa-solid fa-check"></i> User Deleted!</span>
-        <span v-else-if="state === 'undo'"><i class="fa-solid fa-rotate-left"></i> Action Undone (Saved)</span>
+        <span v-else-if="state === 'purgatory'"
+          ><i class="fa-solid fa-hourglass-half"></i> Deletion pending... ({{
+            countdown
+          }}s)</span
+        >
+        <span v-else-if="state === 'loading'"
+          ><i class="fa-solid fa-satellite-dish"></i> Processing...</span
+        >
+        <span v-else-if="state === 'success'"
+          ><i class="fa-solid fa-check"></i> User Deleted!</span
+        >
+        <span v-else-if="state === 'undo'"
+          ><i class="fa-solid fa-rotate-left"></i> Action Undone (Saved)</span
+        >
       </div>
     </div>
     <div class="actions">
-      <button class="btn destructive" @click="triggerAction" :disabled="state !== 'idle'">
+      <button
+        class="btn destructive"
+        @click="triggerAction"
+        :disabled="state !== 'idle'"
+      >
         Delete Account
       </button>
-      <button class="btn secondary" @click="triggerUndo" :disabled="state !== 'purgatory'" :class="{ pulse: state === 'purgatory' }">
+      <button
+        class="btn secondary"
+        @click="triggerUndo"
+        :disabled="state !== 'purgatory'"
+        :class="{ pulse: state === 'purgatory' }"
+      >
         Undo Delete
       </button>
     </div>
@@ -78,7 +97,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -103,11 +122,30 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.pill.idle { background: var(--vp-c-default-soft); color: var(--vp-c-text-2); }
-.pill.purgatory { background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); color: #eab308; }
-.pill.loading { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; }
-.pill.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
-.pill.undo { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #a855f7; }
+.pill.idle {
+  background: var(--vp-c-default-soft);
+  color: var(--vp-c-text-2);
+}
+.pill.purgatory {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  color: #eab308;
+}
+.pill.loading {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+.pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+.pill.undo {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+}
 
 .actions {
   display: flex;
@@ -147,8 +185,14 @@ onUnmounted(() => {
 }
 
 @keyframes pulsing {
-  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
 }
 </style>

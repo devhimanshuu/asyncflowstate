@@ -11,12 +11,14 @@ AsyncFlowState allows you to seamlessly punt standard flows into a dedicated **W
 Instead of calling `.execute()`, simply call `.worker()`.
 
 ```ts
-import { useFlow } from '@asyncflowstate/react';
+import { useFlow } from "@asyncflowstate/react";
 
 // An intensely heavy function
 const processPixels = async (data: any) => {
   let r = 0;
-  for(let i=0; i<999999999; i++) { r += i; }
+  for (let i = 0; i < 999999999; i++) {
+    r += i;
+  }
   return r;
 };
 

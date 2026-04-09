@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const clicks = ref([]);
 const lanes = ref({
   keep: [],
   restart: [],
-  enqueue: []
+  enqueue: [],
 });
 
 let timer;
@@ -25,43 +25,45 @@ const runSimulation = () => {
 
 const triggerClick = (id) => {
   clicks.value.push(id);
-  
+
   // Keep: only register if nothing is running
   if (lanes.value.keep.length === 0) {
-    startTask('keep', id, 2500);
+    startTask("keep", id, 2500);
   } else {
-    lanes.value.keep.push({ id, status: 'ignored' });
+    lanes.value.keep.push({ id, status: "ignored" });
   }
 
   // Restart: kill running, start new
-  lanes.value.restart = lanes.value.restart.map(t => t.status === 'running' ? { ...t, status: 'cancelled' } : t);
-  startTask('restart', id, 2500);
+  lanes.value.restart = lanes.value.restart.map((t) =>
+    t.status === "running" ? { ...t, status: "cancelled" } : t,
+  );
+  startTask("restart", id, 2500);
 
   // Enqueue: add to queue, run if nothing running
-  lanes.value.enqueue.push({ id, status: 'queued' });
+  lanes.value.enqueue.push({ id, status: "queued" });
   processEnqueue();
 };
 
 const startTask = (lane, id, duration) => {
-  lanes.value[lane].push({ id, status: 'running' });
+  lanes.value[lane].push({ id, status: "running" });
   setTimeout(() => {
-    const task = lanes.value[lane].find(t => t.id === id);
-    if (task && task.status === 'running') {
-      task.status = 'success';
-      if (lane === 'enqueue') processEnqueue();
+    const task = lanes.value[lane].find((t) => t.id === id);
+    if (task && task.status === "running") {
+      task.status = "success";
+      if (lane === "enqueue") processEnqueue();
     }
   }, duration);
 };
 
 const processEnqueue = () => {
-  const isRunning = lanes.value.enqueue.some(t => t.status === 'running');
+  const isRunning = lanes.value.enqueue.some((t) => t.status === "running");
   if (!isRunning) {
-    const nextText = lanes.value.enqueue.find(t => t.status === 'queued');
+    const nextText = lanes.value.enqueue.find((t) => t.status === "queued");
     if (nextText) {
-      nextText.status = 'running';
+      nextText.status = "running";
       setTimeout(() => {
-        if (nextText.status === 'running') {
-          nextText.status = 'success';
+        if (nextText.status === "running") {
+          nextText.status = "success";
           processEnqueue();
         }
       }, 2000);
@@ -84,13 +86,15 @@ onUnmounted(() => {
     <div class="clicks-timeline">
       <span class="label">User Clicks</span>
       <div class="timeline">
-        <div 
-          v-for="i in 3" 
+        <div
+          v-for="i in 3"
           :key="i"
-          class="click-marker" 
+          class="click-marker"
           :class="{ active: clicks.includes(i) }"
           :style="{ left: i === 1 ? '10%' : i === 2 ? '30%' : '40%' }"
-        ><i class="fa-solid fa-hand-pointer"></i></div>
+        >
+          <i class="fa-solid fa-hand-pointer"></i>
+        </div>
       </div>
     </div>
 
@@ -101,8 +105,8 @@ onUnmounted(() => {
         </div>
         <div class="lane-track">
           <transition-group name="task-list">
-            <div 
-              v-for="task in tasks" 
+            <div
+              v-for="task in tasks"
               :key="task.id + task.status"
               class="task"
               :class="task.status"
@@ -124,7 +128,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .clicks-timeline {
@@ -197,7 +201,7 @@ onUnmounted(() => {
 .lane-track {
   flex: 1;
   height: 44px;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 8px;
   position: relative;
   display: flex;
@@ -208,7 +212,7 @@ onUnmounted(() => {
 }
 
 .dark .lane-track {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .task {
@@ -232,7 +236,8 @@ onUnmounted(() => {
   color: white;
 }
 
-.task.ignored, .task.cancelled {
+.task.ignored,
+.task.cancelled {
   background: var(--vp-c-divider);
   color: var(--vp-c-text-3);
   text-decoration: line-through;
@@ -245,7 +250,8 @@ onUnmounted(() => {
   border: 1px dashed var(--vp-c-warning-1, #f59e0b);
 }
 
-.task-list-enter-active, .task-list-leave-active {
+.task-list-enter-active,
+.task-list-leave-active {
   transition: all 0.4s ease;
 }
 .task-list-enter-from {
@@ -258,14 +264,24 @@ onUnmounted(() => {
 }
 
 @keyframes bounce {
-  0% { transform: translate(-50%, -10px) scale(1); }
-  50% { transform: translate(-50%, 5px) scale(1.3); }
-  100% { transform: translate(-50%, 0) scale(1.2); }
+  0% {
+    transform: translate(-50%, -10px) scale(1);
+  }
+  50% {
+    transform: translate(-50%, 5px) scale(1.3);
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1.2);
+  }
 }
 
 @keyframes pulse-width {
-  0% { min-width: 60px; }
-  100% { min-width: 250px; }
+  0% {
+    min-width: 60px;
+  }
+  100% {
+    min-width: 250px;
+  }
 }
 
 @media (max-width: 640px) {

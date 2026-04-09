@@ -22,8 +22,8 @@ pnpm add @asyncflowstate/solid @asyncflowstate/core
 ### Basic Usage
 
 ```tsx
-import { createFlow } from '@asyncflowstate/solid';
-import { Show } from 'solid-js';
+import { createFlow } from "@asyncflowstate/solid";
+import { Show } from "solid-js";
 
 function UserCard() {
   const flow = createFlow(async (id: string) => {
@@ -33,13 +33,14 @@ function UserCard() {
 
   return (
     <div>
-      <button onClick={() => flow.execute('user-123')} disabled={flow.loading()}>
-        {flow.loading() ? 'Loading...' : 'Fetch User'}
+      <button
+        onClick={() => flow.execute("user-123")}
+        disabled={flow.loading()}
+      >
+        {flow.loading() ? "Loading..." : "Fetch User"}
       </button>
 
-      <Show when={flow.data()}>
-        {(user) => <p>{user().name}</p>}
-      </Show>
+      <Show when={flow.data()}>{(user) => <p>{user().name}</p>}</Show>
 
       <Show when={flow.error()}>
         {(err) => <p class="error">{err().message}</p>}
@@ -58,21 +59,23 @@ const flow = createFlow(likePost, {
     likes: prev.likes + 1,
   }),
   rollbackOnError: true,
-  retry: { maxAttempts: 3, backoff: 'exponential' },
+  retry: { maxAttempts: 3, backoff: "exponential" },
 });
 ```
 
 ### Global Configuration
 
 ```tsx
-import { FlowProvider } from '@asyncflowstate/solid';
+import { FlowProvider } from "@asyncflowstate/solid";
 
 function App() {
   return (
-    <FlowProvider config={{
-      onError: (err) => toast.error(err.message),
-      retry: { maxAttempts: 3 },
-    }}>
+    <FlowProvider
+      config={{
+        onError: (err) => toast.error(err.message),
+        retry: { maxAttempts: 3 },
+      }}
+    >
       <MyApp />
     </FlowProvider>
   );
@@ -82,55 +85,57 @@ function App() {
 ### Sequential Workflows
 
 ```tsx
-import { createFlowSequence } from '@asyncflowstate/solid';
+import { createFlowSequence } from "@asyncflowstate/solid";
 
 const sequence = createFlowSequence([
-  { name: 'Validate', flow: validateFlow.flow },
-  { name: 'Submit', flow: submitFlow.flow },
+  { name: "Validate", flow: validateFlow.flow },
+  { name: "Submit", flow: submitFlow.flow },
 ]);
 
 <button onClick={() => sequence.execute()} disabled={sequence.loading()}>
   Run Workflow ({sequence.progress()}%)
-</button>
+</button>;
 ```
 
 ### Keyed Lists
 
 ```tsx
-import { createFlowList } from '@asyncflowstate/solid';
-import { For } from 'solid-js';
+import { createFlowList } from "@asyncflowstate/solid";
+import { For } from "solid-js";
 
 const list = createFlowList(async (id: string) => api.deleteItem(id));
 
 <For each={items()}>
   {(item) => (
-    <button onClick={() => list.execute(item.id, item.id)}
-            disabled={list.getStatus(item.id).status === 'loading'}>
+    <button
+      onClick={() => list.execute(item.id, item.id)}
+      disabled={list.getStatus(item.id).status === "loading"}
+    >
       Delete
     </button>
   )}
-</For>
+</For>;
 ```
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
 
-*   **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-*   **Global Purgatory (Undo):** Signals-based delay patterns and programmable undo.
-*   **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-*   **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-*   **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-*   **Cross-Tab Sync:** State consistency across the browser session.
+- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
+- **Global Purgatory (Undo):** Signals-based delay patterns and programmable undo.
+- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
+- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
+- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
+- **Cross-Tab Sync:** State consistency across the browser session.
 
 ## API Reference
 
-| Function | Description |
-|---|---|
-| `createFlow(action, options?)` | Core primitive for managing async actions |
-| `createFlowSequence(steps)` | Orchestrate sequential workflows |
-| `createFlowParallel(flows, strategy?)` | Run flows in parallel |
-| `createFlowList(action, options?)` | Manage multiple keyed flow instances |
-| `createInfiniteFlow(action, options)` | Manage paginated/infinite scrolling data fetching |
-| `FlowProvider` | Provide global configuration via context |
+| Function                               | Description                                       |
+| -------------------------------------- | ------------------------------------------------- |
+| `createFlow(action, options?)`         | Core primitive for managing async actions         |
+| `createFlowSequence(steps)`            | Orchestrate sequential workflows                  |
+| `createFlowParallel(flows, strategy?)` | Run flows in parallel                             |
+| `createFlowList(action, options?)`     | Manage multiple keyed flow instances              |
+| `createInfiniteFlow(action, options)`  | Manage paginated/infinite scrolling data fetching |
+| `FlowProvider`                         | Provide global configuration via context          |
 
 All state values are SolidJS signals (accessor functions) for fine-grained reactivity.
 

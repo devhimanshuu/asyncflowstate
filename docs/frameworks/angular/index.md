@@ -183,11 +183,13 @@ Building a professional async experience in Angular requires a focus on observab
 
 ::: tip Prefer the Async Pipe
 Whenever possible, use the `| async` pipe in your templates. This automatically handles subscription and unsubscription for you, reducing boilerplate and preventing potential memory leaks.
+
 ```html
 <div *ngIf="flow.state$ | async as state">
   {{ state.loading ? '...' : 'Data Ready' }}
 </div>
 ```
+
 :::
 
 ::: tip Centralize in Services

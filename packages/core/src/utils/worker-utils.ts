@@ -12,16 +12,18 @@ export interface WorkerOptions {
 /**
  * Wraps an async function to execute it in a dedicated Web Worker.
  * Automatically handles serialization and clean up.
- * 
+ *
  * @param action The function to execute in the worker. Note: Must be self-contained (no closures).
  * @returns An async function that proxies to the worker.
  */
 export function createWorkerAction<TData, TArgs extends any[]>(
-  action: (...args: TArgs) => TData | Promise<TData>
+  action: (...args: TArgs) => TData | Promise<TData>,
 ): (...args: TArgs) => Promise<TData> {
   const actionSource = action.toString();
-  
-  const workerBlob = new Blob([`
+
+  const workerBlob = new Blob(
+    [
+      `
     self.onmessage = async (e) => {
       const { args, actionSource } = e.data;
       try {
@@ -39,15 +41,18 @@ export function createWorkerAction<TData, TArgs extends any[]>(
         });
       }
     };
-  `], { type: 'application/javascript' });
+  `,
+    ],
+    { type: "application/javascript" },
+  );
 
   return (...args: TArgs): Promise<TData> => {
     return new Promise((resolve, reject) => {
       const worker = new Worker(URL.createObjectURL(workerBlob));
-      
+
       worker.onmessage = (e) => {
         const { type, result, error } = e.data;
-        if (type === 'SUCCESS') {
+        if (type === "SUCCESS") {
           resolve(result);
         } else {
           const err = new Error(error.message);

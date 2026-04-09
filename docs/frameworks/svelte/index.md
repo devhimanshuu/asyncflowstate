@@ -158,11 +158,13 @@ Building a professional async experience in Svelte requires leveraging stores an
 
 ::: tip Stores are the key
 The `createFlow` result is a standard Svelte store. Always use the `$` prefix to subscribe to the state in your markup. This ensures that Svelte automatically manages subscriptions and unsubscriptions for you.
+
 ```svelte
 <button disabled={$flow.loading}>
   {$flow.loading ? '...' : 'Submit'}
 </button>
 ```
+
 :::
 
 ::: tip Use reactive declarations sparingly

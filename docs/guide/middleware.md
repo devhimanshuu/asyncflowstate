@@ -26,12 +26,12 @@ import { Flow } from "@asyncflowstate/core";
 
 Flow.useGlobal({
   onStart: (args, { options }) => {
-    console.log(`[Flow] Starting: ${options.debugName || 'Unnamed'}`);
+    console.log(`[Flow] Starting: ${options.debugName || "Unnamed"}`);
   },
   onError: (error) => {
     // Automatic Sentry/LogRocket reporting
     Sentry.captureException(error);
-  }
+  },
 });
 ```
 
@@ -45,9 +45,9 @@ const { execute } = useFlow(saveProfile, {
     {
       onSuccess: (data) => {
         toast.success(`Welcome back, ${data.name}!`);
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 ```
 
@@ -59,19 +59,20 @@ const analyticsMiddleware = {
     if (meta.event) {
       analytics.track(meta.event, data);
     }
-  }
+  },
 };
 
 // Usage
 const flow = useFlow(purchase, {
   middleware: [analyticsMiddleware],
-  meta: { event: 'purchase_completed' }
+  meta: { event: "purchase_completed" },
 });
 ```
 
 ## Middleware Context
 
 Every hook receives a `context` object containing:
+
 - `meta`: Custom metadata attached to the flow.
 - `options`: The full configuration used for that execution.
 - `flowId`: Unique instance identifier.

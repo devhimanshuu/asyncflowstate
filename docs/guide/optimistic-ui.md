@@ -15,12 +15,9 @@ Show instant results to create a snappy user experience, and gracefully rollback
 ## Basic Usage
 
 ```tsx
-const flow = useFlow(
-  async (liked: boolean) => api.toggleLike(postId, liked),
-  {
-    optimisticResult: !currentLiked,
-  }
-);
+const flow = useFlow(async (liked: boolean) => api.toggleLike(postId, liked), {
+  optimisticResult: !currentLiked,
+});
 ```
 
 ## Complete Example
@@ -54,10 +51,9 @@ function LikeButton({ postId, initialLiked }) {
 ```ts
 import { Flow } from "@asyncflowstate/core";
 
-const updateFlow = new Flow(
-  async (data) => api.update(data),
-  { optimisticResult: { ...currentData, ...pendingChanges } }
-);
+const updateFlow = new Flow(async (data) => api.update(data), {
+  optimisticResult: { ...currentData, ...pendingChanges },
+});
 
 // After execute():
 // - flow.data immediately has the optimistic result
@@ -71,18 +67,18 @@ Optimistic UI works best for idempotent operations where the expected result is 
 
 ## Deep-Diff Rollbacks <i class="fa-solid fa-sparkles text-amber-500"></i>
 
-If an optimistic flow fails, you might want to know exactly *what* part of the state actually reverted. This allows you to specifically animate "bouncing back" the exact elements that failed, rather than aggressively re-rendering the entire view.
+If an optimistic flow fails, you might want to know exactly _what_ part of the state actually reverted. This allows you to specifically animate "bouncing back" the exact elements that failed, rather than aggressively re-rendering the entire view.
 
 AsyncFlowState internally calculates deep Object Diffing using `fast-json-patch` patterns when an optimistic update fails.
 
 ```ts
 const { loading, rollbackDiff } = useFlow(updateMegaDocument, {
-  optimisticResult: hugeProjectState
+  optimisticResult: hugeProjectState,
 });
 
 // If the API call fails, the state automatically reverts.
 // the `rollbackDiff` property is populated with the exact JSON patches:
-console.log(rollbackDiff); 
+console.log(rollbackDiff);
 /*
 [
   { "op": "replace", "path": "/project/title", "value": "Old Title" },

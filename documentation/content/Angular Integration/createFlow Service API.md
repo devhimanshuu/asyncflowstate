@@ -10,12 +10,12 @@ Directly modeled around scalable `@angular/core` logic mapping, the Angular inst
 ## BehaviorSubject Configuration
 
 ```ts
-import { createFlow } from '@asyncflowstate/angular';
+import { createFlow } from "@asyncflowstate/angular";
 
 const apiFlow = createFlow(fetchLogic);
 ```
 
-By explicitly mapping to RxJS logic, the system effectively exposes two properties mapping component lifecycles reliably. 
+By explicitly mapping to RxJS logic, the system effectively exposes two properties mapping component lifecycles reliably.
 
 1. `apiFlow.state$`: The direct `BehaviorSubject` observable returning immediate access context.
 2. `apiFlow.state`: The synchronous standard payload format structure mapped securely bypassing `.subscribe` closures exclusively for logic interception triggers!
@@ -26,12 +26,7 @@ Leveraging standard `*ngIf` declarations via `| async` safely resolves the obser
 
 ```html
 <ng-container *ngIf="apiFlow.state$ | async as state">
-  <button 
-    (click)="apiFlow.execute()"
-    [disabled]="state.loading"
-  >
-    Run
-  </button>
+  <button (click)="apiFlow.execute()" [disabled]="state.loading">Run</button>
 </ng-container>
 ```
 
@@ -40,7 +35,7 @@ Leveraging standard `*ngIf` declarations via `| async` safely resolves the obser
 The best practice in Angular environments dictates initializing flow logic natively wrapped in shared service objects to pipe cross component triggers predictably:
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class RootOrchestrator {
   public batchService = createFlow(backendTriggerAPI);
 }

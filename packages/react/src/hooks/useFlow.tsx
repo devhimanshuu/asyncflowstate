@@ -325,7 +325,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
           if (options.predictive?.prefetchOnHover) {
             // Predict user intent: if they hover, we might want to prefetch
             // In a real implementation we'd use a small delay or velocity check
-            (flow.execute as any)(); 
+            (flow.execute as any)();
           }
           if (props.onMouseEnter) props.onMouseEnter(e);
         },

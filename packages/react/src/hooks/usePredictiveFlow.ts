@@ -5,14 +5,18 @@ import { useFlow, type ReactFlowOptions } from "./useFlow";
 /**
  * usePredictiveFlow is a React hook that triggers a prefetch based on pointer velocity.
  * If the user's cursor is moving quickly towards the trigger element, the flow fires early.
- * 
+ *
  * @param action The asynchronous function to manage.
  * @param options Configuration for prediction and flow behavior.
  * @returns Flow state and helpers.
  */
-export function usePredictiveFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
+export function usePredictiveFlow<
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
+>(
   action: FlowAction<TData, TArgs>,
-  options: ReactFlowOptions<TData, TError, TArgs> = {}
+  options: ReactFlowOptions<TData, TError, TArgs> = {},
 ) {
   const flow = useFlow(action, options);
   const velocityRef = useRef(0);
@@ -31,31 +35,37 @@ export function usePredictiveFlow<TData = any, TError = any, TArgs extends any[]
       lastPosRef.current = { x: e.clientX, y: e.clientY, t: now };
     };
 
-    window.addEventListener('pointermove', handlePointerMove);
-    return () => window.removeEventListener('pointermove', handlePointerMove);
+    window.addEventListener("pointermove", handlePointerMove);
+    return () => window.removeEventListener("pointermove", handlePointerMove);
   }, []);
 
-  const predictHandle = useCallback((_e: React.PointerEvent) => {
-    // If velocity is high (> 2px/ms) and moving towards, prefetch!
-    if (velocityRef.current > 2) {
-       (flow.execute as any)();
-    }
-  }, [flow]);
+  const predictHandle = useCallback(
+    (_e: React.PointerEvent) => {
+      // If velocity is high (> 2px/ms) and moving towards, prefetch!
+      if (velocityRef.current > 2) {
+        (flow.execute as any)();
+      }
+    },
+    [flow],
+  );
 
   // Wrap button to include velocity check
-  const predictiveButton = useCallback((props: any = {}) => {
-    const original = flow.button(props);
-    return {
-      ...original,
-      onPointerMove: (e: React.PointerEvent) => {
-        predictHandle(e);
-        if (props.onPointerMove) props.onPointerMove(e);
-      }
-    };
-  }, [flow, predictHandle]);
+  const predictiveButton = useCallback(
+    (props: any = {}) => {
+      const original = flow.button(props);
+      return {
+        ...original,
+        onPointerMove: (e: React.PointerEvent) => {
+          predictHandle(e);
+          if (props.onPointerMove) props.onPointerMove(e);
+        },
+      };
+    },
+    [flow, predictHandle],
+  );
 
   return {
     ...flow,
-    button: predictiveButton
+    button: predictiveButton,
   };
 }

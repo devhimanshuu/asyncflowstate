@@ -11,19 +11,18 @@
 Core store for managing a single async action. Implements the Svelte store contract.
 
 ```typescript
-import { createFlow } from '@asyncflowstate/svelte';
+import { createFlow } from "@asyncflowstate/svelte";
 
-const flow = createFlow(
-  async (id: string) => api.fetchUser(id),
-  { retry: { maxAttempts: 3, backoff: 'exponential' } }
-);
+const flow = createFlow(async (id: string) => api.fetchUser(id), {
+  retry: { maxAttempts: 3, backoff: "exponential" },
+});
 
 // Use with $flow auto-subscription
-$flow.loading  // boolean
-$flow.data     // TData | null
-$flow.error    // TError | null
-$flow.status   // FlowStatus
-$flow.progress // number
+$flow.loading; // boolean
+$flow.data; // TData | null
+$flow.error; // TError | null
+$flow.status; // FlowStatus
+$flow.progress; // number
 ```
 
 ### createFlowSequence(steps)
@@ -31,11 +30,11 @@ $flow.progress // number
 Store for orchestrating sequential async workflows.
 
 ```typescript
-import { createFlowSequence } from '@asyncflowstate/svelte';
+import { createFlowSequence } from "@asyncflowstate/svelte";
 
 const sequence = createFlowSequence([
-  { name: 'Auth', flow: loginFlow.flow },
-  { name: 'Fetch', flow: dataFlow.flow, mapInput: (auth) => auth.token },
+  { name: "Auth", flow: loginFlow.flow },
+  { name: "Fetch", flow: dataFlow.flow, mapInput: (auth) => auth.token },
 ]);
 
 await sequence.execute();
@@ -46,11 +45,11 @@ await sequence.execute();
 Store for running multiple flows in parallel.
 
 ```typescript
-import { createFlowParallel } from '@asyncflowstate/svelte';
+import { createFlowParallel } from "@asyncflowstate/svelte";
 
 const parallel = createFlowParallel(
   { users: usersFlow.flow, posts: postsFlow.flow },
-  'allSettled'
+  "allSettled",
 );
 
 await parallel.execute();
@@ -61,10 +60,10 @@ await parallel.execute();
 Store for managing multiple keyed flow instances.
 
 ```typescript
-import { createFlowList } from '@asyncflowstate/svelte';
+import { createFlowList } from "@asyncflowstate/svelte";
 
 const list = createFlowList(async (id: string) => api.deleteItem(id));
-list.execute('item-1', 'item-1');
+list.execute("item-1", "item-1");
 ```
 
 ### createInfiniteFlow(action, options)
@@ -72,14 +71,14 @@ list.execute('item-1', 'item-1');
 Store for paginated/infinite scrolling data fetching.
 
 ```typescript
-import { createInfiniteFlow } from '@asyncflowstate/svelte';
+import { createInfiniteFlow } from "@asyncflowstate/svelte";
 
 const infinite = createInfiniteFlow(
   async (cursor) => api.getPostsPage(cursor),
   {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: undefined,
-  }
+  },
 );
 ```
 
@@ -89,5 +88,5 @@ const infinite = createInfiniteFlow(
 import type {
   SvelteFlowOptions,
   SvelteInfiniteFlowOptions,
-} from '@asyncflowstate/svelte';
+} from "@asyncflowstate/svelte";
 ```

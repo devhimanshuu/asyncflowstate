@@ -29,7 +29,6 @@
 10. [Appendices](#appendices)
 11. [Next.js Integration](#nextjs-integration)
 
-
 ## Introduction
 
 AsyncFlowState eliminates repetitive and error-prone async UI logic by providing a unified behavior engine. It prevents double submissions, ensures consistent loading UX, and simplifies error handling. Unlike data-fetching libraries or state managers, AsyncFlowState is a behavior orchestrator that focuses on the lifecycle of async actions: idle → loading → success → error → retry.
@@ -55,7 +54,7 @@ The repository is organized as a monorepo with multiple framework packages:
 - @asyncflowstate/react: React hooks and accessibility helpers
 - @asyncflowstate/next: Next.js optimized integration for Server Actions and SSR
 - @asyncflowstate/vue: Vue 3 `<script setup>` Composition API bindings
-- @asyncflowstate/svelte: Svelte Store reactivity integrations 
+- @asyncflowstate/svelte: Svelte Store reactivity integrations
 - @asyncflowstate/angular: Angular `BehaviorSubject` streaming logic
 - @asyncflowstate/solid: SolidJS fine-grained primitive mapping
 

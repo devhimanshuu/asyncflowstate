@@ -30,11 +30,13 @@ watch(
             <span class="pulse-ring"></span>
             <span class="badge">v2.0 STABLE</span>
           </div>
-          
+
           <div class="text-group">
             <span class="main-text">The Production-Ready Release is Here</span>
             <span class="divider"></span>
-            <span class="sub-text">TypeScript-first · Zero dependencies · 6 Adapters</span>
+            <span class="sub-text"
+              >TypeScript-first · Zero dependencies · 6 Adapters</span
+            >
           </div>
 
           <a href="/release-notes" class="cta-link">
@@ -72,7 +74,7 @@ watch(
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 
+  box-shadow:
     0 10px 30px -10px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(99, 102, 241, 0.05);
   overflow: hidden;
@@ -187,18 +189,33 @@ watch(
 }
 
 @keyframes ring-pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.3, 1.4); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.3, 1.4);
+    opacity: 0;
+  }
 }
 
 @keyframes banner-float {
-  0%, 100% { transform: translateY(0) rotateX(0deg); }
-  50% { transform: translateY(-4px) rotateX(2deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotateX(2deg);
+  }
 }
 
 @keyframes glow-move {
-  from { transform: translate(0, 0); }
-  to { transform: translate(40px, 10px); }
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(40px, 10px);
+  }
 }
 
 .slide-up-enter-active,
@@ -212,21 +229,44 @@ watch(
 }
 
 @media (max-width: 960px) {
-  .main-text { font-size: 12px; }
-  .sub-text { font-size: 11px; }
-  .content { gap: 12px; }
+  .main-text {
+    font-size: 12px;
+  }
+  .sub-text {
+    font-size: 11px;
+  }
+  .content {
+    gap: 12px;
+  }
 }
 
 @media (max-width: 768px) {
-  .sub-text, .divider { display: none; }
-  .release-banner-inner { border-radius: 100px; padding: 6px 12px 6px 6px; }
-  .main-text { font-size: 11px; }
+  .sub-text,
+  .divider {
+    display: none;
+  }
+  .release-banner-inner {
+    border-radius: 100px;
+    padding: 6px 12px 6px 6px;
+  }
+  .main-text {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
-  .release-banner-container { padding: 4px 0; }
-  .cta-link span { display: none; }
-  .cta-link { padding: 6px 10px; }
-  .badge { padding: 4px 10px; font-size: 9px; }
+  .release-banner-container {
+    padding: 4px 0;
+  }
+  .cta-link span {
+    display: none;
+  }
+  .cta-link {
+    padding: 6px 10px;
+  }
+  .badge {
+    padding: 4px 10px;
+    font-size: 9px;
+  }
 }
 </style>

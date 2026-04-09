@@ -884,18 +884,25 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Serializes the entire flow state, history, and inputs into a JSON payload for debugging.
    */
   public exportState(): string {
-    return JSON.stringify({
-      id: this.id,
-      finalState: this.state,
-      history: this._history,
-      lastExecutionArgs: this.currentExecutionArgs,
-      timestamp: Date.now()
-    }, (key, value) => {
-      if (value instanceof Error) {
-        return { name: value.name, message: value.message, stack: value.stack };
-      }
-      return value;
-    });
+    return JSON.stringify(
+      {
+        id: this.id,
+        finalState: this.state,
+        history: this._history,
+        lastExecutionArgs: this.currentExecutionArgs,
+        timestamp: Date.now(),
+      },
+      (key, value) => {
+        if (value instanceof Error) {
+          return {
+            name: value.name,
+            message: value.message,
+            stack: value.stack,
+          };
+        }
+        return value;
+      },
+    );
   }
 
   /**
@@ -908,22 +915,25 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       const parsed = JSON.parse(json);
       if (parsed.history && Array.isArray(parsed.history)) {
         this.reset();
-        
+
         for (const historicalState of parsed.history) {
           this._state = historicalState;
           this.notify();
           if (speedMs > 0) {
-            await new Promise(r => setTimeout(r, speedMs));
+            await new Promise((r) => setTimeout(r, speedMs));
           }
         }
-        
+
         if (parsed.finalState) {
           this._state = parsed.finalState;
           this.notify();
         }
       }
     } catch (e) {
-      console.error("AsyncFlowState: Failed to parse or replay flow state JSON", e);
+      console.error(
+        "AsyncFlowState: Failed to parse or replay flow state JSON",
+        e,
+      );
     }
   }
 
@@ -1182,7 +1192,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Note: The action must be a serializable function.
    */
   public async worker(...args: TArgs): Promise<TData | undefined> {
-    const isBrowser = typeof window !== "undefined" && typeof Worker !== "undefined";
+    const isBrowser =
+      typeof window !== "undefined" && typeof Worker !== "undefined";
 
     if (!isBrowser) {
       return this.execute(...args);
@@ -1191,11 +1202,13 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     try {
       const { createWorkerAction } = await import("./utils/worker-utils");
       const originalAction = this.action;
-      
-      this.action = createWorkerAction(originalAction as (...args: TArgs) => TData | Promise<TData>) as any;
+
+      this.action = createWorkerAction(
+        originalAction as (...args: TArgs) => TData | Promise<TData>,
+      ) as any;
       const result = await this.execute(...args);
       this.action = originalAction;
-      
+
       return result;
     } catch (e) {
       console.warn("AsyncFlowState: Worker execution failed", e);
@@ -1207,9 +1220,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Handles the execution logic for Purgatory (Undo) mode.
    * @private
    */
-  private async handlePurgatoryExecution(args: TArgs): Promise<TData | undefined> {
+  private async handlePurgatoryExecution(
+    args: TArgs,
+  ): Promise<TData | undefined> {
     this.clearTimer("purgatoryTimer");
-    
+
     const duration = this.options.purgatory!.duration;
     const showPending = this.options.purgatory!.showPending !== false;
 
@@ -1259,11 +1274,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    */
   private async handleGhostExecution(args: TArgs): Promise<TData | undefined> {
     const strategy = this.options.ghost?.strategy || "last";
-    
+
     if (strategy === "last" && this.isProcessingGhost) {
-      // In ghost mode, we don't necessarily want to cancel the actual network request 
+      // In ghost mode, we don't necessarily want to cancel the actual network request
       // if it's already far along, but for 'last' strategy we follow the UI intent.
-      this.cancel(); 
+      this.cancel();
     }
 
     return new Promise((resolve) => {
@@ -1301,7 +1316,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * @param silent If true, status transitions to 'loading' are skipped (Ghost mode)
    * @returns Promise that resolves with the action result
    */
-  private internalExecute(args: TArgs, silent: boolean = false): Promise<TData | undefined> {
+  private internalExecute(
+    args: TArgs,
+    silent: boolean = false,
+  ): Promise<TData | undefined> {
     const { concurrency = DEFAULT_CONCURRENCY } = this.options;
 
     if (this._state.status === "loading" && this.activePromise) {
@@ -1415,7 +1433,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       });
     } else {
       this.loadingStartTime = Date.now();
-      
+
       if (!silent) {
         this.setState({
           status: "loading",
@@ -1525,8 +1543,11 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
           let rollbackDiff: any[] = [];
           if (shouldRollback) {
-             const { calculateDeepDiff } = await import("./utils/diff-utils");
-             rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+            const { calculateDeepDiff } = await import("./utils/diff-utils");
+            rollbackDiff = calculateDeepDiff(
+              this.previousDataSnapshot,
+              this._state.data,
+            );
           }
 
           this.setState({
@@ -1534,7 +1555,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: timeoutError,
             progress: PROGRESS.INITIAL,
-            rollbackDiff: shouldRollback ? rollbackDiff : undefined
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined,
           });
 
           if (shouldRollback) {
@@ -1626,7 +1647,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           let rollbackDiff: any[] = [];
           if (shouldRollback) {
             const { calculateDeepDiff } = await import("./utils/diff-utils");
-            rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+            rollbackDiff = calculateDeepDiff(
+              this.previousDataSnapshot,
+              this._state.data,
+            );
           }
 
           this.setState({
@@ -1634,7 +1658,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: timeoutError,
             progress: PROGRESS.INITIAL,
-            rollbackDiff: shouldRollback ? rollbackDiff : undefined
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined,
           });
 
           if (shouldRollback) {
@@ -1706,7 +1730,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           let rollbackDiff: any[] = [];
           if (shouldRollback) {
             const { calculateDeepDiff } = await import("./utils/diff-utils");
-            rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+            rollbackDiff = calculateDeepDiff(
+              this.previousDataSnapshot,
+              this._state.data,
+            );
           }
 
           this.setState({
@@ -1714,7 +1741,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: finalError,
             progress: PROGRESS.INITIAL,
-            rollbackDiff: shouldRollback ? rollbackDiff : undefined
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined,
           });
 
           if (shouldRollback) {
@@ -1729,7 +1756,8 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
 
           // Dead Letter Queue: store permanently failed actions
           if (this.options.deadLetter) {
-            const { DeadLetterQueue } = await import("./utils/dead-letter-queue");
+            const { DeadLetterQueue } =
+              await import("./utils/dead-letter-queue");
             DeadLetterQueue.getInstance().push({
               args,
               error: finalError,

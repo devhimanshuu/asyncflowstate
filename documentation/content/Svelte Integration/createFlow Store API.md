@@ -10,7 +10,7 @@ Svelte thrives on minimal abstraction syntax, hence `@asyncflowstate/svelte` int
 ## Signature
 
 ```ts
-import { createFlow } from '@asyncflowstate/svelte';
+import { createFlow } from "@asyncflowstate/svelte";
 
 const userFlow = createFlow(action, options);
 ```
@@ -20,7 +20,7 @@ const userFlow = createFlow(action, options);
 Because `createFlow` implements Svelte's `Writable<State>` contract, any modifications or loading state triggers inside the engine safely alert your DOM implicitly when referenced with `$` syntax:
 
 ```svelte
-<button 
+<button
   on:click={() => userFlow.execute('123')}
   disabled={$userFlow.loading}
 >

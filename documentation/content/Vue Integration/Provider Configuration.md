@@ -14,23 +14,23 @@ Typically managed at the root of the app, e.g., in `App.vue` or your primary lay
 ```vue
 <!-- App.vue -->
 <script setup lang="ts">
-import { provideFlowConfig } from '@asyncflowstate/vue';
-import { toast } from 'vue-toastification';
+import { provideFlowConfig } from "@asyncflowstate/vue";
+import { toast } from "vue-toastification";
 
 provideFlowConfig({
   // Global retries
   retry: {
     maxAttempts: 2,
-    backoff: 'exponential'
+    backoff: "exponential",
   },
   // Ensure loaders don't flash for 50ms fetches
   loading: {
-    minDuration: 300, 
+    minDuration: 300,
   },
   // Catch all errors globally
   onError: (error) => {
     toast.error(`Operation failed: ${error.message}`);
-  }
+  },
 });
 </script>
 ```

@@ -40,9 +40,7 @@ export function useFlowSequence(steps: SequenceStep[]) {
 
   const loading = computed(() => status.value === "loading");
   const currentStep = computed(() =>
-    currentStepIndex.value >= 0
-      ? steps[currentStepIndex.value]
-      : null,
+    currentStepIndex.value >= 0 ? steps[currentStepIndex.value] : null,
   );
 
   const unsubscribe = sequence.subscribe((state: SequenceState) => {

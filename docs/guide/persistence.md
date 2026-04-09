@@ -16,8 +16,8 @@ Retain flow states across remounts or full page reloads seamlessly using interna
 ```ts
 const flow = useFlow(uploadFile, {
   persistence: {
-    key: "file-upload-flow",        // Unique storage key
-    storage: "localStorage",       // "localStorage" | "sessionStorage"
+    key: "file-upload-flow", // Unique storage key
+    storage: "localStorage", // "localStorage" | "sessionStorage"
     serialize: JSON.stringify,
     deserialize: JSON.parse,
   },
@@ -33,9 +33,9 @@ const flow = useFlow(submitForm, {
   persistence: {
     key: "registration-form",
     storage: "sessionStorage",
-    restoreFields: true,        // Restore form field values
-    restoreErrors: true,         // Restore validation errors
-    restoreFocus: true,          // Re-focus the last active field
+    restoreFields: true, // Restore form field values
+    restoreErrors: true, // Restore validation errors
+    restoreFocus: true, // Re-focus the last active field
   },
 });
 ```
@@ -47,9 +47,9 @@ Prevent cascading failures by tracking failure rates across sessions:
 ```ts
 const flow = useFlow(externalApiCall, {
   circuitBreaker: {
-    failureThreshold: 5,     // Open after 5 failures
-    resetTimeout: 30000,     // Try again after 30 seconds
-    persistent: true,         // Track across page refreshes
+    failureThreshold: 5, // Open after 5 failures
+    resetTimeout: 30000, // Try again after 30 seconds
+    persistent: true, // Track across page refreshes
   },
 });
 

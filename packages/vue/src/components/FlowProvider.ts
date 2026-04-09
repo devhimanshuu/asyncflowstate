@@ -1,13 +1,10 @@
-import {
-  provide,
-  inject,
-  type InjectionKey,
-} from "vue";
+import { provide, inject, type InjectionKey } from "vue";
 import type { FlowOptions, FlowMiddleware } from "@asyncflowstate/core";
 import type { VueFlowProviderConfig } from "../types";
 
-const FLOW_CONFIG_KEY: InjectionKey<VueFlowProviderConfig> =
-  Symbol("asyncflowstate-config");
+const FLOW_CONFIG_KEY: InjectionKey<VueFlowProviderConfig> = Symbol(
+  "asyncflowstate-config",
+);
 
 /**
  * Provides global flow configuration to all child components.
@@ -103,7 +100,8 @@ export function mergeFlowOptions<TData, TError, TArgs extends any[]>(
   // Merge middleware arrays
   if (behaviors || (local as any).middleware) {
     const globalMiddleware = behaviors || [];
-    const localMiddleware = ((local as any).middleware as FlowMiddleware[]) || [];
+    const localMiddleware =
+      ((local as any).middleware as FlowMiddleware[]) || [];
     (merged as any).middleware = [...globalMiddleware, ...localMiddleware];
   }
 

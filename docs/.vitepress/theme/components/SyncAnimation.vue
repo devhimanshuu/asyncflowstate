@@ -1,22 +1,26 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const tab1state = ref('idle');
-const tab2state = ref('idle');
+const tab1state = ref("idle");
+const tab2state = ref("idle");
 let timer;
 
 const runSyncCycle = () => {
-  tab1state.value = 'idle';
-  tab2state.value = 'idle';
-  
+  tab1state.value = "idle";
+  tab2state.value = "idle";
+
   setTimeout(() => {
-    tab1state.value = 'loading'; // Tab 1 starts an action (e.g. login)
-    setTimeout(() => { tab2state.value = 'loading'; }, 100); // BroadcastChannel delay
-    
+    tab1state.value = "loading"; // Tab 1 starts an action (e.g. login)
     setTimeout(() => {
-      tab1state.value = 'success'; // Tab 1 finishes
-      setTimeout(() => { tab2state.value = 'success'; }, 100);
-      
+      tab2state.value = "loading";
+    }, 100); // BroadcastChannel delay
+
+    setTimeout(() => {
+      tab1state.value = "success"; // Tab 1 finishes
+      setTimeout(() => {
+        tab2state.value = "success";
+      }, 100);
+
       timer = setTimeout(runSyncCycle, 3000);
     }, 1500);
   }, 1000);
@@ -35,21 +39,28 @@ onUnmounted(() => {
   <div class="animation-container">
     <div class="tabs-container">
       <div class="browser-tab">
-        <div class="tab-header"><i class="fa-solid fa-globe"></i> Window A (Active)</div>
+        <div class="tab-header">
+          <i class="fa-solid fa-globe"></i> Window A (Active)
+        </div>
         <div class="tab-body">
           <div class="state-output" :class="tab1state">
             status: {{ tab1state }}
           </div>
         </div>
       </div>
-      
+
       <div class="sync-signal">
-        <div class="signal-line" :class="{ active: tab1state !== 'idle' }"></div>
+        <div
+          class="signal-line"
+          :class="{ active: tab1state !== 'idle' }"
+        ></div>
         <span>BroadcastChannel Sync</span>
       </div>
-      
+
       <div class="browser-tab">
-        <div class="tab-header inactive"><i class="fa-solid fa-globe"></i> Window B (Background)</div>
+        <div class="tab-header inactive">
+          <i class="fa-solid fa-globe"></i> Window B (Background)
+        </div>
         <div class="tab-body">
           <div class="state-output" :class="tab2state">
             status: {{ tab2state }}
@@ -82,7 +93,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .tab-header {
@@ -111,9 +122,18 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.state-output.idle { background: var(--vp-c-bg-mute); color: var(--vp-c-text-2); }
-.state-output.loading { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.state-output.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.state-output.idle {
+  background: var(--vp-c-bg-mute);
+  color: var(--vp-c-text-2);
+}
+.state-output.loading {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+.state-output.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
 
 .sync-signal {
   display: flex;
@@ -136,17 +156,28 @@ onUnmounted(() => {
 }
 
 .signal-line.active::after {
-  content: '';
+  content: "";
   position: absolute;
-  top: -2px; left: 0; bottom: -2px; width: 20px;
+  top: -2px;
+  left: 0;
+  bottom: -2px;
+  width: 20px;
   background: var(--vp-c-brand-1);
   border-radius: 4px;
   animation: traverse 0.5s infinite linear;
 }
 
 @keyframes traverse {
-  0% { transform: translateX(0); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateX(60px); opacity: 0; }
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(60px);
+    opacity: 0;
+  }
 }
 </style>

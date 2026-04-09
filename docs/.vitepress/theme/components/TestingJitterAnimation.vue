@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const metrics = ref({
   latencyMs: 50,
@@ -11,8 +11,8 @@ let timer;
 const runSimulation = () => {
   timer = setInterval(() => {
     // Determine random jitter conditions for this tick
-    const isFlaky = Math.random() > 0.6; 
-    
+    const isFlaky = Math.random() > 0.6;
+
     if (isFlaky) {
       metrics.value.latencyMs = Math.floor(Math.random() * 1500) + 300; // Spike: 300ms - 1800ms
       metrics.value.packetLoss = Math.floor(Math.random() * 30); // Spike: 0-30% loss
@@ -35,21 +35,31 @@ onUnmounted(() => {
 <template>
   <div class="animation-container">
     <div class="header">
-      <i class="fa-solid fa-fire text-orange-500"></i> simulateJitter() Telemetry
+      <i class="fa-solid fa-fire text-orange-500"></i> simulateJitter()
+      Telemetry
     </div>
-    
+
     <div class="dashboard">
-      <div class="metric-card" :class="{ 'warning': metrics.latencyMs > 500 }">
+      <div class="metric-card" :class="{ warning: metrics.latencyMs > 500 }">
         <div class="label">Artificial Latency</div>
-        <div class="value">{{ metrics.latencyMs }}<span class="unit">ms</span></div>
+        <div class="value">
+          {{ metrics.latencyMs }}<span class="unit">ms</span>
+        </div>
         <div class="trend-bar">
-          <div class="fill" :style="{ width: `${Math.min(100, (metrics.latencyMs / 1800) * 100)}%` }"></div>
+          <div
+            class="fill"
+            :style="{
+              width: `${Math.min(100, (metrics.latencyMs / 1800) * 100)}%`,
+            }"
+          ></div>
         </div>
       </div>
-      
-      <div class="metric-card" :class="{ 'danger': metrics.packetLoss > 0 }">
+
+      <div class="metric-card" :class="{ danger: metrics.packetLoss > 0 }">
         <div class="label">Simulated Failure Rate</div>
-        <div class="value">{{ metrics.packetLoss }}<span class="unit">%</span></div>
+        <div class="value">
+          {{ metrics.packetLoss }}<span class="unit">%</span>
+        </div>
         <div class="trend-bar error-trend">
           <div class="fill" :style="{ width: `${metrics.packetLoss}%` }"></div>
         </div>
@@ -65,8 +75,8 @@ onUnmounted(() => {
   background: #1e1e20; /* Darker console aesthetic */
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-  font-family: 'JetBrains Mono', monospace;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  font-family: "JetBrains Mono", monospace;
 }
 
 .header {
@@ -84,7 +94,7 @@ onUnmounted(() => {
 
 .metric-card {
   flex: 1;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   padding: 1rem;
   border-radius: 8px;
   border-left: 4px solid #10b981; /* Green safe by default */
@@ -123,7 +133,7 @@ onUnmounted(() => {
 .trend-bar {
   margin-top: 10px;
   height: 4px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
 }

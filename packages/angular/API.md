@@ -11,12 +11,11 @@
 Core factory for managing a single async action. Returns a `state$` BehaviorSubject.
 
 ```typescript
-import { createFlow } from '@asyncflowstate/angular';
+import { createFlow } from "@asyncflowstate/angular";
 
-const flow = createFlow(
-  async (id: string) => api.fetchUser(id),
-  { retry: { maxAttempts: 3, backoff: 'exponential' } }
-);
+const flow = createFlow(async (id: string) => api.fetchUser(id), {
+  retry: { maxAttempts: 3, backoff: "exponential" },
+});
 
 // In template with async pipe:
 // <ng-container *ngIf="flow.state$ | async as state">
@@ -47,5 +46,5 @@ import type {
   AngularFlowOptions,
   FlowSignalState,
   AngularInfiniteFlowOptions,
-} from '@asyncflowstate/angular';
+} from "@asyncflowstate/angular";
 ```

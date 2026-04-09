@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
 
 const dots = ref([]);
 const numDots = 60;
@@ -18,7 +18,7 @@ const generateDots = () => {
       duration: Math.random() * 10 + 5,
       opacity: Math.random() * 0.4 + 0.1,
       angle: Math.random() * 360,
-      distance: Math.random() * 50 + 20
+      distance: Math.random() * 50 + 20,
     });
   }
   dots.value = newDots;
@@ -32,7 +32,7 @@ const generateDots = () => {
       x2: Math.random() * 100,
       y2: Math.random() * 100,
       delay: Math.random() * -5,
-      duration: Math.random() * 8 + 4
+      duration: Math.random() * 8 + 4,
     });
   }
   lines.value = newLines;
@@ -47,24 +47,26 @@ onMounted(() => {
   <div class="premium-geometric-bg">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
-    
+
     <svg class="lines-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <line 
-        v-for="line in lines" 
+      <line
+        v-for="line in lines"
         :key="line.id"
-        :x1="line.x1" :y1="line.y1" 
-        :x2="line.x2" :y2="line.y2"
+        :x1="line.x1"
+        :y1="line.y1"
+        :x2="line.x2"
+        :y2="line.y2"
         class="geo-line"
         :style="{
           animationDelay: `${line.delay}s`,
-          animationDuration: `${line.duration}s`
+          animationDuration: `${line.duration}s`,
         }"
       />
     </svg>
 
-    <div 
-      v-for="dot in dots" 
-      :key="dot.id" 
+    <div
+      v-for="dot in dots"
+      :key="dot.id"
       class="particle"
       :style="{
         left: `${dot.x}%`,
@@ -75,7 +77,7 @@ onMounted(() => {
         animationDuration: `${dot.duration}s`,
         opacity: dot.opacity,
         '--dist': `${dot.distance}px`,
-        '--angle': `${dot.angle}deg`
+        '--angle': `${dot.angle}deg`,
       }"
     ></div>
   </div>
@@ -153,26 +155,45 @@ onMounted(() => {
 }
 
 @keyframes float-particle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 0.1;
   }
   50% {
-    transform: translate(calc(cos(var(--angle)) * var(--dist)), calc(sin(var(--angle)) * var(--dist))) scale(1.5);
+    transform: translate(
+        calc(cos(var(--angle)) * var(--dist)),
+        calc(sin(var(--angle)) * var(--dist))
+      )
+      scale(1.5);
     opacity: 0.6;
   }
 }
 
 @keyframes pulse-orb {
-  from { transform: scale(1) translate(0, 0); }
-  to { transform: scale(1.2) translate(30px, -20px); }
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.2) translate(30px, -20px);
+  }
 }
 
 @keyframes draw-line {
-  0% { stroke-dashoffset: 200; opacity: 0; }
-  20% { opacity: 0.5; }
-  80% { opacity: 0.5; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
+  0% {
+    stroke-dashoffset: 200;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
 }
 
 .dark .premium-geometric-bg {

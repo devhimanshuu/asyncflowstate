@@ -109,22 +109,22 @@ pnpm add @asyncflowstate/svelte @asyncflowstate/core
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
 
-*   **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-*   **Global Purgatory (Undo):** Native undo patterns and programmable delay.
-*   **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-*   **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-*   **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-*   **Cross-Tab Sync:** State consistency across the browser session.
+- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
+- **Global Purgatory (Undo):** Native undo patterns and programmable delay.
+- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
+- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
+- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
+- **Cross-Tab Sync:** State consistency across the browser session.
 
 ## API Reference
 
-| Function | Description |
-|---|---|
-| `createFlow(action, options?)` | Core store for managing async actions |
-| `createFlowSequence(steps)` | Orchestrate sequential workflows |
-| `createFlowParallel(flows, strategy?)` | Run flows in parallel |
-| `createFlowList(action, options?)` | Manage multiple keyed flow instances |
-| `createInfiniteFlow(action, options)` | Manage paginated/infinite scrolling data fetching |
+| Function                               | Description                                       |
+| -------------------------------------- | ------------------------------------------------- |
+| `createFlow(action, options?)`         | Core store for managing async actions             |
+| `createFlowSequence(steps)`            | Orchestrate sequential workflows                  |
+| `createFlowParallel(flows, strategy?)` | Run flows in parallel                             |
+| `createFlowList(action, options?)`     | Manage multiple keyed flow instances              |
+| `createInfiniteFlow(action, options)`  | Manage paginated/infinite scrolling data fetching |
 
 All stores implement the Svelte store contract — use `$store` for auto-subscription.
 

@@ -41,7 +41,7 @@ function App() {
 
         // UX polish
         loading: {
-          minDuration: 400,  // No loading flashes
+          minDuration: 400, // No loading flashes
         },
 
         // Auto-reset after success
@@ -94,9 +94,9 @@ const flow = useFlow(action, {
 When `overrideMode: "replace"` is set, local options **completely replace** global options if any local options exist.
 
 ```tsx
-<FlowProvider config={{ 
+<FlowProvider config={{
   retry: { maxAttempts: 3, delay: 1000 },
-  overrideMode: "replace" 
+  overrideMode: "replace"
 }}>
 
 const flow = useFlow(action, {
@@ -125,46 +125,46 @@ You can nest `FlowProvider` components for section-specific defaults:
 
 ### Core Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `onSuccess` | `(data) => void` | — | Called after successful execution |
-| `onError` | `(error) => void` | — | Called after failed execution |
-| `onStart` | `(input) => void` | — | Called when execution begins |
-| `concurrency` | `"keep" \| "restart" \| "enqueue"` | `"keep"` | How to handle concurrent calls |
-| `debounce` | `number` | — | Debounce delay in ms |
-| `throttle` | `number` | — | Throttle delay in ms |
-| `optimisticResult` | `TOutput` | — | Optimistic result shown immediately |
+| Option             | Type                               | Default  | Description                         |
+| ------------------ | ---------------------------------- | -------- | ----------------------------------- |
+| `onSuccess`        | `(data) => void`                   | —        | Called after successful execution   |
+| `onError`          | `(error) => void`                  | —        | Called after failed execution       |
+| `onStart`          | `(input) => void`                  | —        | Called when execution begins        |
+| `concurrency`      | `"keep" \| "restart" \| "enqueue"` | `"keep"` | How to handle concurrent calls      |
+| `debounce`         | `number`                           | —        | Debounce delay in ms                |
+| `throttle`         | `number`                           | —        | Throttle delay in ms                |
+| `optimisticResult` | `TOutput`                          | —        | Optimistic result shown immediately |
 
 ### Retry Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `retry.maxAttempts` | `number` | `1` | Maximum execution attempts |
-| `retry.delay` | `number` | `1000` | Base delay between retries (ms) |
-| `retry.backoff` | `"fixed" \| "linear" \| "exponential"` | `"fixed"` | Backoff strategy |
-| `retry.shouldRetry` | `(error, attempt) => boolean` | — | Custom retry predicate |
+| Option              | Type                                   | Default   | Description                     |
+| ------------------- | -------------------------------------- | --------- | ------------------------------- |
+| `retry.maxAttempts` | `number`                               | `1`       | Maximum execution attempts      |
+| `retry.delay`       | `number`                               | `1000`    | Base delay between retries (ms) |
+| `retry.backoff`     | `"fixed" \| "linear" \| "exponential"` | `"fixed"` | Backoff strategy                |
+| `retry.shouldRetry` | `(error, attempt) => boolean`          | —         | Custom retry predicate          |
 
 ### Loading Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `loading.minDuration` | `number` | `0` | Minimum loading display time (ms) |
-| `loading.delay` | `number` | `0` | Delay before showing loading (ms) |
+| Option                | Type     | Default | Description                       |
+| --------------------- | -------- | ------- | --------------------------------- |
+| `loading.minDuration` | `number` | `0`     | Minimum loading display time (ms) |
+| `loading.delay`       | `number` | `0`     | Delay before showing loading (ms) |
 
 ### Auto-Reset Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| Option              | Type      | Default | Description                     |
+| ------------------- | --------- | ------- | ------------------------------- |
 | `autoReset.enabled` | `boolean` | `false` | Enable auto-reset after success |
-| `autoReset.delay` | `number` | `3000` | Delay before reset (ms) |
+| `autoReset.delay`   | `number`  | `3000`  | Delay before reset (ms)         |
 
 ### React-Specific Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `a11y.announceSuccess` | `string \| (data) => string` | — | Screen reader success message |
-| `a11y.announceError` | `string \| (error) => string` | — | Screen reader error message |
-| `a11y.liveRegionRel` | `"polite" \| "assertive"` | `"polite"` | Live region politeness |
+| Option                 | Type                          | Default    | Description                   |
+| ---------------------- | ----------------------------- | ---------- | ----------------------------- |
+| `a11y.announceSuccess` | `string \| (data) => string`  | —          | Screen reader success message |
+| `a11y.announceError`   | `string \| (error) => string` | —          | Screen reader error message   |
+| `a11y.liveRegionRel`   | `"polite" \| "assertive"`     | `"polite"` | Live region politeness        |
 
 ## Dynamic Configuration
 

@@ -8,12 +8,12 @@ Best practices for optimal performance with AsyncFlowState.
 
 AsyncFlowState is designed to be lightweight:
 
-| Package | Size (gzipped) |
-|---------|----------------|
-| `@asyncflowstate/core` | ~3 KB |
-| `@asyncflowstate/react` | ~2 KB |
-| `@asyncflowstate/vue` | ~1.5 KB |
-| `@asyncflowstate/svelte` | ~1 KB |
+| Package                  | Size (gzipped) |
+| ------------------------ | -------------- |
+| `@asyncflowstate/core`   | ~3 KB          |
+| `@asyncflowstate/react`  | ~2 KB          |
+| `@asyncflowstate/vue`    | ~1.5 KB        |
+| `@asyncflowstate/svelte` | ~1 KB          |
 
 All packages are **tree-shakeable** — unused exports are eliminated by your bundler.
 
@@ -73,24 +73,25 @@ const flow = useFlow(quickSave, {
 
 ## Concurrency Best Practices
 
-| Pattern | Strategy | Why |
-|---------|----------|-----|
-| Form submit | `"keep"` | Prevent duplicate submissions |
-| Search input | `"restart"` | Cancel stale results |
-| File upload | `"enqueue"` | Process in order |
-| Data refresh | `"restart"` | Always use latest data |
+| Pattern      | Strategy    | Why                           |
+| ------------ | ----------- | ----------------------------- |
+| Form submit  | `"keep"`    | Prevent duplicate submissions |
+| Search input | `"restart"` | Cancel stale results          |
+| File upload  | `"enqueue"` | Process in order              |
+| Data refresh | `"restart"` | Always use latest data        |
 
 ## Retry Performance
 
 Choose the right backoff strategy:
 
-| Strategy | Server Load | User Wait | Use Case |
-|----------|-------------|-----------|----------|
-| `"fixed"` | Consistent | Predictable | Known recovery time |
-| `"linear"` | Decreasing | Growing | Moderate backoff |
-| `"exponential"` | Minimal | Can be long | Third-party APIs, rate limits |
+| Strategy        | Server Load | User Wait   | Use Case                      |
+| --------------- | ----------- | ----------- | ----------------------------- |
+| `"fixed"`       | Consistent  | Predictable | Known recovery time           |
+| `"linear"`      | Decreasing  | Growing     | Moderate backoff              |
+| `"exponential"` | Minimal     | Can be long | Third-party APIs, rate limits |
 
 ::: tip Production Config
+
 ```ts
 // Recommended production defaults
 {
@@ -99,4 +100,5 @@ Choose the right backoff strategy:
   concurrency: "keep",
 }
 ```
+
 :::

@@ -16,7 +16,7 @@ const flow = useFlow(saveData, {
 });
 
 await flow.execute(data1); // Starts
-flow.execute(data2);       // Ignored — first call is still running
+flow.execute(data2); // Ignored — first call is still running
 ```
 
 **Best for:** Form submissions, payments, delete operations.
@@ -30,7 +30,7 @@ const flow = useFlow(search, {
   concurrency: "restart",
 });
 
-flow.execute("react");     // Starts search for "react"
+flow.execute("react"); // Starts search for "react"
 flow.execute("react nav"); // Cancels previous, starts new search
 ```
 

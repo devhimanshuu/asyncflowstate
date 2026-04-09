@@ -1,24 +1,27 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const nodes = ref([
-  { id: 1, name: 'API.fetchUser', active: false, done: false },
-  { id: 2, name: 'API.fetchPosts', active: false, done: false },
-  { id: 3, name: 'Process & Filter', active: false, done: false },
+  { id: 1, name: "API.fetchUser", active: false, done: false },
+  { id: 2, name: "API.fetchPosts", active: false, done: false },
+  { id: 3, name: "Process & Filter", active: false, done: false },
 ]);
 
 let timer;
 
 const runWave = () => {
-  nodes.value.forEach(n => { n.active = false; n.done = false; });
+  nodes.value.forEach((n) => {
+    n.active = false;
+    n.done = false;
+  });
   let idx = 0;
-  
+
   const step = () => {
     if (idx > 0) {
       nodes.value[idx - 1].active = false;
       nodes.value[idx - 1].done = true;
     }
-    
+
     if (idx < nodes.value.length) {
       nodes.value[idx].active = true;
       idx++;
@@ -27,7 +30,7 @@ const runWave = () => {
       timer = setTimeout(runWave, 2500);
     }
   };
-  
+
   step();
 };
 
@@ -53,7 +56,11 @@ onUnmounted(() => {
           </div>
           {{ node.name }}
         </div>
-        <div class="arrow" v-if="index < nodes.length - 1" :class="{ active: nodes[index].done }">
+        <div
+          class="arrow"
+          v-if="index < nodes.length - 1"
+          :class="{ active: nodes[index].done }"
+        >
           <div class="line"></div>
           <div class="head"></div>
         </div>
@@ -70,7 +77,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .subtitle {

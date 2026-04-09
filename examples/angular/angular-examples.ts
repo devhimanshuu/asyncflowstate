@@ -1,32 +1,31 @@
 // @ts-nocheck
 /**
  * AsyncFlowState - Angular Examples
- * 
+ *
  * Demonstrates how to use @asyncflowstate/angular factories with RxJS.
  */
-import { Component, OnDestroy } from '@angular/core';
-import { AsyncPipe, NgIf, NgFor } from '@angular/common';
-import { 
-  createFlow, 
-  createFlowSequence, 
-  createFlowList 
-} from '@asyncflowstate/angular';
+import { Component, OnDestroy } from "@angular/core";
+import { AsyncPipe, NgIf, NgFor } from "@angular/common";
+import {
+  createFlow,
+  createFlowSequence,
+  createFlowList,
+} from "@asyncflowstate/angular";
 
 @Component({
-  selector: 'app-examples',
+  selector: "app-examples",
   standalone: true,
   imports: [AsyncPipe, NgIf, NgFor],
   template: `
     <div class="examples">
-      
       <!-- Example 1: Basic Flow -->
       <section *ngIf="userFlow.state$ | async as state">
         <h2>Basic BehaviorSubject Fetching</h2>
-        
+
         <button (click)="userFlow.execute('123')" [disabled]="state.loading">
-          {{ state.loading ? 'Fetching...' : 'Load User' }}
+          {{ state.loading ? "Fetching..." : "Load User" }}
         </button>
-        
+
         <div *ngIf="state.data">
           <p>Name: {{ state.data.name }}</p>
         </div>
@@ -41,10 +40,15 @@ import {
         <ul>
           <li *ngFor="let item of items">
             {{ item.name }}
-            <button 
+            <button
               (click)="deleteFlow.execute(item.id, item.id)"
-              [disabled]="listState.states[item.id]?.status === 'loading'">
-              {{ listState.states[item.id]?.status === 'loading' ? 'Deleting...' : 'Delete' }}
+              [disabled]="listState.states[item.id]?.status === 'loading'"
+            >
+              {{
+                listState.states[item.id]?.status === "loading"
+                  ? "Deleting..."
+                  : "Delete"
+              }}
             </button>
           </li>
         </ul>
@@ -56,42 +60,55 @@ import {
         <button (click)="sequence.execute()" [disabled]="seqState.loading">
           Run Sequence ({{ seqState.progress }}%)
         </button>
-        <p *ngIf="seqState.currentStep">Running: {{ seqState.currentStep.name }}</p>
+        <p *ngIf="seqState.currentStep">
+          Running: {{ seqState.currentStep.name }}
+        </p>
       </section>
-
     </div>
   `,
-  styles: [`
-    .error { color: red; font-size: 0.8em; }
-    section { margin-bottom: 2rem; padding: 1rem; border: 1px solid #ccc; }
-  `]
+  styles: [
+    `
+      .error {
+        color: red;
+        font-size: 0.8em;
+      }
+      section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid #ccc;
+      }
+    `,
+  ],
 })
 export class ExamplesComponent implements OnDestroy {
   // 1. Basic Flow
   userFlow = createFlow(
     async (id: string) => {
       const res = await fetch(`/api/users/${id}`);
-      if (!res.ok) throw new Error('User not found');
+      if (!res.ok) throw new Error("User not found");
       return res.json();
     },
-    { retry: { maxAttempts: 3 } }
+    { retry: { maxAttempts: 3 } },
   );
 
   // 2. Flow List
-  deleteFlow = createFlowList(
-    async (id: string) => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  );
-  items = [{ id: '1', name: 'Item 1' }, { id: '2', name: 'Item 2' }];
+  deleteFlow = createFlowList(async (id: string) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  });
+  items = [
+    { id: "1", name: "Item 1" },
+    { id: "2", name: "Item 2" },
+  ];
 
   // 3. Flow Sequence
   sequence = createFlowSequence([
-    { name: 'Auth', flow: this.userFlow.flow },
-    { 
-      name: 'Fetch Data', 
-      flow: createFlow(async () => { /* another task */ }).flow 
-    }
+    { name: "Auth", flow: this.userFlow.flow },
+    {
+      name: "Fetch Data",
+      flow: createFlow(async () => {
+        /* another task */
+      }).flow,
+    },
   ]);
 
   ngOnDestroy() {

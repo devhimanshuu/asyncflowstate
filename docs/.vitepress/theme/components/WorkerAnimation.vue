@@ -1,38 +1,36 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const mainThreadFps = ref(60);
-const workerStatus = ref('idle');
+const workerStatus = ref("idle");
 let mainTimer;
 let workerTimer;
 
 const simulateHeavyWork = () => {
   // Main thread hit
   mainThreadFps.value = 4;
-  workerStatus.value = 'idle';
-  
+  workerStatus.value = "idle";
+
   setTimeout(() => {
     mainThreadFps.value = 60;
-    
+
     // Now trigger worker offload
     setTimeout(() => {
-      workerStatus.value = 'processing';
-      
+      workerStatus.value = "processing";
+
       setTimeout(() => {
-        workerStatus.value = 'success';
-        
+        workerStatus.value = "success";
+
         // Loop
         setTimeout(simulateHeavyWork, 3000);
       }, 2500);
-      
     }, 2000);
-    
   }, 2500);
 };
 
 onMounted(() => {
   simulateHeavyWork();
-  
+
   // Random jitter in main thread FPS
   mainTimer = setInterval(() => {
     if (mainThreadFps.value > 10) {
@@ -52,29 +50,56 @@ onUnmounted(() => {
     <div class="thread main-thread">
       <div class="header">
         <span>Main UI Thread</span>
-        <div class="fps" :class="{ poor: mainThreadFps < 30 }">{{ mainThreadFps }} FPS</div>
+        <div class="fps" :class="{ poor: mainThreadFps < 30 }">
+          {{ mainThreadFps }} FPS
+        </div>
       </div>
       <div class="graphs">
-        <div class="bar" :style="{ width: mainThreadFps < 30 ? '100%' : '15%', background: mainThreadFps < 30 ? '#ef4444' : '#10b981' }"></div>
-        <div class="tag" v-if="mainThreadFps < 30">UI FROZEN (Standard Flow)</div>
+        <div
+          class="bar"
+          :style="{
+            width: mainThreadFps < 30 ? '100%' : '15%',
+            background: mainThreadFps < 30 ? '#ef4444' : '#10b981',
+          }"
+        ></div>
+        <div class="tag" v-if="mainThreadFps < 30">
+          UI FROZEN (Standard Flow)
+        </div>
         <div class="tag safe" v-else>UI RESPONSIVE</div>
       </div>
     </div>
-    
+
     <div class="connector">
       <div v-if="workerStatus === 'processing'" class="data-stream"></div>
     </div>
-    
+
     <div class="thread background-thread">
       <div class="header">
         <span>Web Worker Thread</span>
         <div class="status-badge" :class="workerStatus">
-          {{ workerStatus === 'processing' ? 'Processing...' : workerStatus === 'success' ? 'Finished' : 'Idle' }}
+          {{
+            workerStatus === "processing"
+              ? "Processing..."
+              : workerStatus === "success"
+                ? "Finished"
+                : "Idle"
+          }}
         </div>
       </div>
       <div class="graphs">
-        <div class="bar" :style="{ width: workerStatus === 'processing' ? '100%' : '5%', background: workerStatus === 'processing' ? 'var(--vp-c-brand-1)' : 'var(--vp-c-divider)' }"></div>
-        <div class="tag safe" v-if="workerStatus === 'processing'">Heavy Compute (flow.worker)</div>
+        <div
+          class="bar"
+          :style="{
+            width: workerStatus === 'processing' ? '100%' : '5%',
+            background:
+              workerStatus === 'processing'
+                ? 'var(--vp-c-brand-1)'
+                : 'var(--vp-c-divider)',
+          }"
+        ></div>
+        <div class="tag safe" v-if="workerStatus === 'processing'">
+          Heavy Compute (flow.worker)
+        </div>
       </div>
     </div>
   </div>
@@ -87,7 +112,7 @@ onUnmounted(() => {
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -146,13 +171,18 @@ onUnmounted(() => {
 
 .bar {
   height: 100%;
-  transition: width 0.3s ease, background 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
 }
 
 .tag {
   position: absolute;
-  top: 0; left: 8px; bottom: 0;
-  display: flex; align-items: center;
+  top: 0;
+  left: 8px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
   font-size: 0.75rem;
   font-weight: 700;
   color: white;
@@ -171,14 +201,20 @@ onUnmounted(() => {
 
 .data-stream {
   position: absolute;
-  top: 0; left: -2px; bottom: 0;
+  top: 0;
+  left: -2px;
+  bottom: 0;
   width: 2px;
   background: var(--vp-c-brand-1);
   animation: slideDown 1s infinite linear;
 }
 
 @keyframes slideDown {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
 }
 </style>

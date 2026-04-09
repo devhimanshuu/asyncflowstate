@@ -1,23 +1,23 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const likeState = ref('unliked');
+const likeState = ref("unliked");
 const isFloating = ref(false);
 let timer;
 
 const runSimulation = () => {
   // Step 1: Click
-  likeState.value = 'loading'; // Standard loading
+  likeState.value = "loading"; // Standard loading
   isFloating.value = true;
-  
+
   setTimeout(() => {
     // Both success
-    likeState.value = 'liked';
+    likeState.value = "liked";
     isFloating.value = false;
-    
+
     // Reset
     timer = setTimeout(() => {
-      likeState.value = 'unliked';
+      likeState.value = "unliked";
       timer = setTimeout(runSimulation, 1500);
     }, 2500);
   }, 1500);
@@ -41,11 +41,23 @@ onUnmounted(() => {
         <div class="mock-post">
           <div class="skeleton-text"></div>
           <div class="skeleton-text short"></div>
-          
-          <button class="action-btn" :class="{ loading: likeState === 'loading', active: likeState === 'liked' }">
-            <span v-if="likeState === 'unliked'"><i class="fa-regular fa-heart"></i> Like</span>
-            <span v-else-if="likeState === 'loading'" class="loader"><i class="fa-solid fa-hourglass-half"></i> Waiting...</span>
-            <span v-else class="liked-heart"><i class="fa-solid fa-heart text-red-500"></i> Liked</span>
+
+          <button
+            class="action-btn"
+            :class="{
+              loading: likeState === 'loading',
+              active: likeState === 'liked',
+            }"
+          >
+            <span v-if="likeState === 'unliked'"
+              ><i class="fa-regular fa-heart"></i> Like</span
+            >
+            <span v-else-if="likeState === 'loading'" class="loader"
+              ><i class="fa-solid fa-hourglass-half"></i> Waiting...</span
+            >
+            <span v-else class="liked-heart"
+              ><i class="fa-solid fa-heart text-red-500"></i> Liked</span
+            >
           </button>
         </div>
       </div>
@@ -56,16 +68,23 @@ onUnmounted(() => {
         <div class="mock-post">
           <div class="skeleton-text"></div>
           <div class="skeleton-text short"></div>
-          
+
           <button class="action-btn active optimistic-btn">
-            <span v-if="likeState === 'unliked'"><i class="fa-regular fa-heart"></i> Like</span>
+            <span v-if="likeState === 'unliked'"
+              ><i class="fa-regular fa-heart"></i> Like</span
+            >
             <span v-else class="liked-heart">
               <i class="fa-solid fa-heart text-red-500"></i> Liked
-              <span class="floating-heart" v-if="isFloating"><i class="fa-solid fa-heart text-red-500"></i></span>
+              <span class="floating-heart" v-if="isFloating"
+                ><i class="fa-solid fa-heart text-red-500"></i
+              ></span>
             </span>
           </button>
 
-          <div class="network-status" :class="{ visible: likeState === 'loading' }">
+          <div
+            class="network-status"
+            :class="{ visible: likeState === 'loading' }"
+          >
             Saving to server...
           </div>
         </div>
@@ -82,7 +101,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .side-by-side {
@@ -105,7 +124,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: all 0.3s ease;
 }
@@ -201,13 +220,25 @@ onUnmounted(() => {
 }
 
 @keyframes heartBump {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes floatUp {
-  0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -40px) scale(1.5); opacity: 0; }
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -40px) scale(1.5);
+    opacity: 0;
+  }
 }
 </style>

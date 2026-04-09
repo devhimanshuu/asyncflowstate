@@ -15,18 +15,22 @@ Pipelines multiple discrete `Flow` objects linearly.
 ```vue
 <script setup>
 const sequence = useFlowSequence([
-  { name: 'Auth', flow: authFlow.flow },
-  { name: 'Prefetch', flow: pullDataFlow.flow, mapInput: (authRes) => authRes.token }
+  { name: "Auth", flow: authFlow.flow },
+  {
+    name: "Prefetch",
+    flow: pullDataFlow.flow,
+    mapInput: (authRes) => authRes.token,
+  },
 ]);
 </script>
 
 <template>
   <div>
     <button @click="sequence.execute()">Start System Boot</button>
-    
+
     <!-- Reactively sync with pipeline step names -->
     <p v-if="sequence.loading">Booting up: {{ sequence.currentStep?.name }}</p>
-    
+
     <!-- Native % progression outputs! -->
     <progress :value="sequence.progress" max="100"></progress>
   </div>
@@ -42,9 +46,9 @@ Parallelizes execution states matching `Promise.all` or `Promise.allSettled`.
 const parallel = useFlowParallel(
   {
     profile: profileFlow.flow,
-    posts: postsFlow.flow
+    posts: postsFlow.flow,
   },
-  "all" // Returns single error failure state if any fail
+  "all", // Returns single error failure state if any fail
 );
 </script>
 ```
@@ -61,7 +65,7 @@ const deleteList = useFlowList(deleteAPI);
 <template>
   <ul>
     <li v-for="item in items" :key="item.id">
-      <button 
+      <button
         @click="deleteList.execute(item.id, item.id)"
         :disabled="deleteList.states.value[item.id]?.status === 'loading'"
       >

@@ -1,35 +1,34 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
-const flasherState = ref('idle');
-const smoothState = ref('idle');
+const flasherState = ref("idle");
+const smoothState = ref("idle");
 let timer;
 
 const runSimulation = () => {
   // Reset
-  flasherState.value = 'idle';
-  smoothState.value = 'idle';
-  
+  flasherState.value = "idle";
+  smoothState.value = "idle";
+
   // Wait, then trigger very fast network request (50ms)
   timer = setTimeout(() => {
     // 1. Without minDuration
-    flasherState.value = 'loading';
+    flasherState.value = "loading";
     setTimeout(() => {
-      flasherState.value = 'success';
+      flasherState.value = "success";
     }, 50); // Fast response causes UI jitter
-    
+
     // 2. With minDuration (enforced UX delay)
-    smoothState.value = 'loading';
+    smoothState.value = "loading";
     setTimeout(() => {
-       // Network finished in 50ms, but UI waits until 400ms
+      // Network finished in 50ms, but UI waits until 400ms
     }, 50);
     setTimeout(() => {
-      smoothState.value = 'success';
+      smoothState.value = "success";
     }, 600); // Wait 600ms minimum duration for a smooth experience!
-    
+
     // Reset cycle
     timer = setTimeout(runSimulation, 2500);
-
   }, 1000);
 };
 
@@ -45,11 +44,11 @@ onUnmounted(() => {
 <template>
   <div class="animation-container">
     <div class="comparison-grid">
-      
       <!-- Bad UX -->
       <div class="card bad-ux">
         <div class="card-header">
-          <span class="bad-icon"><i class="fa-solid fa-xmark"></i></span> Without minDuration
+          <span class="bad-icon"><i class="fa-solid fa-xmark"></i></span>
+          Without minDuration
         </div>
         <div class="visual">
           <button class="mock-btn" :class="flasherState">
@@ -60,13 +59,16 @@ onUnmounted(() => {
             <span v-else class="success-txt">Done!</span>
           </button>
         </div>
-        <div class="caption">Network responds in 50ms. Causes an ugly UI flash.</div>
+        <div class="caption">
+          Network responds in 50ms. Causes an ugly UI flash.
+        </div>
       </div>
 
       <!-- Good UX -->
       <div class="card good-ux">
         <div class="card-header">
-          <span class="good-icon"><i class="fa-solid fa-check"></i></span> With minDuration (600ms)
+          <span class="good-icon"><i class="fa-solid fa-check"></i></span> With
+          minDuration (600ms)
         </div>
         <div class="visual">
           <button class="mock-btn smooth" :class="smoothState">
@@ -77,9 +79,11 @@ onUnmounted(() => {
             <span v-else class="success-txt">Done!</span>
           </button>
         </div>
-        <div class="caption">FlowState prevents UI jitter by enforcing a minimum readable loading time.</div>
+        <div class="caption">
+          FlowState prevents UI jitter by enforcing a minimum readable loading
+          time.
+        </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -92,7 +96,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .comparison-grid {
@@ -112,7 +116,7 @@ onUnmounted(() => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
 }
@@ -131,8 +135,12 @@ onUnmounted(() => {
   border-bottom: 1px dashed var(--vp-c-divider);
 }
 
-.bad-icon { color: #ef4444; }
-.good-icon { color: #10b981; }
+.bad-icon {
+  color: #ef4444;
+}
+.good-icon {
+  color: #10b981;
+}
 
 .visual {
   flex: 1;
@@ -180,7 +188,7 @@ onUnmounted(() => {
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(0,0,0,0.1);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-top-color: currentColor;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
@@ -199,6 +207,8 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

@@ -12,8 +12,8 @@ The `useFlow` composable is the foundational block of `@asyncflowstate/vue`. It 
 ```ts
 function useFlow<Args extends any[], Data, Err extends Error = Error>(
   action: (...args: Args) => Promise<Data>,
-  options?: FlowOptions<Args, Data, Err>
-): UseFlowReturn<Args, Data, Err>
+  options?: FlowOptions<Args, Data, Err>,
+): UseFlowReturn<Args, Data, Err>;
 ```
 
 ## Returns (Vue Refs)
@@ -45,8 +45,8 @@ Automatically execute your flow when specified reactive sources (`ref` or `compu
 const isModalOpen = ref(false);
 
 useFlow(fetchDetails, {
-  triggerOn: [isModalOpen] // Automatically runs fetchDetails when modal opens
-})
+  triggerOn: [isModalOpen], // Automatically runs fetchDetails when modal opens
+});
 </script>
 ```
 

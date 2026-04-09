@@ -48,7 +48,7 @@ export default {
     app.component("MiddlewareAnimation", MiddlewareAnimation);
     app.component("DebuggerAnimation", DebuggerAnimation);
     app.component("RealWorldPattern", RealWorldPattern);
-    
+
     // Advanced features animations
     app.component("PurgatoryAnimation", PurgatoryAnimation);
     app.component("DLQAnimation", DLQAnimation);

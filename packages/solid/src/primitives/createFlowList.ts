@@ -1,5 +1,10 @@
 import { createSignal, createMemo, onCleanup } from "solid-js";
-import { Flow, type FlowAction, type FlowOptions, type FlowState } from "@asyncflowstate/core";
+import {
+  Flow,
+  type FlowAction,
+  type FlowOptions,
+  type FlowState,
+} from "@asyncflowstate/core";
 
 export function createFlowList<
   TData = any,
@@ -11,10 +16,14 @@ export function createFlowList<
 ) {
   const flows: Record<string, Flow<TData, TError, TArgs>> = {};
   const unsubs: Record<string, () => void> = {};
-  const [states, setStates] = createSignal<Record<string, FlowState<TData, TError>>>({});
+  const [states, setStates] = createSignal<
+    Record<string, FlowState<TData, TError>>
+  >({});
 
   const isAnyLoading = createMemo(() =>
-    (Object.values(states()) as FlowState<TData, TError>[]).some((s) => s.status === "loading"),
+    (Object.values(states()) as FlowState<TData, TError>[]).some(
+      (s) => s.status === "loading",
+    ),
   );
 
   function getFlow(id: string): Flow<TData, TError, TArgs> {
@@ -24,10 +33,16 @@ export function createFlowList<
     flows[id] = flow;
 
     unsubs[id] = flow.subscribe((state) => {
-      setStates((prev: Record<string, FlowState<TData, TError>>) => ({ ...prev, [id]: { ...state } }));
+      setStates((prev: Record<string, FlowState<TData, TError>>) => ({
+        ...prev,
+        [id]: { ...state },
+      }));
     });
 
-    setStates((prev: Record<string, FlowState<TData, TError>>) => ({ ...prev, [id]: { ...flow.state } }));
+    setStates((prev: Record<string, FlowState<TData, TError>>) => ({
+      ...prev,
+      [id]: { ...flow.state },
+    }));
     return flow;
   }
 
@@ -43,6 +58,11 @@ export function createFlowList<
     reset: (id: string) => flows[id]?.reset(),
     cancel: (id: string) => flows[id]?.cancel(),
     getStatus: (id: string): FlowState<TData, TError> =>
-      states()[id] || { status: "idle" as const, data: null, error: null, progress: 0 },
+      states()[id] || {
+        status: "idle" as const,
+        data: null,
+        error: null,
+        progress: 0,
+      },
   };
 }
