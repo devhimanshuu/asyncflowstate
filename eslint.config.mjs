@@ -13,6 +13,7 @@ export default [
       "**/coverage/**",
       "**/.next/**",
       "**/examples/**", // Ignore examples folder
+      "**/docs/.vitepress/cache/**", // Ignore VitePress cache
     ],
   },
   {
@@ -42,8 +43,6 @@ export default [
     },
     plugins: {
       "@typescript-eslint": typescript,
-      react,
-      "react-hooks": reactHooks,
     },
     rules: {
       // JavaScript/TypeScript Best Practices
@@ -69,12 +68,6 @@ export default [
         },
       ],
 
-      // React Best Practices
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
-
       // General Code Quality
       "no-console": "off", // Allow console in library code
       "no-debugger": "warn",
@@ -89,6 +82,24 @@ export default [
       "no-throw-literal": "error",
       "no-unused-vars": "off", // Use TypeScript version
       "no-undef": "off", // TypeScript handles this
+    },
+  },
+  {
+    files: [
+      "packages/react/**/*.{ts,tsx}",
+      "packages/next/**/*.{ts,tsx}",
+      "examples/react/**/*.{ts,tsx}",
+      "examples/next/**/*.{ts,tsx}",
+    ],
+    plugins: {
+      react,
+      "react-hooks": reactHooks,
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
   {

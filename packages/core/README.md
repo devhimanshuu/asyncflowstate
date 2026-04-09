@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/core</h1>
+  <h1>@asyncflowstate/core <span style="font-size: 14px; background: #10b98122; color: #10b981; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
   <p><b>Framework-agnostic async UI behavior orchestration engine.</b></p>
 
   <p>
@@ -199,6 +199,14 @@ const flow = new Flow(flakeyAPI, {
 });
 ```
 
+### <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+
+- **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
+- **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions before they commit.
+- **Worker Offloading:** Move heavy transformation logic to background threads with one line of config (`flow.worker()`).
+- **Deep-Diff Rollbacks:** Enterprise-grade optimistic UI that reverts state perfectly on failure.
+- **Cross-Tab Sync:** Synchronize async status and results across multiple browser tabs automatically.
+
 ### Declarative Chaining (Signals)
 
 Use signals to chain flows without manual `useEffect` or complex orchestration.
@@ -222,6 +230,15 @@ const cleanup = Flow.onEvent((event) => {
   );
 });
 ```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+
+- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
+- **Global Purgatory (Undo):** Native `v-undo` patterns and programmable delay.
+- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
+- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
+- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
+- **Cross-Tab Sync:** State consistency across the browser session.
 
 ## API Reference
 

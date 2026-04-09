@@ -311,5 +311,22 @@ export function mergeFlowOptions<
     merged.staleTime = localOptions.staleTime;
   }
 
+  // 2.0.0 Advanced Features
+  if (localOptions.purgatory !== undefined) {
+    merged.purgatory = localOptions.purgatory;
+  }
+
+  if (localOptions.ghost !== undefined) {
+    merged.ghost = localOptions.ghost;
+  }
+
+  if (localOptions.deadLetter !== undefined) {
+    merged.deadLetter = localOptions.deadLetter;
+  }
+
+  if ((localOptions as any).predictive !== undefined) {
+    (merged as any).predictive = (localOptions as any).predictive;
+  }
+
   return merged;
 }

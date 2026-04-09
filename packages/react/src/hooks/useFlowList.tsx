@@ -18,9 +18,9 @@ export function useFlowList<
   const globalConfig = useFlowContext();
   const flowsRef = useRef<Record<string, Flow<TData, TError, TArgs>>>({});
   const unsubscribersRef = useRef<Record<string, () => void>>({});
-  const [states, setStates] = useState<Record<string, FlowState<TData, TError>>>(
-    {},
-  );
+  const [states, setStates] = useState<
+    Record<string, FlowState<TData, TError>>
+  >({});
 
   const getMergedOptions = useCallback(
     () => mergeFlowOptions(globalConfig, options),
@@ -68,25 +68,19 @@ export function useFlowList<
     [getFlow],
   );
 
-  const reset = useCallback(
-    (id: string) => {
-      const flow = flowsRef.current[id];
-      if (flow) {
-        flow.reset();
-      }
-    },
-    [],
-  );
+  const reset = useCallback((id: string) => {
+    const flow = flowsRef.current[id];
+    if (flow) {
+      flow.reset();
+    }
+  }, []);
 
-  const cancel = useCallback(
-    (id: string) => {
-      const flow = flowsRef.current[id];
-      if (flow) {
-        flow.cancel();
-      }
-    },
-    [],
-  );
+  const cancel = useCallback((id: string) => {
+    const flow = flowsRef.current[id];
+    if (flow) {
+      flow.cancel();
+    }
+  }, []);
 
   const getStatus = useCallback(
     (id: string): FlowState<TData, TError> =>

@@ -17,6 +17,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -63,11 +64,13 @@ CX --> CF
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L1-L281)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L139)
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L1-L281)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L139)
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
@@ -81,11 +84,12 @@ The `useFlow` hook follows this signature pattern:
 ```typescript
 function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   action: FlowAction<TData, TArgs>,
-  options: ReactFlowOptions<TData, TError> = {}
-): FlowHookReturn<TData, TError>
+  options: ReactFlowOptions<TData, TError> = {},
+): FlowHookReturn<TData, TError>;
 ```
 
 Where:
+
 - `TData`: Generic type for successful action return data
 - `TError`: Generic type for error objects
 - `TArgs`: Tuple type for action arguments
@@ -97,7 +101,10 @@ Where:
 The React-specific options extend the core FlowOptions with accessibility features:
 
 ```typescript
-interface ReactFlowOptions<TData = any, TError = any> extends FlowOptions<TData, TError> {
+interface ReactFlowOptions<TData = any, TError = any> extends FlowOptions<
+  TData,
+  TError
+> {
   a11y?: A11yOptions<TData, TError>;
 }
 ```
@@ -105,6 +112,7 @@ interface ReactFlowOptions<TData = any, TError = any> extends FlowOptions<TData,
 Key accessibility features include automatic screen reader announcements and live region management.
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L80)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L58-L67)
 
@@ -137,17 +145,20 @@ Note over Hook,Flow : State synchronization and subscription management
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L97-L103)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L251-L253)
 - [flow.ts](file://packages/core/src/flow.ts#L425-L473)
 
 The architecture ensures that:
+
 1. Flow instances are created once per hook invocation
 2. React state stays synchronized with Flow state snapshots
 3. Subscription management prevents memory leaks
 4. Accessibility features are automatically handled
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L96-L115)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 
@@ -160,10 +171,13 @@ The architecture ensures that:
 The action function is the core asynchronous operation managed by the hook:
 
 ```typescript
-type FlowAction<TData, TArgs extends any[]> = (...args: TArgs) => Promise<TData>;
+type FlowAction<TData, TArgs extends any[]> = (
+  ...args: TArgs
+) => Promise<TData>;
 ```
 
 Key characteristics:
+
 - Must be a pure async function returning a Promise
 - Arguments are strongly typed via the `TArgs` generic
 - Can throw errors to trigger error state
@@ -174,17 +188,22 @@ Key characteristics:
 The options interface extends core FlowOptions with React-specific features:
 
 ```typescript
-interface ReactFlowOptions<TData = any, TError = any> extends FlowOptions<TData, TError> {
+interface ReactFlowOptions<TData = any, TError = any> extends FlowOptions<
+  TData,
+  TError
+> {
   a11y?: A11yOptions<TData, TError>;
 }
 ```
 
 Accessibility options include:
+
 - Automatic success/error announcements for screen readers
 - Configurable live region behavior (polite vs assertive)
 - Dynamic message generation based on data or error
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L80)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L58-L67)
 
@@ -233,6 +252,7 @@ FlowHookReturn --> FormHelperOptions : "returns"
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L255-L279)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L15-L36)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L41-L44)
@@ -267,6 +287,7 @@ The hook provides both individual state properties and a complete state snapshot
 - `LiveRegion`: Accessible announcement component
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L255-L279)
 
 ### Generic Type Parameters
@@ -276,8 +297,8 @@ The hook supports three generic type parameters for strong typing:
 ```typescript
 function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   action: FlowAction<TData, TArgs>,
-  options: ReactFlowOptions<TData, TError>
-)
+  options: ReactFlowOptions<TData, TError>,
+);
 ```
 
 Practical examples:
@@ -289,6 +310,7 @@ Practical examples:
 The `TArgs` parameter enables compile-time validation of argument passing to the action function.
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L79)
 
 ### Internal Behavior
@@ -299,14 +321,16 @@ The hook creates a Flow instance once using React's `useState` with a factory fu
 
 ```typescript
 const [flow] = useState(
-  () => new Flow<TData, TError, TArgs>(
-    (...args: TArgs) => actionRef.current(...args),
-    initialMergedOptions.current,
-  )
+  () =>
+    new Flow<TData, TError, TArgs>(
+      (...args: TArgs) => actionRef.current(...args),
+      initialMergedOptions.current,
+    ),
 );
 ```
 
 This ensures:
+
 - Single Flow instance per hook invocation
 - Proper closure capture of the action function
 - Consistent behavior across renders
@@ -326,6 +350,7 @@ useEffect(() => {
 ```
 
 This pattern ensures:
+
 - Immediate UI updates when Flow state changes
 - Automatic cleanup of subscriptions
 - Consistent state representation
@@ -343,6 +368,7 @@ useEffect(() => {
 The returned unsubscribe function is called when the component unmounts.
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L97-L103)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L105-L115)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L251-L253)
@@ -373,12 +399,14 @@ const button = useCallback(
 ```
 
 Features:
+
 - Automatically disables during loading
 - Sets `aria-busy` attribute for accessibility
 - Supports custom click handlers
 - Executes flow when no custom handler provided
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L174-L194)
 
 ### Form Helper
@@ -387,23 +415,32 @@ The form helper provides comprehensive form handling:
 
 ```typescript
 const form = useCallback(
-  (formProps: FormHelperOptions<TArgs> & React.FormHTMLAttributes<HTMLFormElement>) => {
-    const { onSubmit, extractFormData = false, validate, resetOnSuccess = false, ...rest } = formProps;
-    
+  (
+    formProps: FormHelperOptions<TArgs> &
+      React.FormHTMLAttributes<HTMLFormElement>,
+  ) => {
+    const {
+      onSubmit,
+      extractFormData = false,
+      validate,
+      resetOnSuccess = false,
+      ...rest
+    } = formProps;
+
     return {
       "aria-busy": flow.isLoading,
       onSubmit: async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFieldErrors({});
-        
+
         let args = [] as unknown as TArgs;
-        
+
         if (extractFormData) {
           const formData = new FormData(e.currentTarget);
           const data = Object.fromEntries(formData.entries());
           args = [data] as unknown as TArgs;
         }
-        
+
         if (validate) {
           const errors = await validate(...args);
           if (errors && Object.keys(errors).length > 0) {
@@ -411,7 +448,7 @@ const form = useCallback(
             return;
           }
         }
-        
+
         if (onSubmit) {
           onSubmit(e);
         } else {
@@ -429,6 +466,7 @@ const form = useCallback(
 ```
 
 Key features:
+
 - Automatic form data extraction using FormData
 - Field-level validation support
 - Error display management
@@ -436,6 +474,7 @@ Key features:
 - Custom submit handler support
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L200-L249)
 
 ### Accessibility Implementation
@@ -482,12 +521,14 @@ useEffect(() => {
 ```
 
 Accessibility features:
+
 - Automatic screen reader announcements for success and error states
 - Configurable live region behavior (polite vs assertive)
 - Dynamic message generation based on data or error
 - Auto-focus management for error elements
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L147-L168)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L127-L141)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L117-L124)
@@ -526,16 +567,19 @@ HELPERS --> FLOW
 ```
 
 **Diagram sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L1-L10)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L66)
 
 The dependency analysis reveals:
+
 - **Low coupling**: Minimal external dependencies
 - **Clear boundaries**: React-specific code separated from core logic
 - **Type safety**: Full TypeScript integration maintained
 - **Extensibility**: Easy to extend with additional helpers
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L1-L10)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L66)
 
@@ -576,6 +620,7 @@ const LiveRegion = useCallback(/* implementation */, [announcement, options.a11y
 4. **Consider Provider Configuration**: Use FlowProvider for global configuration to reduce prop drilling
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L84-L91)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L174-L194)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L200-L249)
@@ -586,18 +631,22 @@ const LiveRegion = useCallback(/* implementation */, [announcement, options.a11y
 ### Common Issues and Solutions
 
 #### Issue: Flow Not Updating State
+
 **Symptoms**: UI not reflecting loading or success states
 **Solution**: Ensure proper subscription management and check that the component is re-rendering when state changes
 
 #### Issue: Memory Leaks with Long-lived Components
+
 **Symptoms**: Performance degradation over time
 **Solution**: Verify that the component properly cleans up subscriptions and that Flow instances are not being recreated unnecessarily
 
 #### Issue: Button Helper Not Working
+
 **Symptoms**: Buttons not disabling during loading
 **Solution**: Check that the button helper is being called correctly and that the flow instance is properly initialized
 
 #### Issue: Form Validation Not Working
+
 **Symptoms**: Validation errors not displayed or action still executing despite validation failures
 **Solution**: Ensure the validate function returns proper error objects and that the form helper is configured correctly
 
@@ -609,6 +658,7 @@ const LiveRegion = useCallback(/* implementation */, [announcement, options.a11y
 4. **Test Edge Cases**: Verify behavior with rapid successive calls and cancellation
 
 **Section sources**
+
 - [useFlow.test.tsx](file://packages/react/src/useFlow.test.tsx#L14-L46)
 - [useFlow.test.tsx](file://packages/react/src/useFlow.test.tsx#L48-L66)
 - [useFlow.test.tsx](file://packages/react/src/useFlow.test.tsx#L68-L96)

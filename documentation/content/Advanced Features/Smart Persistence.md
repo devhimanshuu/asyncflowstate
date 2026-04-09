@@ -14,11 +14,11 @@ Consider these common scenarios:
 
 Smart Persistence automatically serializes flow state to browser storage and restores it on page reload, including:
 
-- ✅ **Success data** - Cached results available immediately
-- ✅ **Loading states** - Resume interrupted operations
-- ✅ **Progress tracking** - Continue from where you left off
-- ✅ **Error states** - Retry failed operations
-- ✅ **Execution arguments** - Resume with original parameters
+- <i class="fa-solid fa-check text-emerald-500"></i> **Success data** - Cached results available immediately
+- <i class="fa-solid fa-check text-emerald-500"></i> **Loading states** - Resume interrupted operations
+- <i class="fa-solid fa-check text-emerald-500"></i> **Progress tracking** - Continue from where you left off
+- <i class="fa-solid fa-check text-emerald-500"></i> **Error states** - Retry failed operations
+- <i class="fa-solid fa-check text-emerald-500"></i> **Execution arguments** - Resume with original parameters
 
 ---
 
@@ -236,12 +236,12 @@ await flow.resume(newFile);
 ### 1. Use Unique Keys
 
 ```ts
-// ❌ Bad: Generic key
+// <i class="fa-solid fa-xmark text-red-500"></i> Bad: Generic key
 persist: {
   key: "upload";
 }
 
-// ✅ Good: Specific key with ID
+// <i class="fa-solid fa-check text-emerald-500"></i> Good: Specific key with ID
 persist: {
   key: `upload-${fileId}`;
 }

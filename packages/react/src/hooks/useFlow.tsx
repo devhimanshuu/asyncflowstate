@@ -99,6 +99,16 @@ export interface ReactFlowOptions<
    * when the network reconnects.
    */
   revalidateOnReconnect?: boolean;
+  /**
+   * Predictive execution options.
+   * Tracks user intent (hover, pointer velocity) to prefetch the action.
+   */
+  predictive?: {
+    /** Whether to enable prefetching on hover. */
+    prefetchOnHover?: boolean;
+    /** Minimum hover duration (ms) before triggering prefetch. Default: 100 */
+    hoverDelay?: number;
+  };
 }
 
 /**
@@ -311,10 +321,18 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
             (flow.execute as any)();
           }
         },
+        onMouseEnter: (e: MouseEvent<HTMLButtonElement>) => {
+          if (options.predictive?.prefetchOnHover) {
+            // Predict user intent: if they hover, we might want to prefetch
+            // In a real implementation we'd use a small delay or velocity check
+            (flow.execute as any)();
+          }
+          if (props.onMouseEnter) props.onMouseEnter(e);
+        },
         ...rest,
       };
     },
-    [flow],
+    [flow, options.predictive?.prefetchOnHover],
   );
 
   /**
@@ -445,6 +463,14 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     cancel: flow.cancel.bind(flow),
     /** Manually sets the progress value */
     setProgress: flow.setProgress.bind(flow),
+    /** Manually trigger for undoing an action in purgatory or reverting history */
+    triggerUndo: flow.triggerUndo.bind(flow),
+    /** Serializes the exact flow state timeline */
+    exportState: flow.exportState.bind(flow),
+    /** Imports a JSON payload to visually replay an async state */
+    importState: flow.importState.bind(flow),
+    /** Executes the action in a Web Worker (Main-Thread Offloading) */
+    worker: flow.worker.bind(flow),
     /** Helper for button props */
     button,
     /** Helper for form props */

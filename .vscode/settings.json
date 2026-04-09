@@ -24,5 +24,16 @@
     "**/coverage": true,
     "**/.turbo": true,
     "**/.next": true
-  }
+  },
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "css.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class=\"([^\"]*)\"", "([a-zA-Z0-9\\-:!/]+)"],
+    ["className=\"([^\"]*)\"", "([a-zA-Z0-9\\-:!/]+)"]
+  ]
 }

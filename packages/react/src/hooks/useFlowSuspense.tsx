@@ -11,32 +11,32 @@ import { useFlow, type ReactFlowOptions } from "./useFlow";
  * @param options Configuration for the flow.
  */
 export function useFlowSuspense<
-    TData = any,
-    TError = any,
-    TArgs extends any[] = any[],
+  TData = any,
+  TError = any,
+  TArgs extends any[] = any[],
 >(
-    action: FlowAction<TData, TArgs>,
-    options: ReactFlowOptions<TData, TError, TArgs> = {},
+  action: FlowAction<TData, TArgs>,
+  options: ReactFlowOptions<TData, TError, TArgs> = {},
 ) {
-    const flowState = useFlow(action, options);
-    const { flow, status, error, loading } = flowState;
+  const flowState = useFlow(action, options);
+  const { flow, status, error, loading } = flowState;
 
-    // 1. Handle Error Boundary
-    if (status === "error" && error) {
-        throw error;
-    }
+  // 1. Handle Error Boundary
+  if (status === "error" && error) {
+    throw error;
+  }
 
-    // 2. Handle Suspense
-    if (loading) {
-        throw new Promise<void>((resolve) => {
-            const unsubscribe = flow.subscribe((state) => {
-                if (state.status !== "loading") {
-                    unsubscribe();
-                    resolve();
-                }
-            });
-        });
-    }
+  // 2. Handle Suspense
+  if (loading) {
+    throw new Promise<void>((resolve) => {
+      const unsubscribe = flow.subscribe((state) => {
+        if (state.status !== "loading") {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+  }
 
-    return flowState;
+  return flowState;
 }

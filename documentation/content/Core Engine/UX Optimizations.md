@@ -16,6 +16,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -28,7 +29,9 @@
 10. [Appendices](#appendices)
 
 ## Introduction
+
 This document focuses on user experience (UX) optimization features provided by the AsyncFlowState library. It explains how to configure and use:
+
 - LoadingOptions for minimum loading time and delay to prevent UI flashes
 - OptimisticResult for instant success feedback with automatic rollback on errors
 - Progress tracking mechanisms
@@ -38,7 +41,9 @@ This document focuses on user experience (UX) optimization features provided by 
 It also includes practical examples, best practices, and guidance for smooth user interactions.
 
 ## Project Structure
+
 The UX optimization features are implemented in the core engine and exposed through React helpers and providers. The key areas are:
+
 - Core Flow engine with LoadingOptions, optimistic updates, and progress tracking
 - React useFlow hook that surfaces UX controls and accessibility helpers
 - FlowProvider for global configuration and merging local/global options
@@ -69,6 +74,7 @@ CE --> F
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L207-L783)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L1-L177)
@@ -79,11 +85,13 @@ CE --> F
 - [core-examples.ts](file://examples/basic/core-examples.ts#L1-L221)
 
 **Section sources**
+
 - [README.md](file://README.md#L1-L224)
 - [packages/core/README.md](file://packages/core/README.md#L1-L134)
 - [packages/react/README.md](file://packages/react/README.md#L1-L212)
 
 ## Core Components
+
 This section documents the UX-related configuration and behavior in the Flow engine and React helpers.
 
 - LoadingOptions
@@ -103,6 +111,7 @@ This section documents the UX-related configuration and behavior in the Flow eng
   - waitMinDuration enforces minimum duration after success or error.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L88-L160)
 - [flow.ts](file://packages/core/src/flow.ts#L319-L341)
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
@@ -112,6 +121,7 @@ This section documents the UX-related configuration and behavior in the Flow eng
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L259-L260)
 
 ## Architecture Overview
+
 The UX optimization pipeline integrates core Flow logic with React helpers and global configuration.
 
 ```mermaid
@@ -143,6 +153,7 @@ Hook-->>UI : "render with updated state"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L436-L531)
 - [flow.ts](file://packages/core/src/flow.ts#L540-L607)
 - [flow.ts](file://packages/core/src/flow.ts#L714-L730)
@@ -151,6 +162,7 @@ Hook-->>UI : "render with updated state"
 ## Detailed Component Analysis
 
 ### LoadingOptions: minDuration and delay
+
 - Purpose
   - minDuration ensures the loading indicator remains visible for a minimum time, preventing the UI from flashing when operations complete quickly.
   - delay prevents the loading state from appearing for very fast operations, avoiding unnecessary spinner flicker.
@@ -167,6 +179,7 @@ Hook-->>UI : "render with updated state"
   - Typical values: delay around 150–200 ms and minDuration around 300–500 ms for smoother UX.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L88-L94)
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
 - [flow.ts](file://packages/core/src/flow.ts#L720-L730)
@@ -176,6 +189,7 @@ Hook-->>UI : "render with updated state"
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L165-L168)
 
 ### OptimisticResult: instant feedback with automatic rollback
+
 - Purpose
   - Provide immediate UI feedback upon user action, improving perceived responsiveness.
   - Automatically revert optimistic changes on error when rollbackOnError is enabled.
@@ -193,6 +207,7 @@ Hook-->>UI : "render with updated state"
   - Ideal for actions like toggling likes, updating counters, or partial profile edits.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L481-L511)
 - [flow.ts](file://packages/core/src/flow.ts#L577-L596)
 - [flow.ts](file://packages/core/src/flow.ts#L239-L241)
@@ -202,6 +217,7 @@ Hook-->>UI : "render with updated state"
 - [core-examples.ts](file://examples/basic/core-examples.ts#L88-L94)
 
 ### Progress Tracking Mechanisms
+
 - Built-in progress
   - Flow exposes a numeric progress property (0–100) and a setter that only applies while loading.
   - Progress values are clamped to the allowed range.
@@ -211,11 +227,13 @@ Hook-->>UI : "render with updated state"
   - Combine with minDuration to ensure users see meaningful progress for a minimum time.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L319-L341)
 - [flow.ts](file://packages/core/src/flow.ts#L335-L341)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L307-L373)
 
 ### Loading Delay Prevention and Minimum Duration Enforcement
+
 - Delay prevention
   - When delay is configured, the engine starts a timer before transitioning to loading. During this period, isLoading remains false to avoid UI flicker.
 
@@ -227,11 +245,13 @@ Hook-->>UI : "render with updated state"
   - minDuration ensures users see loading states long enough to feel responsive, even if the actual operation was quick.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
 - [flow.ts](file://packages/core/src/flow.ts#L720-L730)
 - [flow.ts](file://packages/core/src/flow.ts#L305-L307)
 
 ### Relationship Between UX Timing, User Perception, and Actual Operation Duration
+
 - User perception
   - Users prefer consistent, predictable feedback. Too frequent loading flashes reduce trust; too short loading times can feel unresponsive.
   - delay and minDuration balance these concerns.
@@ -246,10 +266,12 @@ Hook-->>UI : "render with updated state"
   - Combine with progress for long-running tasks.
 
 **Section sources**
+
 - [packages/core/README.md](file://packages/core/README.md#L51-L65)
 - [packages/react/README.md](file://packages/react/README.md#L150-L163)
 
 ### Examples of UX Configuration, Progress Monitoring, and Best Practices
+
 - Global UX polish via FlowProvider
   - Configure minDuration and delay globally for consistent UX across the app.
   - Override per flow when needed for special cases.
@@ -268,12 +290,14 @@ Hook-->>UI : "render with updated state"
   - Use FlowProvider for global defaults and local overrides for exceptions.
 
 **Section sources**
+
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L161-L178)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L434-L436)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L307-L373)
 - [core-examples.ts](file://examples/basic/core-examples.ts#L88-L94)
 
 ## Dependency Analysis
+
 The UX features depend on core Flow state management, timers, and React helpers.
 
 ```mermaid
@@ -286,6 +310,7 @@ F --> CE["core-examples.ts<br/>core usage"]
 ```
 
 **Diagram sources**
+
 - [constants.ts](file://packages/core/src/constants.ts#L22-L27)
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
 - [flow.ts](file://packages/core/src/flow.ts#L88-L94)
@@ -295,12 +320,14 @@ F --> CE["core-examples.ts<br/>core usage"]
 - [core-examples.ts](file://examples/basic/core-examples.ts#L88-L94)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L88-L94)
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L109-L115)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L259-L260)
 
 ## Performance Considerations
+
 - Timers and state updates
   - Delay and minDuration rely on setTimeout; ensure values are reasonable to avoid excessive timer overhead.
 - Optimistic updates
@@ -311,6 +338,7 @@ F --> CE["core-examples.ts<br/>core usage"]
 [No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
+
 - UI flickers or shows spinners for fast actions
   - Increase delay to hide spinners for sub-200 ms operations.
   - Verify isLoading respects delay; it returns false during the delay period.
@@ -328,12 +356,14 @@ F --> CE["core-examples.ts<br/>core usage"]
   - Ensure progress values are within 0–100.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L305-L307)
 - [flow.ts](file://packages/core/src/flow.ts#L335-L341)
 - [flow.ts](file://packages/core/src/flow.ts#L577-L596)
 - [flow.ts](file://packages/core/src/flow.ts#L519-L528)
 
 ## Conclusion
+
 AsyncFlowState’s UX optimization features—LoadingOptions (minDuration and delay), optimisticResult with automatic rollback, and progress tracking—provide a robust foundation for smooth, predictable user interactions. By combining global defaults via FlowProvider with targeted local configurations, teams can achieve consistent, polished UX across diverse async actions while maintaining simplicity and reliability.
 
 [No sources needed since this section summarizes without analyzing specific files]
@@ -341,6 +371,7 @@ AsyncFlowState’s UX optimization features—LoadingOptions (minDuration and de
 ## Appendices
 
 ### API and Type Definitions
+
 - LoadingOptions
   - minDuration: number
   - delay: number
@@ -350,11 +381,13 @@ AsyncFlowState’s UX optimization features—LoadingOptions (minDuration and de
   - rollbackOnError?: boolean
 
 **Section sources**
+
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L49-L79)
 - [flow.ts](file://packages/core/src/flow.ts#L88-L94)
 - [flow.ts](file://packages/core/src/flow.ts#L149-L159)
 
 ### Example References
+
 - Global UX polish with FlowProvider
   - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L161-L178)
 - Local UX configuration

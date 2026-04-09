@@ -13,7 +13,11 @@
     "paths": {
       "@asyncflowstate/core": ["./packages/core/src"],
       "@asyncflowstate/react": ["./packages/react/src"],
-      "@asyncflowstate/next": ["./packages/next/src"]
+      "@asyncflowstate/next": ["./packages/next/src"],
+      "@asyncflowstate/vue": ["./packages/vue/src"],
+      "@asyncflowstate/svelte": ["./packages/svelte/src"],
+      "@asyncflowstate/angular": ["./packages/angular/src"],
+      "@asyncflowstate/solid": ["./packages/solid/src"]
     }
   }
 }

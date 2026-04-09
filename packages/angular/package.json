@@ -1,0 +1,72 @@
+{
+  "name": "@asyncflowstate/angular",
+  "version": "2.0.0",
+  "private": false,
+  "description": "Official Angular bindings for AsyncFlowState. Signal-based services (injectFlow, FlowService) for managing async loading, error, and success states with Angular 17+ signals.",
+  "keywords": [
+    "angular",
+    "angular17",
+    "signals",
+    "services",
+    "async",
+    "state",
+    "loading",
+    "error-handling",
+    "ux",
+    "typescript",
+    "data-fetching",
+    "state-management",
+    "rxjs"
+  ],
+  "author": "AsyncFlowState Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devhimanshuu/asyncflowstate.git",
+    "directory": "packages/angular"
+  },
+  "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
+  "homepage": "https://github.com/devhimanshuu/asyncflowstate#readme",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@angular/core": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "rxjs": "^7.8.0"
+  },
+  "dependencies": {
+    "@asyncflowstate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@angular/core": "^19.2.5",
+    "rxjs": "^7.8.2",
+    "zone.js": "^0.15.0"
+  }
+}

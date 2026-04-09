@@ -6,7 +6,9 @@ import {
   type Flow,
 } from "@asyncflowstate/core";
 
-type ParallelInput = Flow<any, any, any>[] | Record<string, Flow<any, any, any>>;
+type ParallelInput =
+  | Flow<any, any, any>[]
+  | Record<string, Flow<any, any, any>>;
 
 function isSameParallelInput(a: ParallelInput, b: ParallelInput): boolean {
   if (Array.isArray(a) && Array.isArray(b)) {
@@ -28,7 +30,9 @@ export function useFlowParallel(
   input: ParallelInput,
   strategy: ParallelStrategy = "all",
 ) {
-  const [parallel, setParallel] = useState(() => new FlowParallel(input, strategy));
+  const [parallel, setParallel] = useState(
+    () => new FlowParallel(input, strategy),
+  );
   const [state, setState] = useState<ParallelState>(() => parallel.state);
   const previousInputRef = useRef<ParallelInput>(input);
   const previousStrategyRef = useRef<ParallelStrategy>(strategy);

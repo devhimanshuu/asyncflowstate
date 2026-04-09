@@ -14,6 +14,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -25,10 +26,13 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
+
 This document provides a comprehensive API reference for the AsyncFlowState Core package. It focuses on the Flow class and its surrounding types, detailing constructor parameters, methods, generics, and the observer pattern implementation. It also documents FlowError handling utilities and provides usage examples derived from the repository’s test suite and examples.
 
 ## Project Structure
+
 The Core package exposes the Flow class and related types via a single export surface. The implementation is split across several modules:
+
 - Flow class and types: flow.ts and flow.d.ts
 - Constants for defaults: constants.ts
 - Error utilities: error-utils.ts
@@ -51,6 +55,7 @@ IDX --> ERR
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L1-L177)
 - [constants.ts](file://packages/core/src/constants.ts#L1-L51)
@@ -58,6 +63,7 @@ IDX --> ERR
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 
 **Section sources**
+
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L1-L177)
@@ -65,6 +71,7 @@ IDX --> ERR
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L207)
 
 ## Core Components
+
 This section documents the Flow class and its associated types and enums.
 
 - Flow class: Orchestrates asynchronous actions, manages state transitions, and notifies observers.
@@ -80,17 +87,21 @@ This section documents the Flow class and its associated types and enums.
 - Error utilities: Functions to create and handle FlowError instances.
 
 Key generics:
+
 - TData: Type of data returned on success.
 - TError: Type of error object on failure.
 - TArgs: Tuple type of arguments passed to the action.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L16-L127)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L8-L79)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L1-L207)
 
 ## Architecture Overview
+
 The Flow class implements an observer pattern to notify subscribers of state changes. It manages:
+
 - State transitions: idle → loading → success/error
 - Retry logic with configurable backoff
 - Concurrency control (keep/restart/enqueue)
@@ -174,6 +185,7 @@ FlowError --> FlowErrorType : "categorized by"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L16-L127)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L8-L79)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L35-L53)
@@ -181,6 +193,7 @@ FlowError --> FlowErrorType : "categorized by"
 ## Detailed Component Analysis
 
 ### Flow Class
+
 The Flow class is the core engine for orchestrating asynchronous actions and their UI states. It manages loading, success/error data, retries, concurrency, and optimistic updates.
 
 - Constructor parameters:
@@ -249,6 +262,7 @@ The Flow class is the core engine for orchestrating asynchronous actions and the
 Example usage patterns are demonstrated in the repository’s examples and tests.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L177)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L50)
@@ -256,29 +270,37 @@ Example usage patterns are demonstrated in the repository’s examples and tests
 - [core-examples.ts](file://examples/basic/core-examples.ts#L1-L221)
 
 ### FlowStatus
+
 Enumeration of possible states:
+
 - "idle": Initial state or after reset.
 - "loading": Action is currently executing.
 - "success": Action completed successfully.
 - "error": Action failed after all retry attempts.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L16-L16)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L8-L8)
 
 ### FlowState
+
 Generic interface representing the current state:
+
 - status: FlowStatus
 - data: TData | null
 - error: TError | null
 - progress?: number
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L21-L30)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L12-L21)
 
 ### FlowOptions
+
 Configuration options for a Flow instance:
+
 - onSuccess?: (data: TData) => void
 - onError?: (error: TError) => void
 - retry?: RetryOptions
@@ -290,42 +312,51 @@ Configuration options for a Flow instance:
 - optimisticResult?: TData
 
 Notes:
+
 - concurrency includes "enqueue" internally for queuing tasks.
 - debounce/throttle are supported in execute().
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L99-L127)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L60-L79)
 
 ### RetryOptions
+
 - maxAttempts?: number (default: DEFAULT_RETRY.MAX_ATTEMPTS)
 - delay?: number (default: DEFAULT_RETRY.DELAY)
 - backoff?: "fixed" | "linear" | "exponential"
 - shouldRetry?: (error: any, attempt: number) => boolean | Promise<boolean>
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L65-L74)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L31-L38)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L17)
 
 ### AutoResetOptions
+
 - enabled?: boolean (default: true if delay is provided)
 - delay?: number
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L79-L84)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L42-L47)
 
 ### LoadingOptions
+
 - minDuration?: number (default: DEFAULT_LOADING.MIN_DURATION)
 - delay?: number (default: DEFAULT_LOADING.DELAY)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L89-L94)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L51-L56)
 - [constants.ts](file://packages/core/src/constants.ts#L22-L27)
 
 ### FlowErrorType
+
 - NETWORK
 - TIMEOUT
 - VALIDATION
@@ -334,31 +365,40 @@ Notes:
 - UNKNOWN
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L35-L42)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L2-L7)
 
 ### FlowError
+
 Enhanced error object with metadata:
+
 - type: FlowErrorType
 - message: string
 - originalError: TError
 - isRetryable: boolean
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L47-L53)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L23-L27)
 
 ### FlowAction
+
 Type alias for asynchronous actions:
+
 - (...)
 - (...args: TArgs) => Promise<TData>
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L58-L60)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L25-L27)
 
 ### Error Utilities
+
 Utility functions for FlowError:
+
 - createFlowError(error, options?): Creates a FlowError with automatic type detection and default message.
 - detectErrorType(error): Detects FlowErrorType from common patterns.
 - isErrorRetryable(errorType): Determines if an error type is typically retryable.
@@ -366,6 +406,7 @@ Utility functions for FlowError:
 - isFlowError(error): Type guard to check if an error is a FlowError.
 
 **Section sources**
+
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L206)
 
 ## Architecture Overview
@@ -402,6 +443,7 @@ end
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L400-L533)
 - [flow.ts](file://packages/core/src/flow.ts#L596-L638)
 - [flow.ts](file://packages/core/src/flow.ts#L646-L668)
@@ -445,6 +487,7 @@ end
   - Resets state to initial idle.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L220-L241)
 - [flow.ts](file://packages/core/src/flow.ts#L246-L286)
 - [flow.ts](file://packages/core/src/flow.ts#L299-L305)
@@ -477,10 +520,12 @@ end
   - See [flow.test.ts](file://packages/core/src/flow.test.ts#L1-L363).
 
 **Section sources**
+
 - [core-examples.ts](file://examples/basic/core-examples.ts#L1-L221)
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L1-L363)
 
 ### Observer Pattern Implementation
+
 - Subscription management:
   - Maintains a Set of listeners.
   - subscribe(listener) adds and returns an unsubscribe function.
@@ -494,11 +539,13 @@ end
   - isLoading respects loading.delay; during delay, isLoading is false even though status is "loading".
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 - [flow.ts](file://packages/core/src/flow.ts#L672-L679)
 - [flow.ts](file://packages/core/src/flow.ts#L269-L271)
 
 ### Error Handling and FlowError
+
 - Error categorization:
   - detectErrorType(error) automatically detects FlowErrorType.
   - isErrorRetryable(errorType) determines retryability.
@@ -514,6 +561,7 @@ end
   - Retry logic can be customized via shouldRetry.
 
 **Section sources**
+
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L53-L143)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L39)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L192-L206)
@@ -534,14 +582,17 @@ IDX --> ERR
 - index.ts re-exports Flow, constants, and error utilities.
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L1-L7)
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 
 ## Performance Considerations
+
 - Debounce and throttle reduce redundant executions for rapid user interactions.
 - MinDuration prevents UI flicker for fast operations.
 - Backoff strategies (fixed/linear/exponential) balance retry aggressiveness with resource usage.
@@ -551,6 +602,7 @@ IDX --> ERR
 [No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
+
 - State remains "loading" indefinitely:
   - Check loading.delay and minDuration configurations.
   - Ensure the action resolves or rejects; verify AbortController usage.
@@ -571,10 +623,12 @@ IDX --> ERR
   - setProgress only affects loading state; ensure action is running and progress is set during execution.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L658-L668)
 - [flow.ts](file://packages/core/src/flow.ts#L462-L470)
 - [flow.ts](file://packages/core/src/flow.ts#L299-L305)
 - [flow.ts](file://packages/core/src/flow.ts#L325-L332)
 
 ## Conclusion
+
 The AsyncFlowState Core package provides a robust, framework-agnostic mechanism for managing asynchronous UI flows. Its Flow class centralizes state transitions, retry logic, concurrency control, and UX polish, while the observer pattern ensures decoupled state observation. The included error utilities and examples demonstrate practical usage across common scenarios.

@@ -1,0 +1,69 @@
+{
+  "name": "@asyncflowstate/vue",
+  "version": "2.0.0",
+  "private": false,
+  "description": "Official Vue 3 bindings for AsyncFlowState. Composables (useFlow, useFlowSequence, useFlowParallel) for managing async loading, error, and success states effortlessly.",
+  "keywords": [
+    "vue",
+    "vue3",
+    "composition-api",
+    "composables",
+    "async",
+    "state",
+    "loading",
+    "error-handling",
+    "ux",
+    "useFlow",
+    "typescript",
+    "data-fetching",
+    "state-management"
+  ],
+  "author": "AsyncFlowState Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devhimanshuu/asyncflowstate.git",
+    "directory": "packages/vue"
+  },
+  "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
+  "homepage": "https://github.com/devhimanshuu/asyncflowstate#readme",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "dependencies": {
+    "@asyncflowstate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "vue": "^3.5.13"
+  }
+}

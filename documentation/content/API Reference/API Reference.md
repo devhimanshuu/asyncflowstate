@@ -20,6 +20,7 @@
 </cite>
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
@@ -32,10 +33,13 @@
 10. [Appendices](#appendices)
 
 ## Introduction
+
 This document provides a comprehensive API reference for AsyncFlowState, focusing on the Flow class and React integration. It covers the Flow class constructor, methods, properties, generics, and return types; the useFlow hook parameters, return value types, and helper functions; and FlowProvider configuration options and context behavior. It also documents error handling interfaces, state type definitions, and configuration option schemas, with usage guidance and examples.
 
 ## Project Structure
+
 AsyncFlowState is organized into two packages:
+
 - Core package (@asyncflowstate/core): Provides the Flow class and related types, constants, and error utilities.
 - React package (@asyncflowstate/react): Provides React hooks and helpers built on top of the core Flow engine.
 
@@ -63,6 +67,7 @@ FLOWPROVIDER --> FLOW_TS
 ```
 
 **Diagram sources**
+
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
 - [flow.ts](file://packages/core/src/flow.ts#L1-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L1-L177)
@@ -73,10 +78,12 @@ FLOWPROVIDER --> FLOW_TS
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L139)
 
 **Section sources**
+
 - [package.json (core)](file://packages/core/package.json#L1-L55)
 - [package.json (react)](file://packages/react/package.json#L1-L67)
 
 ## Core Components
+
 This section documents the core Flow class and supporting types.
 
 - Flow class
@@ -125,12 +132,14 @@ This section documents the core Flow class and supporting types.
     - Utility functions: createFlowError, detectErrorType, isErrorRetryable, getErrorMessage, isFlowError.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L177)
 - [constants.ts](file://packages/core/src/constants.ts#L10-L51)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L207)
 
 ## Architecture Overview
+
 The Flow engine is framework-agnostic and powers React integration via useFlow. FlowProvider supplies global defaults that useFlow merges with local options.
 
 ```mermaid
@@ -190,12 +199,14 @@ FlowOptions --> LoadingOptions : "contains"
 ```
 
 **Diagram sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L174-L709)
 - [flow.d.ts](file://packages/core/src/flow.d.ts#L84-L177)
 
 ## Detailed Component Analysis
 
 ### Flow Class API
+
 - Constructor
   - Parameters:
     - action: FlowAction<TData, TArgs>
@@ -237,17 +248,20 @@ FlowOptions --> LoadingOptions : "contains"
   - finalizeLoading(), clearTimer(key), clearAllTimers(): Lifecycle cleanup.
 
 Usage examples (descriptive):
+
 - Basic usage: Instantiate Flow with an async action and subscribe to state changes; call execute with arguments.
 - Retry configuration: Configure maxAttempts, delay, and backoff; optionally provide shouldRetry predicate.
 - Optimistic UI: Provide optimisticResult to immediately reflect UI updates; real data replaces optimistic data upon success.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L220-L709)
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L1-L363)
 
 ### Flow Provider and useFlow Hook
 
 #### FlowProvider
+
 - Props
   - config?: FlowProviderConfig<TData, TError>
     - overrideMode?: "merge" | "replace"
@@ -260,15 +274,18 @@ Usage examples (descriptive):
   - useFlowContext(): Access global config or null.
 
 Key behaviors validated by tests:
+
 - Merging nested options (retry, autoReset, loading) while preserving precedence.
 - Override mode behavior when local options are provided.
 - Nested providers with different configurations.
 
 **Section sources**
+
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L139)
 - [FlowProvider.test.tsx](file://packages/react/src/FlowProvider.test.tsx#L1-L184)
 
 #### useFlow Hook
+
 - Parameters
   - action: FlowAction<TData, TArgs>
   - options: ReactFlowOptions<TData, TError> = {}
@@ -289,18 +306,21 @@ Key behaviors validated by tests:
   - Synchronizes options with Flow.setOptions on changes.
 
 Usage examples (descriptive):
+
 - Login form: Use execute with credentials; display status and error; use button() helper for submit.
 - Optimistic UI: Provide optimisticResult for immediate UI feedback; real data replaces optimistic data on success.
 - Form with validation: Use form() helper with extractFormData and validate; display fieldErrors; reset on success.
 - Accessibility: Provide announceSuccess/announceError; include LiveRegion in the tree.
 
 **Section sources**
+
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 - [useFlow.test.tsx](file://packages/react/src/useFlow.test.tsx#L1-L142)
 - [react-examples.tsx](file://examples/react/react-examples.tsx#L1-L491)
 - [flow-provider-examples.tsx](file://examples/react/flow-provider-examples.tsx#L1-L368)
 
 ### Error Handling Interfaces and Utilities
+
 - FlowErrorType: Enumerated categories for error classification.
 - FlowError<TError>: Enhanced error with type, message, originalError, isRetryable.
 - Utility functions:
@@ -311,10 +331,12 @@ Usage examples (descriptive):
   - isFlowError(error): Type guard to check if an error is a FlowError.
 
 **Section sources**
+
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L207)
 - [flow.ts](file://packages/core/src/flow.ts#L32-L53)
 
 ### Configuration Option Schemas
+
 - FlowOptions<TData, TError>
   - onSuccess?: (data: TData) => void
   - onError?: (error: TError) => void
@@ -341,10 +363,12 @@ Usage examples (descriptive):
   - Inherits FlowOptions fields
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L99-L127)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L7-L17)
 
 ## Dependency Analysis
+
 - Core package exports:
   - Re-exports Flow, constants, and error utilities from index.
 - React package dependencies:
@@ -377,6 +401,7 @@ FLOWPROVIDER --> FLOW_TS
 ```
 
 **Diagram sources**
+
 - [package.json (core)](file://packages/core/package.json#L24-L38)
 - [package.json (react)](file://packages/react/package.json#L24-L38)
 - [index.ts](file://packages/core/src/index.ts#L1-L4)
@@ -388,10 +413,12 @@ FLOWPROVIDER --> FLOW_TS
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L1-L139)
 
 **Section sources**
+
 - [package.json (core)](file://packages/core/package.json#L1-L55)
 - [package.json (react)](file://packages/react/package.json#L1-L67)
 
 ## Performance Considerations
+
 - Debounce and throttle:
   - Debounce delays execution until after a quiet period; throttle limits execution frequency.
 - Minimum loading duration and loading delay:
@@ -405,12 +432,14 @@ FLOWPROVIDER --> FLOW_TS
   - enqueue: Queues subsequent executions to run after the current completes.
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L400-L585)
 - [flow.ts](file://packages/core/src/flow.ts#L625-L656)
 - [flow.ts](file://packages/core/src/flow.ts#L425-L473)
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L292-L361)
 
 ## Troubleshooting Guide
+
 - Flow does not transition to success:
   - Verify action resolves successfully; check retry configuration and shouldRetry predicate.
   - Ensure minDuration and delay are not preventing UI updates.
@@ -425,10 +454,12 @@ FLOWPROVIDER --> FLOW_TS
   - Implement isErrorRetryable to guide retry decisions.
 
 **Section sources**
+
 - [flow.test.ts](file://packages/core/src/flow.test.ts#L164-L241)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L26-L207)
 
 ## Conclusion
+
 AsyncFlowState provides a robust, framework-agnostic engine for managing asynchronous UI states with rich controls for retries, concurrency, optimistic updates, and UX polish. The React integration via useFlow and FlowProvider simplifies adoption and enables consistent global configuration across an application.
 
 ## Appendices
@@ -450,6 +481,7 @@ AsyncFlowState provides a robust, framework-agnostic engine for managing asynchr
   - Behavior: Provides global defaults; mergeFlowOptions merges or replaces options
 
 **Section sources**
+
 - [flow.ts](file://packages/core/src/flow.ts#L220-L709)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L77-L281)
 - [FlowProvider.tsx](file://packages/react/src/FlowProvider.tsx#L50-L139)
