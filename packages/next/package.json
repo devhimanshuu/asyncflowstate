@@ -22,7 +22,7 @@
     "directory": "packages/next"
   },
   "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
-  "homepage": "https://asyncflowstate-js.pages.dev/",
+  "homepage": "https://asyncflowstate-js.pages.dev/frameworks/next",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

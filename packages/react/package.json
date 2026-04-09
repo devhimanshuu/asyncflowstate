@@ -29,7 +29,7 @@
     "directory": "packages/react"
   },
   "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
-  "homepage": "https://asyncflowstate-js.pages.dev/",
+  "homepage": "https://asyncflowstate-js.pages.dev/frameworks/react",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
