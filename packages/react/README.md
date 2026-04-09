@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/react</h1>
+  <h1>@asyncflowstate/react <span style="font-size: 14px; background: #6366f122; color: #6366f1; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
   <p><b>React hooks and helpers for elegant, accessible async UI behavior management.</b></p>
 
   <p>
@@ -227,6 +227,15 @@ const sequence = useFlowSequence([
   { name: "Process", flow: processFlow, mapInput: (file) => file.id },
 ]);
 ```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+
+*   **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
+*   **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions.
+*   **Worker Offloading:** Move heavy tasks to background threads via `useFlow(task, { worker: true })`.
+*   **Optimistic UI with Deep-Diff Rollbacks:** Instant updates with perfect state recovery.
+*   **Streaming & AI Support:** Optimized for LLM streaming with `status === 'streaming'`.
+*   **Cross-Tab Sync:** Keep all open tabs in sync with the same async state.
 
 ## Monitoring & Debugging
 

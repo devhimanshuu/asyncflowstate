@@ -13,6 +13,7 @@ export default [
       "**/coverage/**",
       "**/.next/**",
       "**/examples/**", // Ignore examples folder
+      "**/docs/.vitepress/cache/**", // Ignore VitePress cache
     ],
   },
   {

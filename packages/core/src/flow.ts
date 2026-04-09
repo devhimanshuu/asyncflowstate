@@ -53,7 +53,8 @@ export type FlowEventType =
   | "reset"
   | "progress"
   | "blocked"
-  | "stream";
+  | "stream"
+  | "purgatory";
 
 /**
  * An event emitted for debugging purposes.
@@ -79,6 +80,8 @@ export interface FlowState<TData = any, TError = any> {
   error: TError | null;
   /** Progress of the current operation (0-100) */
   progress?: number;
+  /** Differences between optimistic and server state after a rollback */
+  rollbackDiff?: any[];
 }
 
 /**
@@ -429,6 +432,31 @@ export interface FlowOptions<
    * without triggering a new network request.
    */
   staleTime?: number;
+  /**
+   * Configuration for Purgatory (Global Undo) state.
+   * Allows a delay before the action is actually executed, during which it can be undone.
+   */
+  purgatory?: {
+    /** Duration in milliseconds to wait before executing the action. */
+    duration: number;
+    /** Whether to show a 'pending' status during purgatory. Default: true */
+    showPending?: boolean;
+  };
+  /**
+   * Configuration for Ghost Workflows (Background Action Queues).
+   * Allows actions to be queued and executed in the background without blocking the UI.
+   */
+  ghost?: {
+    /** Whether ghost mode is enabled for this flow. */
+    enabled: boolean;
+    /** Strategy for handling rapid-fire actions: 'last' (cancel prev), 'queue' (run sequential). Default: 'last' */
+    strategy?: "last" | "queue";
+  };
+  /**
+   * If true, permanently failed actions (after all retries) are stored in a
+   * Dead Letter Queue for later inspection or replay.
+   */
+  deadLetter?: boolean;
 }
 
 /**
@@ -582,7 +610,14 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     reset: new FlowSignal<void>(),
     stream: new FlowSignal<any>(),
     restore: new FlowSignal<any>(),
+    purgatory: new FlowSignal<{ countdown: number }>(),
+    undo: new FlowSignal<void>(),
+    rollback: new FlowSignal<{ patches: any[] }>(),
   };
+
+  private purgatoryTimer: ReturnType<typeof setTimeout> | null = null;
+  private ghostQueue: { args: TArgs; resolve: any }[] = [];
+  private isProcessingGhost = false;
 
   private triggerSubscriptions: (() => void)[] = [];
 
@@ -817,7 +852,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Note: Respects loading.delay - if a delay is active, this returns false.
    */
   public get isLoading(): boolean {
-    return this._state.status === "loading" && !this._isDelayingLoading;
+    return (
+      (this._state.status === "loading" && !this._isDelayingLoading) ||
+      !!this.purgatoryTimer
+    );
   }
 
   /** Returns true if the flow completed successfully. */
@@ -840,6 +878,53 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    */
   public get history(): FlowState<TData, TError>[] {
     return this._history;
+  }
+
+  /**
+   * Serializes the entire flow state, history, and inputs into a JSON payload for debugging.
+   */
+  public exportState(): string {
+    return JSON.stringify({
+      id: this.id,
+      finalState: this.state,
+      history: this._history,
+      lastExecutionArgs: this.currentExecutionArgs,
+      timestamp: Date.now()
+    }, (key, value) => {
+      if (value instanceof Error) {
+        return { name: value.name, message: value.message, stack: value.stack };
+      }
+      return value;
+    });
+  }
+
+  /**
+   * Imports a serialized flow state and visually replays the async flow step-by-step.
+   * @param json Serialized state from `exportState()`
+   * @param speedMs Time in milliseconds to wait between state changes to visually replay
+   */
+  public async importState(json: string, speedMs: number = 500): Promise<void> {
+    try {
+      const parsed = JSON.parse(json);
+      if (parsed.history && Array.isArray(parsed.history)) {
+        this.reset();
+        
+        for (const historicalState of parsed.history) {
+          this._state = historicalState;
+          this.notify();
+          if (speedMs > 0) {
+            await new Promise(r => setTimeout(r, speedMs));
+          }
+        }
+        
+        if (parsed.finalState) {
+          this._state = parsed.finalState;
+          this.notify();
+        }
+      }
+    } catch (e) {
+      console.error("AsyncFlowState: Failed to parse or replay flow state JSON", e);
+    }
   }
 
   // --- Public Methods ---
@@ -1024,6 +1109,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * flow.execute(data2); // This one completes
    * ```
    */
+
   public async execute(...args: TArgs): Promise<TData | undefined> {
     // Check Precondition
     if (this.options.precondition) {
@@ -1077,8 +1163,133 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     // 4. Run Middlewares and allow them to modify arguments
     const modifiedArgs = this.runOnStartMiddleware(args);
 
-    // 5. Direct Execution
+    // 5. Ghost Workflow Handling
+    if (this.options.ghost?.enabled) {
+      return this.handleGhostExecution(modifiedArgs);
+    }
+
+    // 6. Purgatory (Undo) Handling
+    if (this.options.purgatory && this.options.purgatory.duration > 0) {
+      return this.handlePurgatoryExecution(modifiedArgs);
+    }
+
+    // 7. Direct Execution
     return this.internalExecute(modifiedArgs);
+  }
+
+  /**
+   * Executes the action in a Web Worker (Main-Thread Offloading).
+   * Note: The action must be a serializable function.
+   */
+  public async worker(...args: TArgs): Promise<TData | undefined> {
+    const isBrowser = typeof window !== "undefined" && typeof Worker !== "undefined";
+
+    if (!isBrowser) {
+      return this.execute(...args);
+    }
+
+    try {
+      const { createWorkerAction } = await import("./utils/worker-utils");
+      const originalAction = this.action;
+      
+      this.action = createWorkerAction(originalAction as (...args: TArgs) => TData | Promise<TData>) as any;
+      const result = await this.execute(...args);
+      this.action = originalAction;
+      
+      return result;
+    } catch (e) {
+      console.warn("AsyncFlowState: Worker execution failed", e);
+      return this.execute(...args);
+    }
+  }
+
+  /**
+   * Handles the execution logic for Purgatory (Undo) mode.
+   * @private
+   */
+  private async handlePurgatoryExecution(args: TArgs): Promise<TData | undefined> {
+    this.clearTimer("purgatoryTimer");
+    
+    const duration = this.options.purgatory!.duration;
+    const showPending = this.options.purgatory!.showPending !== false;
+
+    if (showPending) {
+      this.setState({
+        status: "idle",
+        progress: 0,
+      });
+    }
+
+    this.emit("purgatory", { countdown: duration });
+    this.signals.purgatory.emit({ countdown: duration });
+
+    return new Promise((resolve) => {
+      this.purgatoryTimer = setTimeout(async () => {
+        this.purgatoryTimer = null;
+        this.notify();
+        const result = await this.internalExecute(args);
+        resolve(result);
+      }, duration);
+      this.notify();
+
+      // Listen for manual undo signal
+      const unsub = this.signals.undo.subscribe(() => {
+        this.clearTimer("purgatoryTimer");
+        unsub();
+        this.setState({ status: "idle" });
+        resolve(undefined);
+      });
+    });
+  }
+
+  /**
+   * Manual trigger for undoing an action in purgatory or reverting history.
+   */
+  public triggerUndo(): void {
+    if (this.purgatoryTimer) {
+      this.signals.undo.emit();
+    } else {
+      this.undo();
+    }
+  }
+
+  /**
+   * Handles the logic for Ghost Workflows (Background Queue).
+   * @private
+   */
+  private async handleGhostExecution(args: TArgs): Promise<TData | undefined> {
+    const strategy = this.options.ghost?.strategy || "last";
+    
+    if (strategy === "last" && this.isProcessingGhost) {
+      // In ghost mode, we don't necessarily want to cancel the actual network request 
+      // if it's already far along, but for 'last' strategy we follow the UI intent.
+      this.cancel(); 
+    }
+
+    return new Promise((resolve) => {
+      this.ghostQueue.push({ args, resolve });
+      this.processGhostQueue();
+    });
+  }
+
+  private async processGhostQueue(): Promise<void> {
+    if (this.isProcessingGhost || this.ghostQueue.length === 0) return;
+
+    this.isProcessingGhost = true;
+    const item = this.ghostQueue.shift();
+
+    if (item) {
+      try {
+        const result = await this.internalExecute(item.args, true);
+        item.resolve(result);
+      } catch (e) {
+        // Ghost errors are often handled silently or via global notification providers
+        console.error("AsyncFlowState: Ghost workflow failed", e);
+      }
+    }
+
+    this.isProcessingGhost = false;
+    this.processGhostQueue();
   }
 
   // --- Private Internal Logic ---
@@ -1087,9 +1298,10 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
    * Core execution logic that handles concurrency strategies.
    * @private
    * @param args Arguments to pass to the action
+   * @param silent If true, status transitions to 'loading' are skipped (Ghost mode)
    * @returns Promise that resolves with the action result
    */
-  private internalExecute(args: TArgs): Promise<TData | undefined> {
+  private internalExecute(args: TArgs, silent: boolean = false): Promise<TData | undefined> {
     const { concurrency = DEFAULT_CONCURRENCY } = this.options;
 
     if (this._state.status === "loading" && this.activePromise) {
@@ -1203,25 +1415,28 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       });
     } else {
       this.loadingStartTime = Date.now();
-      this.setState({
-        status: "loading",
-        error: null,
-        progress: PROGRESS.INITIAL,
-      });
+      
+      if (!silent) {
+        this.setState({
+          status: "loading",
+          error: null,
+          progress: PROGRESS.INITIAL,
+        });
 
-      // Handle UX Loading Delay
-      const delay = this.options.loading?.delay ?? DEFAULT_LOADING.DELAY;
-      if (delay > 0) {
-        this._isDelayingLoading = true;
-        this.loadingDelayTimer = setTimeout(() => {
-          this._isDelayingLoading = false;
-          // Start auto-progress when delay finishes
+        // Handle UX Loading Delay
+        const delay = this.options.loading?.delay ?? DEFAULT_LOADING.DELAY;
+        if (delay > 0) {
+          this._isDelayingLoading = true;
+          this.loadingDelayTimer = setTimeout(() => {
+            this._isDelayingLoading = false;
+            // Start auto-progress when delay finishes
+            this.startAutoProgress();
+            this.notify();
+          }, delay);
+        } else {
+          // Start auto-progress if no delay or delay is 0
           this.startAutoProgress();
-          this.notify();
-        }, delay);
-      } else {
-        // Start auto-progress if no delay or delay is 0
-        this.startAutoProgress();
+        }
       }
     }
 
@@ -1308,14 +1523,22 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             this.options.rollbackOnError !== false &&
             this.previousDataSnapshot !== undefined;
 
+          let rollbackDiff: any[] = [];
+          if (shouldRollback) {
+             const { calculateDeepDiff } = await import("./utils/diff-utils");
+             rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+          }
+
           this.setState({
             status: "error",
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: timeoutError,
             progress: PROGRESS.INITIAL,
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined
           });
 
           if (shouldRollback) {
+            this.signals.rollback.emit({ patches: rollbackDiff });
             this.previousDataSnapshot = null;
           }
 
@@ -1400,14 +1623,22 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             this.options.rollbackOnError !== false &&
             this.previousDataSnapshot !== undefined;
 
+          let rollbackDiff: any[] = [];
+          if (shouldRollback) {
+            const { calculateDeepDiff } = await import("./utils/diff-utils");
+            rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+          }
+
           this.setState({
             status: "error",
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: timeoutError,
             progress: PROGRESS.INITIAL,
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined
           });
 
           if (shouldRollback) {
+            this.signals.rollback.emit({ patches: rollbackDiff });
             this.previousDataSnapshot = null;
           }
 
@@ -1472,19 +1703,22 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
             this.options.rollbackOnError !== false &&
             this.previousDataSnapshot !== undefined;
 
+          let rollbackDiff: any[] = [];
+          if (shouldRollback) {
+            const { calculateDeepDiff } = await import("./utils/diff-utils");
+            rollbackDiff = calculateDeepDiff(this.previousDataSnapshot, this._state.data);
+          }
+
           this.setState({
             status: "error",
             data: shouldRollback ? this.previousDataSnapshot : this._state.data,
             error: finalError,
             progress: PROGRESS.INITIAL,
+            rollbackDiff: shouldRollback ? rollbackDiff : undefined
           });
-          // Update Circuit Breaker on failure
-          if (this.options.circuitBreaker && cbKey) {
-            this.handleCircuitFailure(cbKey);
-          }
 
-          // Clear snapshot after rollback
           if (shouldRollback) {
+            this.signals.rollback.emit({ patches: rollbackDiff });
             this.previousDataSnapshot = null;
           }
 
@@ -1492,6 +1726,17 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
           this.runMiddleware("onError", finalError);
           this.options.onSettled?.(null, finalError);
           this.runMiddleware("onSettled", null, finalError);
+
+          // Dead Letter Queue: store permanently failed actions
+          if (this.options.deadLetter) {
+            const { DeadLetterQueue } = await import("./utils/dead-letter-queue");
+            DeadLetterQueue.getInstance().push({
+              args,
+              error: finalError,
+              attempts: attempt,
+              meta: this.options.meta || { name: this.options.debugName },
+            });
+          }
 
           this.finalizeLoading();
           this.processEnqueuedTasks();
@@ -1945,6 +2190,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
       | "throttleTimer"
       | "timeoutTimer"
       | "progressTimer"
+      | "purgatoryTimer"
       | "pollingTimer",
   ): void {
     const timer = this[key];
@@ -1962,6 +2208,7 @@ export class Flow<TData = any, TError = any, TArgs extends any[] = any[]> {
     this.clearTimer("throttleTimer");
     this.clearTimer("timeoutTimer");
     this.clearTimer("progressTimer");
+    this.clearTimer("purgatoryTimer");
     this.clearTimer("pollingTimer");
     this._isDelayingLoading = false;
     this.isTimeout = false;

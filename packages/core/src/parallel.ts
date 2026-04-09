@@ -1,6 +1,6 @@
 import type { Flow, FlowStatus } from "./flow";
 
-export type ParallelStrategy = "all" | "allSettled" | "race";
+export type ParallelStrategy = "all" | "allSettled" | "race" | "quantum";
 
 export interface ParallelState {
   status: FlowStatus;
@@ -137,8 +137,20 @@ export class FlowParallel {
         await Promise.all(this.flows.map((f) => f.execute(...args)));
       } else if (this.strategy === "allSettled") {
         await Promise.allSettled(this.flows.map((f) => f.execute(...args)));
-      } else if (this.strategy === "race") {
-        await Promise.race(this.flows.map((f) => f.execute(...args)));
+      } else if (this.strategy === "race" || this.strategy === "quantum") {
+        const promises = this.flows.map(async (f) => {
+          const result = await f.execute(...args);
+          if (this.strategy === "quantum") {
+            // Cancel others as soon as one winner finishes
+            this.flows.forEach((other) => {
+              if (other !== f && other.status === "loading") {
+                other.cancel();
+              }
+            });
+          }
+          return result;
+        });
+        await Promise.race(promises);
       }
 
       const status = updateAggregateState();

@@ -49,17 +49,22 @@ AsyncFlowState is not a replacement for React Query, SWR, Redux, or Zustand. Ins
 
 ## Project Structure
 
-The repository is organized as a monorepo with three primary packages:
+The repository is organized as a monorepo with multiple framework packages:
 
 - @asyncflowstate/core: Framework-agnostic logic engine
 - @asyncflowstate/react: React hooks and accessibility helpers
 - @asyncflowstate/next: Next.js optimized integration for Server Actions and SSR
+- @asyncflowstate/vue: Vue 3 `<script setup>` Composition API bindings
+- @asyncflowstate/svelte: Svelte Store reactivity integrations 
+- @asyncflowstate/angular: Angular `BehaviorSubject` streaming logic
+- @asyncflowstate/solid: SolidJS fine-grained primitive mapping
 
 Key directories and files:
 
 - packages/core/src: Core Flow class, constants, and error utilities
 - packages/react/src: useFlow hook and FlowProvider
 - packages/next/src: Next.js specific hooks (useServerActionFlow)
+- packages/{vue,svelte,angular,solid}/src: The Native framework APIs
 - examples: React and Next.js usage patterns
 - Root README: High-level overview, installation, and quick start
 

@@ -3,8 +3,10 @@ export * from "./hooks/useFlow";
 export * from "./hooks/useFlowSequence";
 export * from "./hooks/useFlowList";
 export * from "./hooks/useFlowParallel";
-export * from "./hooks/useInfiniteFlow";
 export * from "./hooks/useFlowSuspense";
+export * from "./hooks/useQuantumFlow";
+export * from "./hooks/usePredictiveFlow";
+export * from "./hooks/useInfiniteFlow";
 
 // Components
 export * from "./components/FlowProvider";

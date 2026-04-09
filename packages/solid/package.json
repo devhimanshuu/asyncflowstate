@@ -1,0 +1,72 @@
+{
+  "name": "@asyncflowstate/solid",
+  "version": "2.0.0",
+  "private": false,
+  "description": "Official SolidJS bindings for AsyncFlowState. Fine-grained reactive primitives (createFlow, createFlowSequence, createFlowParallel) for managing async loading, error, and success states.",
+  "keywords": [
+    "solidjs",
+    "solid",
+    "signals",
+    "reactive",
+    "async",
+    "state",
+    "loading",
+    "error-handling",
+    "ux",
+    "typescript",
+    "data-fetching",
+    "state-management"
+  ],
+  "author": "AsyncFlowState Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devhimanshuu/asyncflowstate.git",
+    "directory": "packages/solid"
+  },
+  "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
+  "homepage": "https://github.com/devhimanshuu/asyncflowstate#readme",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "solid": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.7.0 || ^2.0.0"
+  },
+  "dependencies": {
+    "@asyncflowstate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "solid-js": "^1.9.6"
+  }
+}

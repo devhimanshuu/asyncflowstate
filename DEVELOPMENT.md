@@ -51,15 +51,14 @@ asyncflowstate/
 │       ├── CHANGELOG.md         # Version history
 │       └── .env.example         # Environment template
 │
-├── documentation/               # Comprehensive docs
-│   └── content/
-│       ├── Getting Started.md
-│       ├── Configuration and Customization.md
-│       ├── Development and Testing.md
-│       ├── Core Engine/
-│       ├── React Integration/
-│       ├── Advanced Features/
-│       └── API Reference/
+├── docs/                        # VitePress Documentation (Main Site)
+│   ├── .vitepress/              # Site config and theme
+│   ├── api/                     # Developer API references
+│   ├── examples/                # Interactive examples
+│   ├── frameworks/              # Framework specific guides
+│   ├── guide/                   # Core architectural guides
+│   ├── public/                  # Assets and icons
+│   └── index.md                 # Landing page
 │
 ├── examples/                    # Example projects
 │   ├── core/                    # Core engine examples
@@ -320,7 +319,7 @@ pnpm typecheck
 
 ## Resources
 
-- [Main Documentation](../documentation/)
+- [Main Documentation Web](../docs/)
 - [Contributing Guidelines](../CONTRIBUTING.md)
 - [AsyncFlowState API Reference](../packages/core/API.md)
 - [React Hooks API](../packages/react/API.md)
