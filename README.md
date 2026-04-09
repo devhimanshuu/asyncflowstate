@@ -319,16 +319,17 @@ pnpm add @asyncflowstate/solid @asyncflowstate/core
 ```
 
 ```tsx
-import { createFlow } from '@asyncflowstate/solid';
+import { createFlow } from "@asyncflowstate/solid";
 
 function UserCard() {
   const flow = createFlow(async (id: string) => api.fetchUser(id));
   return (
-    <button onClick={() => flow.execute('user-123')} disabled={flow.loading()}>
-      {flow.loading() ? 'Loading...' : 'Fetch User'}
+    <button onClick={() => flow.execute("user-123")} disabled={flow.loading()}>
+      {flow.loading() ? "Loading..." : "Fetch User"}
     </button>
   );
 }
+```
 
 ---
 
@@ -391,4 +392,7 @@ MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowst
 > **"Stop rewriting the same async logic. Start building features."**
 >
 > AsyncFlowState solves async UI behavior once, correctly, and everywhere.
+
+```
+
 ```
