@@ -34,7 +34,7 @@
     "url": "https://github.com/devhimanshuu/asyncflowstate.git"
   },
   "bugs": "https://github.com/devhimanshuu/asyncflowstate/issues",
-  "homepage": "https://github.com/devhimanshuu/asyncflowstate#readme",
+  "homepage": "https://asyncflowstate-js.pages.dev/",
   "scripts": {
     "build": "pnpm -r build",
     "build:core": "pnpm --filter @asyncflowstate/core build",
