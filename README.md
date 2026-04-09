@@ -333,21 +333,21 @@ function UserCard() {
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> Key Features
 
-- **🌐 Global Config:** Set default options app-wide with `FlowProvider`.
+- **<i class="fa-solid fa-globe text-blue-400"></i> Global Config:** Set default options app-wide with `FlowProvider`.
 - **<i class="fa-solid fa-link text-gray-400"></i> Declarative Chaining:** Orchestrate complex workflows with `triggerOn` and `signals` instead of manual `useEffect`.
-- **🌊 Streaming Support:** Native support for LLM/AI streaming using `AsyncIterable` or `ReadableStream`.
+- **<i class="fa-solid fa-water text-cyan-400"></i> Streaming Support:** Native support for LLM/AI streaming using `AsyncIterable` or `ReadableStream`.
 - **<i class="fa-solid fa-bolt text-yellow-400"></i> Parallel & Sequential:** Orchestrate multiple flows with aggregate state via `FlowParallel` and `FlowSequence`.
 - **<i class="fa-solid fa-stopwatch text-brand"></i> Declarative Polling:** Built-in support for auto-refreshing actions with conditional stop logic.
-- **💾 Smart Persistence:** Survive page refreshes and resume interrupted operations (file uploads, forms, etc.).
+- **<i class="fa-solid fa-floppy-disk text-gray-500"></i> Smart Persistence:** Survive page refreshes and resume interrupted operations (file uploads, forms, etc.).
 - **<i class="fa-solid fa-shield-halved text-emerald-500"></i> Persistent Circuit Breaker:** Prevent cascading failures with cross-session state persistence.
-- **📊 Visual Sequence Trace:** Real-time Timeline/Gantt view of all async activity with `FlowDebugger`.
+- **<i class="fa-solid fa-chart-line text-indigo-400"></i> Visual Sequence Trace:** Real-time Timeline/Gantt view of all async activity with `FlowDebugger`.
 - **<i class="fa-solid fa-wrench text-gray-400"></i> Form Recovery:** Automatically re-focus fields and restore validation errors after a page refresh.
-- **🔔 Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
-- **🧩 Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
+- **<i class="fa-solid fa-bell text-yellow-400"></i> Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
+- **<i class="fa-solid fa-puzzle-piece text-purple-400"></i> Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
 
 ---
 
-## 📖 Learn More
+## <i class="fa-solid fa-book-open text-blue-500"></i> Learn More
 
 - **[Examples](./examples)** - Check out full patterns for Login, File Uploads, Advanced Forms, and more.
 - **[Core Package Documentation](./packages/core)** - The framework-agnostic engine API.
@@ -359,7 +359,7 @@ function UserCard() {
 
 ---
 
-## 🧑‍💻 Contributing
+## <i class="fa-solid fa-code-pull-request text-emerald-500"></i> Contributing
 
 We love contributions! Whether you're fixing a bug, improving documentation, or suggesting a new feature, your help is welcome.
 
@@ -381,7 +381,7 @@ To ensure a welcoming, diverse, and inclusive community, we adhere to the [Contr
 
 ---
 
-## 📜 License
+## <i class="fa-solid fa-file-contract text-gray-400"></i> License
 
 MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowstate)
 
@@ -391,6 +391,3 @@ MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowst
 >
 > AsyncFlowState solves async UI behavior once, correctly, and everywhere.
 
-```
-
-```
