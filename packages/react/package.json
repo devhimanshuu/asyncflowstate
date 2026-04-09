@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": false,
   "description": "Official React bindings for AsyncFlowState. Declarative hooks (useFlow, useFlowParallel) for managing async loading, error, and success states effortlessly.",
   "keywords": [

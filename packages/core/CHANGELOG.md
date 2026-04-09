@@ -1,5 +1,11 @@
 # Changelog - @asyncflowstate/core
 
+## 2.0.1
+
+### Minor Changes
+
+- update documentation links
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # Changelog - @asyncflowstate/next
 
+## 2.0.1
+
+### Minor Changes
+
+- update documentation links
+
+### Patch Changes
+
+- Updated dependencies
+  - @asyncflowstate/core@2.1.0
+  - @asyncflowstate/react@2.1.0
+
 ## 1.0.1
 
 ### Patch Changes

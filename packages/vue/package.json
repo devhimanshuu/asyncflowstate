@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/vue",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": false,
   "description": "Official Vue 3 bindings for AsyncFlowState. Composables (useFlow, useFlowSequence, useFlowParallel) for managing async loading, error, and success states effortlessly.",
   "keywords": [
