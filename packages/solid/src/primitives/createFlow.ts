@@ -5,7 +5,7 @@ import {
   type FlowState,
   type FlowStatus,
 } from "@asyncflowstate/core";
-import { getFlowConfig, mergeFlowOptions } from "../components/FlowProvider";
+import { useFlowConfig, mergeFlowOptions } from "../components/FlowProvider";
 import { runSchemaValidation } from "../utils/schema-validation";
 import type { SolidFlowOptions } from "../types";
 
@@ -28,7 +28,7 @@ export function createFlow<TData = any, TError = any, TArgs extends any[] = any[
   action: FlowAction<TData, TArgs>,
   options: SolidFlowOptions<TData, TError, TArgs> = {},
 ) {
-  const globalConfig = getFlowConfig();
+  const globalConfig = useFlowConfig();
   const mergedOptions = mergeFlowOptions(globalConfig, options);
 
   const flow = new Flow<TData, TError, TArgs>(action, mergedOptions);

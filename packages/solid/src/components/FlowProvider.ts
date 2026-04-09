@@ -17,7 +17,7 @@ export function FlowProvider(props: {
   });
 }
 
-export function getFlowConfig() {
+export function useFlowConfig() {
   return useContext(FlowConfigContext);
 }
 
