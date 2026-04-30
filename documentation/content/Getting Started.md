@@ -57,6 +57,9 @@ The repository is organized as a monorepo with multiple framework packages:
 - @asyncflowstate/svelte: Svelte Store reactivity integrations
 - @asyncflowstate/angular: Angular `BehaviorSubject` streaming logic
 - @asyncflowstate/solid: SolidJS fine-grained primitive mapping
+- @asyncflowstate/nuxt: Nuxt 3 native composables
+- @asyncflowstate/remix: Remix action & navigation integration
+- @asyncflowstate/astro: Astro server action adapters
 
 Key directories and files:
 

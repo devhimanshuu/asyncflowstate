@@ -150,6 +150,13 @@ This section documents the primary type definitions and their roles in the Flow 
       - timeout?: number
       - optimisticResult?: TData | ((prevData: TData | null, args: TArgs) => TData)
       - rollbackOnError?: boolean
+      - dna?: FlowDNAOptions
+      - ambient?: AmbientOptions
+      - mesh?: FlowMeshOptions
+      - autoThrottle?: boolean
+      - ghost?: GhostOptions
+      - purgatory?: PurgatoryOptions
+      - edge?: EdgeOptions
 
 - Flow class generics
   - Purpose: Orchestrates asynchronous actions and manages UI states.
@@ -230,6 +237,13 @@ class FlowOptions~TData,TError,TArgs[]~ {
 +number|nil timeout
 +TData|((prevData,args)=>TData)|nil optimisticResult
 +boolean|nil rollbackOnError
++FlowDNAOptions|nil dna
++AmbientOptions|nil ambient
++FlowMeshOptions|nil mesh
++boolean|nil autoThrottle
++GhostOptions|nil ghost
++PurgatoryOptions|nil purgatory
++EdgeOptions|nil edge
 }
 class Flow~TData,TError,TArgs[]~ {
 +constructor(action, options?)

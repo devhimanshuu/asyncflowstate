@@ -27,8 +27,9 @@
 8. [Monitoring and Debugging](#monitoring-and-debugging)
 9. [Performance Considerations](#performance-considerations)
 10. [Troubleshooting Guide](#troubleshooting-guide)
-11. [Conclusion](#conclusion)
-12. [Appendices](#appendices)
+11. [Next-Gen AI & Mesh Engine](#next-gen-ai--mesh-engine)
+12. [Conclusion](#conclusion)
+13. [Appendices](#appendices)
 
 ## Introduction
 
@@ -454,6 +455,44 @@ Common issues and remedies:
 - [flow.ts](file://packages/core/src/flow.ts#L603-L638)
 - [error-utils.ts](file://packages/core/src/error-utils.ts#L130-L143)
 - [useFlow.tsx](file://packages/react/src/useFlow.tsx#L227-L234)
+
+## Next-Gen AI & Mesh Engine
+
+AsyncFlowState v3.0 introduces an autonomous, self-optimizing layer that transforms how async state is managed in enterprise applications.
+
+### Flow DNA (Genetic Auto-Tuning)
+
+Flow DNA eliminates manual configuration by allowing flows to evolve their own settings based on production performance.
+
+- **Performance Fingerprinting**: Flows record P95 latency and success/failure ratios.
+- **Genetic Evolution**: Periodically, the engine recalculates optimal `timeout`, `retry.delay`, and `staleTime`.
+- **Fitness Scoring**: Flows with high reliability and low latency are "rewarded" with tighter timeouts to improve responsiveness.
+
+### Ambient Intelligence
+
+Flows are now aware of the physical environment and device telemetry:
+
+- **Network Awareness**: Automatically switches to compression or defers non-essential syncs on slow (2G/3G) connections.
+- **Battery Optimization**: Reduces polling frequency and background activity when the device is in low-power mode.
+- **CPU Pressure**: Monitors main-thread lag to determine if a flow should offload its work to a Web Worker.
+
+### Flow Mesh (Cross-Tab Distributed Cache)
+
+Built on the `BroadcastChannel` API, Flow Mesh creates a local P2P network between browser tabs.
+
+- **Leader Election**: Tabs elect a "Leader" to perform network requests. "Followers" subscribe to the leader's results via the mesh.
+- **Deduplication**: Prevents the "Thundering Herd" problem where multiple open tabs fetch the same data simultaneously.
+- **Mesh Consensus**: Ensures all tabs see the same success/error state instantly.
+
+### Emotional UX (Sentiment Analysis)
+
+The engine monitors user interaction signals to adapt the flow's behavior:
+
+- **Rage Click Detection**: Rapid, repeated clicks trigger a "Purgatory" gate (enforced undo period) to prevent data corruption.
+- **Hesitation Tracking**: Long pauses or erratic cursor movement near an action can trigger "Pre-warming" of the flow.
+- **Adaptive Throttling**: If a user appears frustrated (based on click frequency), the engine may increase retry delays to avoid further server pressure.
+
+---
 
 ## Conclusion
 

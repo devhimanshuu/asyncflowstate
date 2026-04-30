@@ -67,7 +67,10 @@ export class EdgeDetector {
     }
 
     // Node.js
-    if (typeof process !== "undefined" && process.versions?.node) {
+    if (
+      typeof (globalThis as any).process !== "undefined" &&
+      (globalThis as any).process.versions?.node
+    ) {
       return "node";
     }
 

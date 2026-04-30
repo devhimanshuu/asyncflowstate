@@ -161,6 +161,13 @@ FlowOptions defines the complete configuration surface for Flow. Below are the d
 - throttle: number (milliseconds) to throttle execute() calls
 - optimisticResult: Static value or function(prevData, args) -> TData to immediately set success state
 - rollbackOnError: Boolean to control whether optimistic updates are rolled back on error (default: true)
+- dna: FlowDNAOptions for genetic auto-tuning
+- ambient: AmbientOptions for environmental intelligence (battery, network, etc.)
+- mesh: FlowMeshOptions for cross-tab distributed cache
+- autoThrottle: Stress monitoring (rage-click detection)
+- ghost: GhostOptions for background task queuing
+- purgatory: PurgatoryOptions for enforced undo periods
+- edge: EdgeOptions for runtime-aware (Cloudflare/Vercel) execution
 
 Defaults are applied from constants when not provided.
 
