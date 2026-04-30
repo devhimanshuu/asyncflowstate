@@ -4,8 +4,7 @@
     "outDir": "dist",
     "jsx": "preserve",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "paths": {}
+    "emitDecoratorMetadata": true
   },
   "include": ["src"]
 }

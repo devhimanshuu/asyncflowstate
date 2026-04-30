@@ -104,6 +104,18 @@ export function mergeFlowOptions<TData, TError, TArgs extends any[]>(
     "purgatory",
     "ghost",
     "deadLetter",
+    "predictive",
+    "evolution",
+    "ambient",
+    "temporal",
+    "sentiment",
+    "mesh",
+    "collaborative",
+    "edge",
+    "speculative",
+    "probabilityModel",
+    "streamingPolicy",
+    "autoThrottle",
   ];
   for (const key of passthrough) {
     if ((local as any)[key] !== undefined)

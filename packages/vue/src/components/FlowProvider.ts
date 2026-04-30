@@ -129,6 +129,10 @@ export function mergeFlowOptions<TData, TError, TArgs extends any[]>(
     "purgatory",
     "ghost",
     "deadLetter",
+    "predictive",
+    "probabilityModel",
+    "streamingPolicy",
+    "autoThrottle",
   ];
 
   for (const key of passthrough) {

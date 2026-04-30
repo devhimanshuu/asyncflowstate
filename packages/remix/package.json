@@ -1,0 +1,55 @@
+{
+  "name": "@asyncflowstate/remix",
+  "version": "3.0.0",
+  "private": false,
+  "description": "Official Remix bindings for AsyncFlowState. Seamlessly integrates with Remix's actions, loaders, and useNavigation.",
+  "author": "AsyncFlowState Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devhimanshuu/asyncflowstate.git",
+    "directory": "packages/remix"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@remix-run/react": "^2.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@asyncflowstate/core": "workspace:*",
+    "@asyncflowstate/react": "workspace:*"
+  },
+  "devDependencies": {
+    "@remix-run/react": "^2.15.3",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

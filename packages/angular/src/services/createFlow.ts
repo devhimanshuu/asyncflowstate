@@ -17,6 +17,7 @@ function mapFlowState<TData, TError, TArgs extends any[]>(
     isError: state.status === "error",
     isIdle: state.status === "idle",
     isStreaming: state.status === "streaming",
+    isPrewarmed: state.status === "prewarmed",
     rollbackDiff: (state as any).rollbackDiff ?? null,
   };
 }
@@ -102,10 +103,36 @@ export function createFlow<
     flow.dispose();
   }
 
+  const announcement$ = new BehaviorSubject<string>("");
+
+  const unsubscribeStatus = state$.subscribe((s) => {
+    if (s.status === "success" && options.a11y?.announceSuccess) {
+      const msg =
+        typeof options.a11y.announceSuccess === "function"
+          ? options.a11y.announceSuccess(s.data!)
+          : options.a11y.announceSuccess;
+      announcement$.next(msg);
+    } else if (s.status === "error" && options.a11y?.announceError) {
+      const msg =
+        typeof options.a11y.announceError === "function"
+          ? options.a11y.announceError(s.error!)
+          : options.a11y.announceError;
+      announcement$.next(msg);
+    }
+  });
+  cleanupFns.push(() => unsubscribeStatus.unsubscribe());
+
   return {
     state$,
     state: state$.asObservable(),
     execute,
+    setOptions: (
+      newOptions: Partial<AngularFlowOptions<TData, TError, TArgs>>,
+    ) => {
+      flow.setOptions({ ...options, ...newOptions });
+    },
+    prewarm: flow.prewarm.bind(flow),
+    askDebugger: flow.askDebugger.bind(flow),
     reset: flow.reset.bind(flow),
     cancel: flow.cancel.bind(flow),
     setProgress: flow.setProgress.bind(flow),
@@ -115,6 +142,7 @@ export function createFlow<
     worker: flow.worker.bind(flow),
     flow,
     signals: flow.signals,
+    announcement$: announcement$.asObservable(),
     destroy,
     snapshot: () => state$.getValue(),
   };

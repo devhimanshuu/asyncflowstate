@@ -1,5 +1,13 @@
 # Changelog - @asyncflowstate/next
 
+## 3.0.0
+
+### Major Changes
+
+- **Universal v3.0 Launch**: Full support for Flow DNA, Speculative Execution, and Collaborative Mesh networks.
+- **Enhanced Framework Integration**: Performance optimizations and new framework-specific primitives for AI features.
+- **Improved Resiliency**: Built-in self-healing and ambient failure pre-emption.
+
 ## 2.0.2
 
 ### Major Changes

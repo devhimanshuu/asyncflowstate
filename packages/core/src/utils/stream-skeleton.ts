@@ -3,6 +3,8 @@ export interface AISkeletonOptions {
   schema: Record<string, "string" | "number" | "boolean" | "list" | "object">;
   /** Artificial delay between streaming properties to screen. */
   streamingDelay?: number;
+  /** Optional key to fetch historical data for high-fidelity blurring. */
+  persistenceKey?: string;
 }
 
 /**
@@ -22,24 +24,58 @@ export interface AISkeletonOptions {
 export async function* streamAISkeleton(
   options: AISkeletonOptions,
 ): AsyncGenerator<any> {
-  const { schema, streamingDelay = 150 } = options;
+  const { schema, streamingDelay = 150, persistenceKey } = options;
   const keys = Object.keys(schema);
   const skeletonObject: Record<string, any> = {};
+
+  // Try to load historical data for "Ghost" effect
+  let historicalData: any = null;
+  if (persistenceKey && typeof localStorage !== "undefined") {
+    try {
+      const saved = localStorage.getItem(`af_ghost_${persistenceKey}`);
+      if (saved) historicalData = JSON.parse(saved);
+    } catch (e) {
+      /* ignore */
+    }
+  }
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const type = schema[key];
 
-    // Assign generic placeholder based on type
-    if (type === "string") skeletonObject[key] = "█████████";
-    else if (type === "number") skeletonObject[key] = "000";
-    else if (type === "boolean") skeletonObject[key] = false;
-    else if (type === "list") skeletonObject[key] = [];
-    else skeletonObject[key] = "████";
+    if (historicalData && historicalData[key] !== undefined) {
+      // Use historical data but "obfuscate" it slightly if it's a string
+      if (typeof historicalData[key] === "string") {
+        skeletonObject[key] = historicalData[key].replace(/[a-zA-Z0-9]/g, "█");
+      } else {
+        skeletonObject[key] = historicalData[key];
+      }
+    } else {
+      // Fallback to generic placeholders
+      if (type === "string") skeletonObject[key] = "█████████";
+      else if (type === "number") skeletonObject[key] = "000";
+      else if (type === "boolean") skeletonObject[key] = false;
+      else if (type === "list") skeletonObject[key] = [];
+      else skeletonObject[key] = "████";
+    }
 
-    await new Promise((resolve) => setTimeout(resolve, streamingDelay));
+    await new Promise((resolve) =>
+      setTimeout(resolve, i === 0 ? 0 : streamingDelay),
+    );
 
     // Deep clone before yielding
     yield JSON.parse(JSON.stringify(skeletonObject));
+  }
+}
+
+/**
+ * Saves a data snapshot for future high-fidelity ghost previews.
+ */
+export function recordGhostData(key: string, data: any): void {
+  if (typeof localStorage === "undefined" || !data) return;
+  try {
+    localStorage.setItem(`af_ghost_${key}`, JSON.stringify(data));
+  } catch (e) {
+    /* ignore */
   }
 }

@@ -1,31 +1,51 @@
-import type { FlowOptions, FlowMiddleware } from "@asyncflowstate/core";
+import { type FlowOptions, type FlowMiddleware } from "@asyncflowstate/core";
 
 /**
- * SolidJS-specific options extending core FlowOptions.
+ * Solid-specific options extending core FlowOptions.
  */
 export interface SolidFlowOptions<
   TData = any,
   TError = any,
   TArgs extends any[] = any[],
 > extends FlowOptions<TData, TError, TArgs> {
-  /** If true, automatically re-executes with last args when window regains focus. */
+  /**
+   * If true, automatically re-executes with last args when window regains focus.
+   */
   revalidateOnFocus?: boolean;
-  /** If true, automatically re-executes with last args when network reconnects. */
+  /**
+   * If true, automatically re-executes with last args when network reconnects.
+   */
   revalidateOnReconnect?: boolean;
-  /** Predictive execution options. */
-  predictive?: {
-    /** Whether to enable prefetching on hover. */
-    prefetchOnHover?: boolean;
-    /** Minimum hover duration (ms) before triggering prefetch. Default: 100 */
-    hoverDelay?: number;
-  };
+  /**
+   * Accessibility options for automatic screen reader announcements.
+   */
+  a11y?: SolidA11yOptions<TData, TError>;
 }
 
 /**
- * Global configuration for all flows within a FlowProvider.
+ * Accessibility options for automatic screen reader announcements.
  */
-export interface SolidFlowProviderConfig extends FlowOptions {
+export interface SolidA11yOptions<TData, TError> {
+  /** Message or function to generate a message when the action succeeds. */
+  announceSuccess?: string | ((data: TData) => string);
+  /** Message or function to generate a message when the action fails. */
+  announceError?: string | ((error: TError) => string);
+  /** Relationship of the live region. Default is 'polite'. */
+  liveRegionRel?: "polite" | "assertive";
+}
+
+/**
+ * Global configuration for all flows within a Solid FlowProvider.
+ */
+export interface SolidFlowProviderConfig extends SolidFlowOptions {
+  /**
+   * Global interceptors or behaviors that apply to every flow.
+   */
   behaviors?: FlowMiddleware[];
+  /**
+   * If true, local flow options will completely override global options.
+   * If false (default), local options will be merged with global options.
+   */
   overrideMode?: "merge" | "replace";
 }
 
@@ -37,8 +57,12 @@ export interface SolidInfiniteFlowOptions<
   TError = any,
   TArgs extends any[] = any[],
 > extends SolidFlowOptions<TData, TError, TArgs> {
-  /** Function to determine the next page parameter. Return undefined/null for no more pages. */
+  /**
+   * Function to determine the next page parameter.
+   */
   getNextPageParam: (lastPage: TData, allPages: TData[]) => any;
-  /** Initial page parameter. */
+  /**
+   * Initial page parameter.
+   */
   initialPageParam?: any;
 }

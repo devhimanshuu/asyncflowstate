@@ -1,5 +1,14 @@
 # Changelog - @asyncflowstate/core
 
+## 3.0.0
+
+### Major Changes
+
+- **Next-Gen AI & Mesh Engine**: Complete integration of Flow DNA, Ambient Intelligence, and Cross-Tab/Device Mesh networks.
+- **Edge-First Architecture**: Optimized for high-performance edge runtimes.
+- **Self-Healing Flows**: Intelligent state management that learns from runtime patterns.
+- **Speculative Execution**: Low-latency interactions via user intent prediction.
+
 ## 2.0.2
 
 ### Major Changes

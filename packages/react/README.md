@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/react <span style="font-size: 14px; background: #6366f122; color: #6366f1; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/react <span style="font-size: 14px; background: #6366f122; color: #6366f1; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>React hooks and helpers for elegant, accessible async UI behavior management.</b></p>
 
   <p>
@@ -91,152 +91,154 @@ function YourApp() {
 
 See [FlowProvider examples](../../examples/react/flow-provider-examples.tsx) for more patterns.
 
-## Core Helpers
+## Comprehensive Examples
 
-### `button()`
+### 1. The Classic: Optimistic UI with Deep-Diff Rollback
 
-Injects `disabled` and `aria-busy` props automatically based on the flow's loading state. If no `onClick` is provided, it defaults to calling `flow.execute()` with no arguments.
+Update your UI instantly and trust AsyncFlowState to revert to the exact previous state if the network fails.
 
 ```tsx
-<button {...flow.button({ onClick: () => alert("Custom!") })}>Submit</button>
+import { useFlow } from "@asyncflowstate/react";
+
+function LikeButton({ post }) {
+  const flow = useFlow(api.likePost, {
+    // 1. Update state immediately
+    optimisticResult: (prev) => ({
+      ...prev,
+      likes: prev.likes + 1,
+      isLiked: true,
+    }),
+    // 2. Automatically revert on failure
+    rollbackOnError: true,
+    onSuccess: () => toast.success("Liked!"),
+    onError: () => toast.error("Connection failed. Reverting..."),
+  });
+
+  return (
+    <button {...flow.button({ onClick: () => flow.execute(post.id) })}>
+      {flow.data.isLiked ? "❤️" : "🤍"} {flow.data.likes}
+    </button>
+  );
+}
 ```
 
-### `form()`
+### 2. Enterprise Forms: Zod Validation & Auto-Extraction
 
-Handles `onSubmit` with `e.preventDefault()` and provides advanced orchestration features:
-
-- **`extractFormData`**: Automatically extracts form values into a plain object.
-- **`validate`**: Hook for pre-execution validation.
-- **`resetOnSuccess`**: Automatically resets the form fields after successful completion.
+Stop manually mapping `e.target.value`. Use built-in schema validation and automatic focus management.
 
 ```tsx
-<form
-  {...flow.form({
-    extractFormData: true,
-    validate: (data) => (!data.title ? { title: "Required" } : null),
-    resetOnSuccess: true,
-  })}
->
-  <input name="title" />
-  {flow.fieldErrors.title && <span>{flow.fieldErrors.title}</span>}
-  <button type="submit" disabled={flow.loading}>
-    Save
-  </button>
-</form>
-```
+import { z } from "zod";
+import { useFlow } from "@asyncflowstate/react";
 
-### `LiveRegion`
-
-A component that automatically announces success and error messages to screen readers using ARIA live regions.
-
-```tsx
-const flow = useFlow(saveAction, {
-  a11y: {
-    announceSuccess: "Profile updated successfully!",
-    announceError: (err) => `Failed to save: ${err.message}`,
-  },
+const schema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password too short"),
 });
 
-return (
-  <div>
-    <flow.LiveRegion />
-    {/* ... form ... */}
-  </div>
-);
+function LoginForm() {
+  const flow = useFlow(auth.login, {
+    onSuccess: () => navigate("/dashboard"),
+  });
+
+  return (
+    <form
+      {...flow.form({ schema, extractFormData: true, resetOnSuccess: true })}
+    >
+      <input name="email" placeholder="Email" />
+      {flow.fieldErrors.email && (
+        <p className="error">{flow.fieldErrors.email}</p>
+      )}
+
+      <input name="password" type="password" placeholder="Password" />
+      {flow.fieldErrors.password && (
+        <p className="error">{flow.fieldErrors.password}</p>
+      )}
+
+      <button type="submit" disabled={flow.loading}>
+        {flow.loading ? "Logging in..." : "Login"}
+      </button>
+
+      {/* Auto-focuses on error */}
+      {flow.error && <div ref={flow.errorRef}>{flow.error.message}</div>}
+    </form>
+  );
+}
 ```
 
-### `errorRef`
+### 3. AI-Powered: Predictive Intent & Flow DNA
 
-Automatically manages focus for error messages. When the flow enters an error state, the element with this ref will be focused for accessibility.
+Pre-warm your flows before the user even clicks. AsyncFlowState learns from hover patterns to eliminate perceived latency.
 
 ```tsx
-{
-  flow.error && (
-    <div ref={flow.errorRef} tabIndex={-1} className="error-banner">
-      {flow.error.message}
+import { useFlow } from "@asyncflowstate/react";
+
+function ProductCard({ productId }) {
+  const flow = useFlow(api.getDetails, {
+    predictive: {
+      prefetchOnHover: true, // Learns and pre-warms the flow
+      threshold: 0.8, // Confidence threshold
+    },
+  });
+
+  return (
+    <div onMouseEnter={flow.button().onMouseEnter} className="card">
+      <h3>Product {productId}</h3>
+      <button onClick={() => flow.execute(productId)}>
+        {flow.status === "prewarmed" ? "Instant View" : "View Details"}
+      </button>
     </div>
   );
 }
 ```
 
-## Enhanced UX Options
+### 4. Cross-Tab Sync: Real-Time Coordination
 
-### Loading Perception
-
-Control how users perceive loading states to prevent UI flickering.
+Keep your application state consistent across every open tab without a backend websocket.
 
 ```tsx
-const flow = useFlow(action, {
-  loading: {
-    minDuration: 500, // Stay loading for at least 500ms
-    delay: 200, // Don't show loading if action finishes in <200ms
+const flow = useFlow(api.updateSettings, {
+  // Syncs loading status and data across all tabs automatically
+  crossTab: {
+    sync: true,
+    channel: "user-settings",
   },
 });
 ```
 
-### Progress Tracking
+### 5. Multi-Step Workflows: `useFlowSequence`
 
-Track and display the progress of long-running operations.
-
-```tsx
-const flow = useFlow(async () => {
-  flow.setProgress(20);
-  // ... step 1 ...
-  flow.setProgress(100);
-});
-
-return <progress value={flow.progress} max="100" />;
-```
-
-## Advanced Orchestration & Chaining
-
-### Declarative Chaining (`triggerOn`)
-
-Chain flows without manual `useEffect`. Flows can subscribe to signals from other flows.
-
-```tsx
-const login = useFlow(loginAction);
-const fetchProfile = useFlow(fetchAction, {
-  triggerOn: [login.signals.success],
-});
-```
-
-### Streaming (LLM/AI)
-
-Native support for streaming responses. The flow status will be `'streaming'` while chunks arrive. `flow.data` accumulates string chunks automatically.
-
-```tsx
-const flow = useFlow(chatAction);
-
-return (
-  <div>
-    {flow.status === "streaming" && <span>GPT is typing...</span>}
-    <pre>{flow.data}</pre>
-  </div>
-);
-```
-
-### `useFlowSequence`
-
-Run multiple flows in a specific order with aggregate state and progress.
+Manage complex, interdependent async steps with a single source of truth for progress and errors.
 
 ```tsx
 import { useFlowSequence } from "@asyncflowstate/react";
 
-const sequence = useFlowSequence([
-  { name: "Upload", flow: uploadFlow },
-  { name: "Process", flow: processFlow, mapInput: (file) => file.id },
-]);
+function SetupWizard() {
+  const sequence = useFlowSequence([
+    { name: "Create Account", flow: accountFlow },
+    { name: "Verify Email", flow: emailFlow, mapInput: (acc) => acc.email },
+    { name: "Sync Data", flow: syncFlow },
+  ]);
+
+  return (
+    <div>
+      <progress value={sequence.progress} max="100" />
+      <p>Current Step: {sequence.currentStep?.name}</p>
+      <button onClick={() => sequence.execute()}>Start Setup</button>
+    </div>
+  );
+}
 ```
 
-## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
 
-- **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
-- **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions.
-- **Worker Offloading:** Move heavy tasks to background threads via `useFlow(task, { worker: true })`.
-- **Optimistic UI with Deep-Diff Rollbacks:** Instant updates with perfect state recovery.
-- **Streaming & AI Support:** Optimized for LLM streaming with `status === 'streaming'`.
-- **Cross-Tab Sync:** Keep all open tabs in sync with the same async state.
+- **Flow DNA:** AI-driven state that optimizes behavior based on user patterns.
+- **Ambient Intelligence:** Background orchestration that pre-empts async failures.
+- **Speculative Execution:** Predicted user intent for zero-latency interactions.
+- **Emotional UX Components:** Skeleton states and transitions that adapt to app load.
+- **Collaborative Hooks:** Real-time multi-user state synchronization.
+- **Edge-First Fetching:** Native support for edge-optimized data flows.
+- **Temporal Debugging:** Replay any async sequence with full state fidelity.
+- **Telemetry Dashboard:** Live monitoring of all application flows.
 
 ## Monitoring & Debugging
 
@@ -250,10 +252,6 @@ import { FlowDebugger } from "@asyncflowstate/react";
 // Add it once at the root
 <FlowDebugger />;
 ```
-
-### Form Recovery
-
-If a page is refreshed during a validation error or an interrupted loading state, `useFlow` automatically restores the state and **re-focuses** the last active field (or `errorRef`) to provide a seamless recovery experience.
 
 ### `FlowNotificationProvider`
 

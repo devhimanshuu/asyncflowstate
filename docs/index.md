@@ -5,8 +5,8 @@ titleTemplate: The Async Behavior Engine
 
 hero:
   name: AsyncFlowState
-  text: Predictable Async UI Behavior
-  tagline: Eliminate boilerplate, prevent double submissions, and ship polished async UX — across React, Vue, Svelte, Angular, Solid & Next.js.
+  text: The AI-Powered Async Engine
+  tagline: Eliminate boilerplate, predict user intent, and self-heal failures with AI — across React, Vue, Svelte, Angular, Solid, Next.js, Nuxt, Remix & Astro.
   image:
     src: /logo.png
     alt: AsyncFlowState Logo
@@ -145,9 +145,9 @@ function SaveButton({ data }) {
 <div class="afs-container">
 
 <div class="text-center mb-16">
-<p class="afs-label">Core Engine</p>
+<p class="afs-label">Core Engine — v3.0</p>
 <h1 class="afs-heading">Everything your async flows <span class="text-brand italic">need.</span></h1>
-<p class="afs-subheading">20+ production-grade features. Zero runtime dependencies. One API surface across all frameworks.</p>
+<p class="afs-subheading">30+ production-grade features. AI-powered debugging. Zero runtime dependencies. One API surface across nine frameworks.</p>
 </div>
 
 <!-- Bento Row 1: 2 large cards -->
@@ -284,6 +284,41 @@ function SaveButton({ data }) {
 
 </div>
 
+<!-- Bento Row 4: v3.0 Next-Gen AI Features -->
+<div class="mt-5 p-[2px] rounded-2xl bg-linear-to-r from-brand/40 via-purple-500/40 to-cyan-500/40">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 rounded-[14px] bg-(--vp-c-bg)">
+
+<div class="afs-bento-card group border-fuchsia-500/20">
+<div class="w-10 h-10 rounded-xl bg-fuchsia-500/10 flex items-center justify-center text-base mb-5 group-hover:scale-110 transition-transform duration-300">
+<i class="fa-solid fa-dna text-fuchsia-500"></i>
+</div>
+<h4 class="font-bold text-[15px] mb-2">Flow DNA</h4>
+<p class="text-[13px] opacity-45 leading-relaxed">Genetic auto-tuning. Flows analyze P95 latency to continuously evolve their own optimal timeouts, retries, and stale times.</p>
+<a href="/guide/flow-dna" class="afs-link mt-3 text-fuchsia-500">Learn more →</a>
+</div>
+
+<div class="afs-bento-card group border-emerald-500/20">
+<div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-base mb-5 group-hover:scale-110 transition-transform duration-300">
+<i class="fa-solid fa-thermometer-half text-emerald-500"></i>
+</div>
+<h4 class="font-bold text-[15px] mb-2">Ambient Intelligence</h4>
+<p class="text-[13px] opacity-45 leading-relaxed">Device-aware flows that monitor battery, network type, and CPU pressure to dynamically defer or compress payloads.</p>
+<a href="/guide/ambient" class="afs-link mt-3 text-emerald-500">Learn more →</a>
+</div>
+
+<div class="afs-bento-card group border-orange-500/20">
+<div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-base mb-5 group-hover:scale-110 transition-transform duration-300">
+<i class="fa-solid fa-share-nodes text-orange-500"></i>
+</div>
+<h4 class="font-bold text-[15px] mb-2">Flow Mesh</h4>
+<p class="text-[13px] opacity-45 leading-relaxed">Tabs form a local P2P network using BroadcastChannel. Leader election prevents duplicate API calls and shares cache instantly.</p>
+<a href="/guide/mesh" class="afs-link mt-3 text-orange-500">Learn more →</a>
+</div>
+
+</div>
+</div>
+<p class="text-center mt-4 text-[11px] font-black uppercase tracking-[0.25em] opacity-25">✦ Next-Gen AI — Autonomous Async Orchestration ✦</p>
+
 </div>
 </section>
 
@@ -379,7 +414,7 @@ function SaveButton({ data }) {
 
 <div class="text-center mb-16">
 <p class="afs-label">Package Ecosystem</p>
-<h1 class="afs-heading">One core. <span class="text-brand italic">Six adapters.</span></h1>
+<h1 class="afs-heading">One core. <span class="text-brand italic">Nine adapters.</span></h1>
 <p class="afs-subheading">A framework-agnostic engine with native bindings that speak each framework's idiom — hooks, composables, stores, services, and signals.</p>
 </div>
 
@@ -434,6 +469,24 @@ function SaveButton({ data }) {
 <p class="text-[10px] opacity-35 font-semibold">Fine-grained signals</p>
 </a>
 
+<a href="/frameworks/nuxt/" class="afs-framework-card group">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" class="w-11 h-11 group-hover:scale-110 transition-transform duration-300" alt="Nuxt" />
+<p class="font-bold text-sm">Nuxt</p>
+<p class="text-[10px] opacity-35 font-semibold">Auto-imports · Module</p>
+</a>
+
+<a href="/frameworks/remix/" class="afs-framework-card group">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" class="w-11 h-11 group-hover:scale-110 transition-transform duration-300 text-blue-400" alt="Remix" style="filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" />
+<p class="font-bold text-sm">Remix</p>
+<p class="text-[10px] opacity-35 font-semibold">Actions · Loaders</p>
+</a>
+
+<a href="/frameworks/astro/" class="afs-framework-card group">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" class="w-11 h-11 group-hover:scale-110 transition-transform duration-300 dark:invert" alt="Astro" />
+<p class="font-bold text-sm">Astro</p>
+<p class="text-[10px] opacity-35 font-semibold">Actions · Server Side</p>
+</a>
+
 </div>
 
 </div>
@@ -447,12 +500,12 @@ function SaveButton({ data }) {
 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
 
 <div>
-<p class="text-4xl lg:text-5xl font-black tracking-tighter text-(--vp-c-brand-1)">20+</p>
+<p class="text-4xl lg:text-5xl font-black tracking-tighter text-(--vp-c-brand-1)">30+</p>
 <p class="text-[12px] font-bold opacity-35 uppercase tracking-wider mt-2">Built-in Features</p>
 </div>
 
 <div>
-<p class="text-4xl lg:text-5xl font-black tracking-tighter text-(--vp-c-brand-1)">6</p>
+<p class="text-4xl lg:text-5xl font-black tracking-tighter text-(--vp-c-brand-1)">9</p>
 <p class="text-[12px] font-bold opacity-35 uppercase tracking-wider mt-2">Framework Adapters</p>
 </div>
 

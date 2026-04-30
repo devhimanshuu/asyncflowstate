@@ -1,10 +1,11 @@
-import { useEffect, useRef, useCallback } from "react";
-import { type FlowAction } from "@asyncflowstate/core";
+import { useCallback } from "react";
+import { type FlowAction, IntentTracker } from "@asyncflowstate/core";
 import { useFlow, type ReactFlowOptions } from "./useFlow";
 
 /**
- * usePredictiveFlow is a React hook that triggers a prefetch based on pointer velocity.
- * If the user's cursor is moving quickly towards the trigger element, the flow fires early.
+ * usePredictiveFlow is a React hook that triggers a pre-warm based on pointer trajectory.
+ * This feature uses a tiny, local ML-style heuristic (via IntentTracker) to monitor mouse trajectories.
+ * It predicts which button the user is about to click and executes pre-checks and cache-lookups early.
  *
  * @param action The asynchronous function to manage.
  * @param options Configuration for prediction and flow behavior.
@@ -19,34 +20,19 @@ export function usePredictiveFlow<
   options: ReactFlowOptions<TData, TError, TArgs> = {},
 ) {
   const flow = useFlow(action, options);
-  const velocityRef = useRef(0);
-  const lastPosRef = useRef({ x: 0, y: 0, t: 0 });
-
-  useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      const now = Date.now();
-      const dt = now - lastPosRef.current.t;
-      if (dt > 0) {
-        const dx = e.clientX - lastPosRef.current.x;
-        const dy = e.clientY - lastPosRef.current.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        velocityRef.current = dist / dt;
-      }
-      lastPosRef.current = { x: e.clientX, y: e.clientY, t: now };
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    return () => window.removeEventListener("pointermove", handlePointerMove);
-  }, []);
 
   const predictHandle = useCallback(
-    (_e: React.PointerEvent) => {
-      // If velocity is high (> 2px/ms) and moving towards, prefetch!
-      if (velocityRef.current > 2) {
-        (flow.execute as any)();
+    (rect: DOMRect) => {
+      const tracker = IntentTracker.getInstance();
+      const probability = tracker.predictIntent(rect);
+      const threshold = options.predictive?.threshold ?? 0.7;
+
+      if (probability >= threshold) {
+        // Execute Pre-check and Cache-lookup phases before the finger touches the screen
+        (flow.prewarm as any)();
       }
     },
-    [flow],
+    [flow, options.predictive?.threshold],
   );
 
   // Wrap button to include velocity check
@@ -56,7 +42,7 @@ export function usePredictiveFlow<
       return {
         ...original,
         onPointerMove: (e: React.PointerEvent) => {
-          predictHandle(e);
+          predictHandle(e.currentTarget.getBoundingClientRect());
           if (props.onPointerMove) props.onPointerMove(e);
         },
       };

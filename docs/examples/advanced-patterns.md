@@ -1,6 +1,6 @@
 # Advanced Patterns <i class="fa-solid fa-sparkles text-amber-500"></i>
 
-This section showcases the premium features of AsyncFlowState 2.0.2 in real-world scenarios.
+This section showcases the premium features of AsyncFlowState 3.0 in real-world scenarios.
 
 ## 1. Purgatory (Global Undo)
 

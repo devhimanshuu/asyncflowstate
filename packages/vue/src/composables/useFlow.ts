@@ -61,6 +61,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   const progress = ref<number>(flow.progress);
   const rollbackDiff = ref<any[] | null>(flow.state.rollbackDiff ?? null);
   const fieldErrors = ref<Record<string, string>>({});
+  const announcement = ref("");
 
   const loading = ref(flow.isLoading);
   const isLoading = loading;
@@ -68,6 +69,16 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   const isError = computed(() => status.value === "error");
   const isIdle = computed(() => status.value === "idle");
   const isStreaming = computed(() => status.value === "streaming");
+  const isPrewarmed = computed(() => status.value === "prewarmed");
+
+  // Sync options to the flow instance when they change
+  watch(
+    () => options,
+    (newOptions) => {
+      flow.setOptions(mergeFlowOptions(globalConfig, newOptions));
+    },
+    { deep: true },
+  );
 
   // Track last args for revalidation
   let lastArgs: TArgs | null = null;
@@ -82,6 +93,21 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     loading.value = flow.isLoading;
   });
 
+  // ─── A11y Announcements ──────────────────────────────────────────────────
+  watch(status, (newStatus) => {
+    if (newStatus === "success" && options.a11y?.announceSuccess) {
+      announcement.value =
+        typeof options.a11y.announceSuccess === "function"
+          ? options.a11y.announceSuccess(data.value!)
+          : options.a11y.announceSuccess;
+    } else if (newStatus === "error" && options.a11y?.announceError) {
+      announcement.value =
+        typeof options.a11y.announceError === "function"
+          ? options.a11y.announceError(error.value!)
+          : options.a11y.announceError;
+    }
+  });
+
   // ─── Execute ─────────────────────────────────────────────────────────────
   function execute(...args: TArgs): Promise<TData | undefined> {
     lastArgs = args;
@@ -94,6 +120,17 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     return {
       disabled: flow.isLoading,
       "aria-busy": flow.isLoading,
+      "data-prewarmed": status.value === "prewarmed",
+      style: {
+        ...(status.value === "prewarmed"
+          ? {
+              boxShadow: "0 0 15px rgba(255, 165, 0, 0.6)",
+              transition: "all 0.3s ease",
+              border: "1px solid orange",
+            }
+          : {}),
+        ...rest.style,
+      },
       onClick: (e: Event) => {
         if (onClick) {
           onClick(e);
@@ -170,8 +207,8 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
   if (options.triggerOn) {
     const prevBooleans: boolean[] = [];
     watch(
-      () => options.triggerOn,
-      (triggers) => {
+      () => options.triggerOn as any,
+      (triggers: any) => {
         if (!triggers) return;
         let booleanIndex = 0;
         triggers.forEach((trigger: any) => {
@@ -251,8 +288,14 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     isIdle,
     /** Whether the flow is streaming */
     isStreaming,
+    /** Whether the flow is pre-warmed based on intent */
+    isPrewarmed,
     /** Execute the action */
     execute,
+    /** Pre-warm the flow */
+    prewarm: (...args: TArgs) => flow.prewarm(...args),
+    /** Ask the AI Debugger */
+    askDebugger: flow.askDebugger.bind(flow),
     /** Reset flow state to idle */
     reset: flow.reset.bind(flow),
     /** Cancel the currently running action */
@@ -274,5 +317,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     flow,
     /** Signals for inter-flow communication */
     signals: flow.signals,
+    /** Latest A11y announcement message */
+    announcement,
   });
 }

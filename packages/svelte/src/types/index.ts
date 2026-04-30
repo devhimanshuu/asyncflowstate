@@ -13,15 +13,21 @@ export interface SvelteFlowOptions<
   /** If true, automatically re-executes with last args when network reconnects. */
   revalidateOnReconnect?: boolean;
   /**
-   * Predictive execution options.
-   * Tracks user intent (hover, pointer velocity) to prefetch the action.
+   * Accessibility options for automatic screen reader announcements.
    */
-  predictive?: {
-    /** Whether to enable prefetching on hover. */
-    prefetchOnHover?: boolean;
-    /** Minimum hover duration (ms) before triggering prefetch. Default: 100 */
-    hoverDelay?: number;
-  };
+  a11y?: SvelteA11yOptions<TData, TError>;
+}
+
+/**
+ * Accessibility options for automatic screen reader announcements.
+ */
+export interface SvelteA11yOptions<TData, TError> {
+  /** Message or function to generate a message when the action succeeds. */
+  announceSuccess?: string | ((data: TData) => string);
+  /** Message or function to generate a message when the action fails. */
+  announceError?: string | ((error: TError) => string);
+  /** Relationship of the live region. Default is 'polite'. */
+  liveRegionRel?: "polite" | "assertive";
 }
 
 /**

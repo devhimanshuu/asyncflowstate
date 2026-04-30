@@ -328,5 +328,26 @@ export function mergeFlowOptions<
     (merged as any).predictive = (localOptions as any).predictive;
   }
 
+  // 3.0.0 Next-Gen Features
+  const nextGenFeatures: (keyof FlowOptions)[] = [
+    "evolution",
+    "ambient",
+    "temporal",
+    "sentiment",
+    "mesh",
+    "collaborative",
+    "edge",
+    "speculative",
+    "probabilityModel",
+    "streamingPolicy",
+    "autoThrottle",
+  ];
+
+  for (const feature of nextGenFeatures) {
+    if (localOptions[feature] !== undefined) {
+      (merged as any)[feature] = localOptions[feature];
+    }
+  }
+
   return merged;
 }

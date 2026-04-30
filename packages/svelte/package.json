@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/svelte",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "private": false,
   "description": "Official Svelte bindings for AsyncFlowState. Reactive stores (createFlow, createFlowSequence, createFlowParallel) for managing async loading, error, and success states effortlessly.",
   "keywords": [

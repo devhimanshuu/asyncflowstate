@@ -12,13 +12,22 @@ export interface AngularFlowOptions<
   revalidateOnFocus?: boolean;
   /** If true, automatically re-executes with last args when network reconnects. */
   revalidateOnReconnect?: boolean;
-  /** Predictive execution options. */
-  predictive?: {
-    /** Whether to enable prefetching on hover. */
-    prefetchOnHover?: boolean;
-    /** Minimum hover duration (ms) before triggering prefetch. Default: 100 */
-    hoverDelay?: number;
-  };
+  /**
+   * Accessibility options for automatic screen reader announcements.
+   */
+  a11y?: AngularA11yOptions<TData, TError>;
+}
+
+/**
+ * Accessibility options for automatic screen reader announcements.
+ */
+export interface AngularA11yOptions<TData, TError> {
+  /** Message or function to generate a message when the action succeeds. */
+  announceSuccess?: string | ((data: TData) => string);
+  /** Message or function to generate a message when the action fails. */
+  announceError?: string | ((error: TError) => string);
+  /** Relationship of the live region. Default is 'polite'. */
+  liveRegionRel?: "polite" | "assertive";
 }
 
 /**
@@ -35,6 +44,7 @@ export interface FlowSignalState<TData = any, TError = any> {
   isError: boolean;
   isIdle: boolean;
   isStreaming: boolean;
+  isPrewarmed: boolean;
   rollbackDiff: any[] | null;
 }
 

@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/svelte <span style="font-size: 14px; background: #ff3e0022; color: #ff3e00; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/svelte <span style="font-size: 14px; background: #ff3e0022; color: #ff3e00; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>Official Svelte bindings for AsyncFlowState — the industry-standard engine for predictable async UI behavior.</b></p>
 
   <p>
@@ -108,14 +108,118 @@ pnpm add @asyncflowstate/svelte @asyncflowstate/core
 {/each}
 ```
 
-## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
 
-- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-- **Global Purgatory (Undo):** Native undo patterns and programmable delay.
-- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-- **Cross-Tab Sync:** State consistency across the browser session.
+- **Flow DNA:** Self-healing stores that adapt to execution patterns.
+- **Ambient Intelligence:** Svelte-native background predictive monitoring.
+- **Speculative Execution:** Low-latency interactions via intent prediction.
+- **Emotional UX:** Adaptive skeletons and transitions for Svelte transitions.
+- **Collaborative Stores:** Real-time state synchronization across devices.
+- **Edge-First Logic:** Native support for edge runtime optimizations.
+- **Temporal Trace:** History replay for Svelte reactive state.
+- **Telemetry Dashboard:** Live monitoring of all application flow stores.
+
+## Comprehensive Examples
+
+### 1. The Power of Auto-Subscription
+
+Svelte's `$` syntax makes AsyncFlowState feels like a native part of the language.
+
+```svelte
+<script>
+  import { createFlow } from '@asyncflowstate/svelte';
+
+  const flow = createFlow(api.saveData, {
+    optimisticResult: (prev) => ({ ...prev, saved: true }),
+    rollbackOnError: true
+  });
+</script>
+
+<button on:click={() => flow.execute()} disabled={$flow.loading}>
+  {$flow.loading ? 'Saving...' : 'Save Changes'}
+</button>
+
+{#if $flow.isSuccess}
+  <p class="success">Data synced across devices!</p>
+{/if}
+```
+
+### 2. AI-Powered: Flow DNA & Speculative Execution
+
+Let the engine predict the next user move and pre-warm the state.
+
+```svelte
+<script>
+  const flow = createFlow(api.fetchDetails, {
+    predictive: { prefetchOnHover: true }
+  });
+</script>
+
+<div on:mouseenter={flow.prewarm} class="card">
+  <button on:click={flow.execute}>
+    {$flow.status === 'prewarmed' ? 'Instant View' : 'Load Details'}
+  </button>
+</div>
+```
+
+### 3. Enterprise Orchestration: `createFlowSequence`
+
+Chain multiple stores with built-in progress tracking and failure recovery.
+
+```svelte
+<script>
+  import { createFlowSequence } from '@asyncflowstate/svelte';
+
+  const sequence = createFlowSequence([
+    { name: "Step 1", flow: flow1 },
+    { name: "Step 2", flow: flow2 },
+  ]);
+</script>
+
+<progress value={$sequence.progress} max="100" />
+<button on:click={sequence.execute}>Run Sequence</button>
+```
+
+### 4. Real-Time Collaboration: Cross-Tab Mesh
+
+Synchronize state across multiple browser tabs automatically.
+
+```svelte
+<script>
+  const flow = createFlow(api.updateTask, {
+    crossTab: { sync: true, channel: 'tasks-mesh' }
+  });
+</script>
+```
+
+### 5. Multi-Keyed Flows: `createFlowList`
+
+Perfect for lists where each item needs its own independent async state.
+
+```svelte
+<script>
+  import { createFlowList } from '@asyncflowstate/svelte';
+  const list = createFlowList(api.deleteItem);
+</script>
+
+{#each items as item}
+  <button on:click={() => list.execute(item.id)}
+          disabled={$list.states[item.id]?.loading}>
+    Delete {item.name}
+  </button>
+{/each}
+```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
+
+- **Flow DNA:** Self-healing stores that adapt to execution patterns.
+- **Ambient Intelligence:** Svelte-native background predictive monitoring.
+- **Speculative Execution:** Low-latency interactions via intent prediction.
+- **Emotional UX:** Adaptive skeletons and transitions for Svelte transitions.
+- **Collaborative Stores:** Real-time state synchronization across devices.
+- **Edge-First Logic:** Native support for edge runtime optimizations.
+- **Temporal Trace:** History replay for Svelte reactive state.
+- **Telemetry Dashboard:** Live monitoring of all application flow stores.
 
 ## API Reference
 

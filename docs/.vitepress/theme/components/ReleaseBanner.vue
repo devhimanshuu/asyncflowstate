@@ -28,14 +28,17 @@ watch(
         <div class="content">
           <div class="badge-wrapper">
             <span class="pulse-ring"></span>
-            <span class="badge">v2.0 STABLE</span>
+            <span class="badge">v3.0 NEW</span>
           </div>
 
           <div class="text-group">
-            <span class="main-text">The Production-Ready Release is Here</span>
+            <span class="main-text"
+              >AsyncFlowState 3.0 — AI-Powered Async Engine</span
+            >
             <span class="divider"></span>
             <span class="sub-text"
-              >TypeScript-first · Zero dependencies · 6 Adapters</span
+              >Predictive Intent · Self-Healing · Ghost Skeletons · 9
+              Adapters</span
             >
           </div>
 

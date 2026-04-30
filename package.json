@@ -1,6 +1,6 @@
 {
   "name": "asyncflowstate",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "The ultimate async state manager for modern UIs. Eliminate `isLoading` boilerplate in React, Vue, Svelte, Angular, Solid, Next.js, and vanilla JS with declarative flows.",
   "private": true,
   "keywords": [

@@ -1,8 +1,8 @@
 <div align="center">
   <img src="./assets/AsyncFlowState_logo.png" width="300" height="300" alt="AsyncFlowState Logo" /> 
   <h1>AsyncFlowState</h1>
-  <p><b>The industry-standard engine for predictable async UI behavior.</b></p>
-  <p>Eliminate boilerplate and bugs in async interactions. Built for React, Vue, Svelte, Angular, Solid — works everywhere.</p>
+  <p><b>The AI-powered engine for predictable async UI behavior.</b></p>
+  <p>Eliminate boilerplate, predict user intent, and self-heal async failures with AI. Built for React, Vue, Svelte, Angular, Solid, Next.js, Nuxt, Remix & Astro.</p>
 
   <p>
     <a href="https://asyncflowstate-js.pages.dev/"><img src="https://img.shields.io/badge/Documentation-Link-blue.svg" alt="Documentation" /></a>
@@ -118,13 +118,16 @@ AsyncFlowState is built as a modular system:
 
 | Package                                         | Version | Description                                 | NPM                                                                                                                                |
 | :---------------------------------------------- | :------ | :------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- |
-| [`@asyncflowstate/core`](./packages/core)       | `2.0.2` | Framework-agnostic logic engine             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/core?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/core)       |
-| [`@asyncflowstate/react`](./packages/react)     | `2.0.2` | React hooks & accessibility-first helpers   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/react?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/react)     |
-| [`@asyncflowstate/next`](./packages/next)       | `2.0.2` | Next.js Server Actions & SSR integration    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/next?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/next)       |
-| [`@asyncflowstate/vue`](./packages/vue)         | `2.0.2` | Vue 3 composables & provide/inject config   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/vue?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/vue)         |
-| [`@asyncflowstate/svelte`](./packages/svelte)   | `2.0.2` | Svelte stores with `$` auto-subscription    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/svelte?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/svelte)   |
-| [`@asyncflowstate/angular`](./packages/angular) | `2.0.2` | Angular Observable/BehaviorSubject bindings | [![npm](https://img.shields.io/npm/v/@asyncflowstate/angular?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/angular) |
-| [`@asyncflowstate/solid`](./packages/solid)     | `2.0.2` | SolidJS fine-grained reactive signals       | [![npm](https://img.shields.io/npm/v/@asyncflowstate/solid?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/solid)     |
+| [`@asyncflowstate/core`](./packages/core)       | `3.0.0` | Framework-agnostic logic engine             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/core?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/core)       |
+| [`@asyncflowstate/react`](./packages/react)     | `3.0.0` | React hooks & accessibility-first helpers   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/react?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/react)     |
+| [`@asyncflowstate/next`](./packages/next)       | `3.0.0` | Next.js Server Actions & SSR integration    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/next?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/next)       |
+| [`@asyncflowstate/vue`](./packages/vue)         | `3.0.0` | Vue 3 composables & provide/inject config   | [![npm](https://img.shields.io/npm/v/@asyncflowstate/vue?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/vue)         |
+| [`@asyncflowstate/svelte`](./packages/svelte)   | `3.0.0` | Svelte stores with `$` auto-subscription    | [![npm](https://img.shields.io/npm/v/@asyncflowstate/svelte?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/svelte)   |
+| [`@asyncflowstate/angular`](./packages/angular) | `3.0.0` | Angular Observable/BehaviorSubject bindings | [![npm](https://img.shields.io/npm/v/@asyncflowstate/angular?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/angular) |
+| [`@asyncflowstate/solid`](./packages/solid)     | `3.0.0` | SolidJS fine-grained reactive signals       | [![npm](https://img.shields.io/npm/v/@asyncflowstate/solid?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/solid)     |
+| [`@asyncflowstate/nuxt`](./packages/nuxt)       | `3.0.0` | Nuxt 3 module with auto-imports             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/nuxt?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/nuxt)       |
+| [`@asyncflowstate/remix`](./packages/remix)     | `3.0.0` | Remix Actions & Loaders integration         | [![npm](https://img.shields.io/npm/v/@asyncflowstate/remix?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/remix)     |
+| [`@asyncflowstate/astro`](./packages/astro)     | `3.0.0` | Astro Actions & Islands support             | [![npm](https://img.shields.io/npm/v/@asyncflowstate/astro?color=indigo)](https://www.npmjs.com/package/@asyncflowstate/astro)     |
 
 ---
 
@@ -134,14 +137,17 @@ AsyncFlowState is built as a modular system:
 
 AsyncFlowState consists of a core engine and native adapters for each framework.
 
-| Framework   | Command                                                                       |
-| :---------- | :---------------------------------------------------------------------------- |
-| **React**   | `npm install @asyncflowstate/react @asyncflowstate/core`                      |
-| **Next.js** | `npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core` |
-| **Vue 3**   | `npm install @asyncflowstate/vue @asyncflowstate/core`                        |
-| **Svelte**  | `npm install @asyncflowstate/svelte @asyncflowstate/core`                     |
-| **Angular** | `npm install @asyncflowstate/angular @asyncflowstate/core`                    |
-| **SolidJS** | `npm install @asyncflowstate/solid @asyncflowstate/core`                      |
+| Framework   | Command                                                                        |
+| :---------- | :----------------------------------------------------------------------------- |
+| **React**   | `npm install @asyncflowstate/react @asyncflowstate/core`                       |
+| **Next.js** | `npm install @asyncflowstate/next @asyncflowstate/react @asyncflowstate/core`  |
+| **Vue 3**   | `npm install @asyncflowstate/vue @asyncflowstate/core`                         |
+| **Svelte**  | `npm install @asyncflowstate/svelte @asyncflowstate/core`                      |
+| **Angular** | `npm install @asyncflowstate/angular @asyncflowstate/core`                     |
+| **SolidJS** | `npm install @asyncflowstate/solid @asyncflowstate/core`                       |
+| **Nuxt 3**  | `npm install @asyncflowstate/nuxt @asyncflowstate/vue @asyncflowstate/core`    |
+| **Remix**   | `npm install @asyncflowstate/remix @asyncflowstate/react @asyncflowstate/core` |
+| **Astro**   | `npm install @asyncflowstate/astro @asyncflowstate/core`                       |
 
 ### 2. Basic Usage (React)
 
@@ -334,16 +340,23 @@ function UserCard() {
 
 ## <i class="fa-solid fa-sparkles text-amber-500"></i> Key Features
 
-- **<i class="fa-solid fa-globe text-blue-400"></i> Global Config:** Set default options app-wide with `FlowProvider`.
-- **<i class="fa-solid fa-link text-gray-400"></i> Declarative Chaining:** Orchestrate complex workflows with `triggerOn` and `signals` instead of manual `useEffect`.
+- **<i class="fa-solid fa-brain text-cyan-500"></i> Flow DNA:** Self-healing async state that learns from environment patterns and user behavior.
+- **<i class="fa-solid fa-satellite-dish text-indigo-500"></i> Ambient Intelligence:** Non-intrusive monitoring that predicts and optimizes background flows.
+- **<i class="fa-solid fa-wand-sparkles text-amber-500"></i> Flow Choreography:** Declarative coordination of complex, multi-stage async workflows.
+- **<i class="fa-solid fa-bolt text-yellow-400"></i> Speculative Execution:** Run flows before users even click, based on high-confidence intent prediction.
+- **<i class="fa-solid fa-heart text-red-400"></i> Emotional UX:** Adaptive UI transitions and skeleton states that respond to user sentiment and system load.
+- **<i class="fa-solid fa-network-wired text-blue-500"></i> Flow Mesh:** Cross-tab and cross-device orchestration with leader election and shared state.
+- **<i class="fa-solid fa-users text-emerald-500"></i> Collaborative Flows:** Sync async state in real-time across multiple users and browser sessions.
+- **<i class="fa-solid fa-clock-rotate-left text-orange-400"></i> Temporal Replay:** Time-travel through any async flow state with full state restoration.
+- **<i class="fa-solid fa-cloud-bolt text-cyan-400"></i> Edge-First Flows:** Optimized for Cloudflare Workers, Vercel Edge, and Deno with automatic failover.
+- **<i class="fa-solid fa-gauge-high text-purple-400"></i> Telemetry Dashboard:** Real-time visualization of all flow health, latency, and throughput.
+- **<i class="fa-solid fa-ghost text-amber-500"></i> Ghost Skeletons:** AI-generated loading placeholders that match your actual data shape.
+- **<i class="fa-solid fa-link text-gray-400"></i> Declarative Chaining:** Orchestrate complex workflows with `triggerOn` and `signals`.
 - **<i class="fa-solid fa-water text-cyan-400"></i> Streaming Support:** Native support for LLM/AI streaming using `AsyncIterable` or `ReadableStream`.
-- **<i class="fa-solid fa-bolt text-yellow-400"></i> Parallel & Sequential:** Orchestrate multiple flows with aggregate state via `FlowParallel` and `FlowSequence`.
-- **<i class="fa-solid fa-stopwatch text-brand"></i> Declarative Polling:** Built-in support for auto-refreshing actions with conditional stop logic.
-- **<i class="fa-solid fa-floppy-disk text-gray-500"></i> Smart Persistence:** Survive page refreshes and resume interrupted operations (file uploads, forms, etc.).
+- **<i class="fa-solid fa-floppy-disk text-gray-500"></i> Smart Persistence:** Survive page refreshes and resume interrupted operations.
 - **<i class="fa-solid fa-shield-halved text-emerald-500"></i> Persistent Circuit Breaker:** Prevent cascading failures with cross-session state persistence.
-- **<i class="fa-solid fa-chart-line text-indigo-400"></i> Visual Sequence Trace:** Real-time Timeline/Gantt view of all async activity with `FlowDebugger`.
-- **<i class="fa-solid fa-wrench text-gray-400"></i> Form Recovery:** Automatically re-focus fields and restore validation errors after a page refresh.
-- **<i class="fa-solid fa-bell text-yellow-400"></i> Global Notifications:** Centralized success/error handling for all flows via `FlowNotificationProvider`.
+- **<i class="fa-solid fa-universal-access text-purple-400"></i> Cross-Framework A11y:** ARIA live region announcements across all nine frameworks.
+- **<i class="fa-solid fa-chart-line text-indigo-400"></i> Visual Sequence Trace:** Real-time Timeline/Gantt view of all async activity.
 - **<i class="fa-solid fa-puzzle-piece text-purple-400"></i> Core Engine:** Lightweight runtime logic that works anywhere (Vanilla JS, Node, etc.).
 
 ---
@@ -357,6 +370,9 @@ function UserCard() {
 - **[Svelte Package Documentation](./packages/svelte)** - Svelte stores.
 - **[Angular Package Documentation](./packages/angular)** - Observable/BehaviorSubject bindings.
 - **[Solid Package Documentation](./packages/solid)** - SolidJS reactive primitives.
+- **[Nuxt Package Documentation](./packages/nuxt)** - Nuxt 3 auto-import module.
+- **[Remix Package Documentation](./packages/remix)** - Remix Actions integration.
+- **[Astro Package Documentation](./packages/astro)** - Astro Actions support.
 
 ---
 
@@ -388,6 +404,6 @@ MIT © [AsyncFlowState Contributors](https://github.com/devhimanshuu/asyncflowst
 
 ---
 
-> **"Stop rewriting the same async logic. Start building features."**
+> **"Stop rewriting the same async logic. Let AI handle the rest."**
 >
-> AsyncFlowState solves async UI behavior once, correctly, and everywhere.
+> AsyncFlowState solves async UI behavior once, correctly, and everywhere — now with AI intelligence.

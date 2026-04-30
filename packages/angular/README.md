@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/angular <span style="font-size: 14px; background: #dd003122; color: #dd0031; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/angular <span style="font-size: 14px; background: #dd003122; color: #dd0031; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>Official Angular bindings for AsyncFlowState — the industry-standard engine for predictable async UI behavior.</b></p>
 
   <p>
@@ -123,14 +123,120 @@ const sequence = createFlowSequence([
 // </ng-container>
 ```
 
-## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
 
-- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-- **Global Purgatory (Undo):** Angular-optimized delay patterns and programmable undo.
-- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-- **Cross-Tab Sync:** State consistency across the browser session.
+- **Flow DNA:** Self-healing async state using behavioral pattern matching.
+- **Ambient Intelligence:** Predictive background monitoring for Angular services.
+- **Speculative Execution:** Low-latency interactions based on intent prediction.
+- **Emotional UX:** Adaptive system load-aware UI transitions.
+- **Collaborative Mesh:** Real-time state synchronization across sessions.
+- **Edge-First Actions:** Optimized for global edge networks.
+- **Temporal Trace:** Full history replay for complex async sequences.
+- **Telemetry Hub:** Integrated monitoring for all application flows.
+
+## Comprehensive Examples
+
+### 1. Enterprise Services: The Core Engine
+
+Encapsulate your async logic in a service and expose it as a reactive flow.
+
+```typescript
+import { Injectable, OnDestroy } from "@angular/core";
+import { createFlow } from "@asyncflowstate/angular";
+
+@Injectable({ providedIn: "root" })
+export class ProductService implements OnDestroy {
+  // 1. Define the flow in your service
+  productDetails = createFlow((id: string) => api.fetchDetails(id), {
+    retry: { maxAttempts: 3 },
+    predictive: { prefetchOnHover: true },
+  });
+
+  ngOnDestroy() {
+    this.productDetails.destroy();
+  }
+}
+```
+
+### 2. Component Integration: Reactive UI
+
+Bind directly to the flow state with the `async` pipe.
+
+```typescript
+@Component({
+  template: `
+    <div *ngIf="productService.productDetails.state$ | async as state">
+      <button
+        (click)="productService.productDetails.execute(id)"
+        [disabled]="state.loading"
+      >
+        {{ state.loading ? "Loading..." : "View Product" }}
+      </button>
+
+      <div *ngIf="state.data" class="content">
+        {{ state.data.title }}
+      </div>
+
+      <p *ngIf="state.error" class="error">{{ state.error.message }}</p>
+    </div>
+  `,
+})
+export class ProductComponent {
+  constructor(public productService: ProductService) {}
+}
+```
+
+### 3. AI-Powered: Flow DNA & Self-Healing
+
+Leverage behavioral pattern matching to optimize your Angular flows automatically.
+
+```typescript
+const flow = createFlow(api.syncData, {
+  dna: {
+    enabled: true,
+    learningRate: 0.1, // Adapts to environmental network latency
+  },
+});
+```
+
+### 4. RxJS Power: Declarative Chaining
+
+Transform and filter flow states using standard RxJS operators.
+
+```typescript
+this.authFlow.state$
+  .pipe(
+    filter((state) => state.status === "success"),
+    switchMap((state) => this.profileFlow.execute(state.data.userId)),
+  )
+  .subscribe();
+```
+
+### 5. Multi-Step Workflows: `createFlowSequence`
+
+Manage complex wizard steps with centralized progress tracking.
+
+```typescript
+const sequence = createFlowSequence([
+  { name: "Validation", flow: step1.flow },
+  { name: "Submission", flow: step2.flow },
+  { name: "Analytics", flow: step3.flow },
+]);
+
+// Template:
+// <progress [value]="sequence.state.progress" max="100"></progress>
+```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
+
+- **Flow DNA:** Self-healing async state using behavioral pattern matching.
+- **Ambient Intelligence:** Predictive background monitoring for Angular services.
+- **Speculative Execution:** Low-latency interactions based on intent prediction.
+- **Emotional UX:** Adaptive system load-aware UI transitions.
+- **Collaborative Mesh:** Real-time state synchronization across sessions.
+- **Edge-First Actions:** Optimized for global edge networks.
+- **Temporal Trace:** Full history replay for complex async sequences.
+- **Telemetry Hub:** Integrated monitoring for all application flows.
 
 ## API Reference
 

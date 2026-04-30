@@ -28,12 +28,26 @@ import SyncAnimation from "./components/SyncAnimation.vue";
 import PredictiveAnimation from "./components/PredictiveAnimation.vue";
 import TestingJitterAnimation from "./components/TestingJitterAnimation.vue";
 
+import FlowDnaAnimation from "./components/FlowDnaAnimation.vue";
+import AmbientAnimation from "./components/AmbientAnimation.vue";
+import SpeculativeAnimation from "./components/SpeculativeAnimation.vue";
+import SentimentAnimation from "./components/SentimentAnimation.vue";
+import TelemetryAnimation from "./components/TelemetryAnimation.vue";
+import ChoreographyAnimation from "./components/ChoreographyAnimation.vue";
+import TemporalAnimation from "./components/TemporalAnimation.vue";
+import MeshAnimation from "./components/MeshAnimation.vue";
+import CollaborativeAnimation from "./components/CollaborativeAnimation.vue";
+import EdgeAnimation from "./components/EdgeAnimation.vue";
+
+import NotFound from "./components/NotFound.vue";
+
 export default {
   extends: DefaultTheme,
   Layout: () => {
     return h(DefaultTheme.Layout, null, {
       "home-hero-image-after": () => h(LogoDots),
       "layout-top": () => [h(HeroOrbital), h(ReleaseBanner)],
+      "not-found": () => h(NotFound),
     });
   },
   enhanceApp({ app }) {
@@ -60,5 +74,17 @@ export default {
     app.component("ReleaseBanner", ReleaseBanner);
     app.component("InstallBar", InstallBar);
     app.component("TestingJitterAnimation", TestingJitterAnimation);
+
+    // AI & Next-Gen feature animations
+    app.component("FlowDnaAnimation", FlowDnaAnimation);
+    app.component("AmbientAnimation", AmbientAnimation);
+    app.component("SpeculativeAnimation", SpeculativeAnimation);
+    app.component("SentimentAnimation", SentimentAnimation);
+    app.component("TelemetryAnimation", TelemetryAnimation);
+    app.component("ChoreographyAnimation", ChoreographyAnimation);
+    app.component("TemporalAnimation", TemporalAnimation);
+    app.component("MeshAnimation", MeshAnimation);
+    app.component("CollaborativeAnimation", CollaborativeAnimation);
+    app.component("EdgeAnimation", EdgeAnimation);
   },
 } satisfies Theme;

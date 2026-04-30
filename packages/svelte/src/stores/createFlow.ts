@@ -58,6 +58,7 @@ export function createFlow<
     isError: boolean;
     isIdle: boolean;
     isStreaming: boolean;
+    isPrewarmed: boolean;
     rollbackDiff: any[] | null;
   }> = writable({
     status: flow.status,
@@ -70,6 +71,7 @@ export function createFlow<
     isError: flow.isError,
     isIdle: flow.status === "idle",
     isStreaming: flow.status === "streaming",
+    isPrewarmed: flow.status === "prewarmed",
     rollbackDiff: flow.state.rollbackDiff ?? null,
   });
 
@@ -88,6 +90,7 @@ export function createFlow<
       isError: state.status === "error",
       isIdle: state.status === "idle",
       isStreaming: state.status === "streaming",
+      isPrewarmed: state.status === "prewarmed",
       rollbackDiff: state.rollbackDiff ?? null,
     });
   });
@@ -128,9 +131,34 @@ export function createFlow<
     flow.dispose();
   }
 
+  const announcement = writable("");
+
+  // A11y Announcements
+  const unsubscribeStatus = store.subscribe(($store) => {
+    if ($store.status === "success" && options.a11y?.announceSuccess) {
+      announcement.set(
+        typeof options.a11y.announceSuccess === "function"
+          ? options.a11y.announceSuccess($store.data!)
+          : options.a11y.announceSuccess,
+      );
+    } else if ($store.status === "error" && options.a11y?.announceError) {
+      announcement.set(
+        typeof options.a11y.announceError === "function"
+          ? options.a11y.announceError($store.error!)
+          : options.a11y.announceError,
+      );
+    }
+  });
+  cleanupFns.push(unsubscribeStatus);
+
   return {
     subscribe: store.subscribe,
     execute,
+    setOptions: (
+      newOptions: Partial<SvelteFlowOptions<TData, TError, TArgs>>,
+    ) => {
+      flow.setOptions({ ...options, ...newOptions });
+    },
     reset: flow.reset.bind(flow),
     cancel: flow.cancel.bind(flow),
     setProgress: flow.setProgress.bind(flow),
@@ -138,8 +166,11 @@ export function createFlow<
     importState: flow.importState.bind(flow),
     triggerUndo: flow.triggerUndo.bind(flow),
     worker: flow.worker.bind(flow),
+    prewarm: flow.prewarm.bind(flow),
+    askDebugger: flow.askDebugger.bind(flow),
     flow,
     signals: flow.signals,
+    announcement: { subscribe: announcement.subscribe },
     destroy,
   };
 }

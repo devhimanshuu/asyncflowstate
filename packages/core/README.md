@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/core <span style="font-size: 14px; background: #10b98122; color: #10b981; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/core <span style="font-size: 14px; background: #10b98122; color: #10b981; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>Framework-agnostic async UI behavior orchestration engine.</b></p>
 
   <p>
@@ -200,14 +200,6 @@ const flow = new Flow(flakeyAPI, {
 });
 ```
 
-### <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
-
-- **Dead Letter Queue (DLQ):** Failed operations are automatically pooled for manual or automated replay.
-- **Global Purgatory (Undo):** Centralized delay system for undoing destructive async actions before they commit.
-- **Worker Offloading:** Move heavy transformation logic to background threads with one line of config (`flow.worker()`).
-- **Deep-Diff Rollbacks:** Enterprise-grade optimistic UI that reverts state perfectly on failure.
-- **Cross-Tab Sync:** Synchronize async status and results across multiple browser tabs automatically.
-
 ### Declarative Chaining (Signals)
 
 Use signals to chain flows without manual `useEffect` or complex orchestration.
@@ -232,14 +224,18 @@ const cleanup = Flow.onEvent((event) => {
 });
 ```
 
-## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
 
-- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-- **Global Purgatory (Undo):** Native `v-undo` patterns and programmable delay.
-- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-- **Cross-Tab Sync:** State consistency across the browser session.
+- **Flow DNA:** Self-healing async state that learns from environment patterns and user behavior.
+- **Ambient Intelligence:** Non-intrusive monitoring that predicts and optimizes background flows.
+- **Flow Choreography:** Declarative coordination of complex, multi-stage async workflows.
+- **Speculative Execution:** Run flows before users even click, based on high-confidence intent prediction.
+- **Emotional UX:** Adaptive UI transitions and skeleton states that respond to user sentiment and system load.
+- **Flow Mesh:** Cross-tab and cross-device orchestration with leader election and shared state.
+- **Collaborative Flows:** Sync async state in real-time across multiple users and browser sessions.
+- **Temporal Replay:** Time-travel through any async flow state with full state restoration.
+- **Edge-First Flows:** Optimized for Cloudflare Workers, Vercel Edge, and Deno with automatic failover.
+- **Telemetry Dashboard:** Real-time visualization of all flow health, latency, and throughput.
 
 ## API Reference
 

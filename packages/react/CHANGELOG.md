@@ -1,5 +1,14 @@
 # Changelog - @asyncflowstate/react
 
+## 3.0.0
+
+### Major Changes
+
+- **AI-Powered Hooks**: New hooks for Flow DNA, Ambient Intelligence, and Speculative Execution.
+- **Collaborative Context**: Seamless multi-user state synchronization components.
+- **Emotional UX Patterns**: Adaptive transition components and AI skeletons.
+- **Next-Gen Debugging**: Temporal Replay and Telemetry Dashboard integration.
+
 ## 2.0.2
 
 ### Major Changes

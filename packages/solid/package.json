@@ -1,6 +1,6 @@
 {
   "name": "@asyncflowstate/solid",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "private": false,
   "description": "Official SolidJS bindings for AsyncFlowState. Fine-grained reactive primitives (createFlow, createFlowSequence, createFlowParallel) for managing async loading, error, and success states.",
   "keywords": [

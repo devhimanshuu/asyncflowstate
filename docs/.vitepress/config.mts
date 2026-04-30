@@ -7,7 +7,7 @@ export default defineConfig({
   },
   title: "AsyncFlowState",
   description:
-    "The industry-standard engine for predictable async UI behavior. Eliminate boilerplate in React, Vue, Svelte, Angular, Solid & Next.js.",
+    "The industry-standard engine for predictable async UI behavior. Eliminate boilerplate in React, Vue, Svelte, Angular, Solid, Next.js, Nuxt, Remix & Astro.",
 
   head: [
     ["link", { rel: "icon", href: "/logo.png", type: "image/png" }],
@@ -52,7 +52,7 @@ export default defineConfig({
       {
         name: "keywords",
         content:
-          "async, state management, react, vue, svelte, angular, solidjs, nextjs, typescript, loading state, error handling",
+          "async, state management, react, vue, svelte, angular, solidjs, nextjs, nuxt, remix, astro, typescript, loading state, error handling, ai debugging, predictive intent",
       },
     ],
     ["meta", { property: "og:title", content: "AsyncFlowState" }],
@@ -60,8 +60,7 @@ export default defineConfig({
       "meta",
       {
         property: "og:description",
-        content:
-          "The industry-standard engine for predictable async UI behavior.",
+        content: "The AI-powered engine for predictable async UI behavior.",
       },
     ],
     ["meta", { property: "og:type", content: "website" }],
@@ -89,20 +88,32 @@ export default defineConfig({
             link: "/frameworks/next/nextjs",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
             link: "/frameworks/vue/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
             link: "/frameworks/svelte/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
             link: "/frameworks/angular/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
             link: "/frameworks/solidjs/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/nuxt/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/remix/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/astro/",
           },
         ],
       },
@@ -113,20 +124,32 @@ export default defineConfig({
           { text: "React Hooks", link: "/api/react" },
           { text: "Next.js Hooks", link: "/api/nextjs" },
           {
-            text: 'Vue Composables <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Vue Composables",
             link: "/api/vue",
           },
           {
-            text: 'Svelte Stores <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Svelte Stores",
             link: "/api/svelte",
           },
           {
-            text: 'Angular Services <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Angular Services",
             link: "/api/angular",
           },
           {
-            text: 'SolidJS Primitives <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "SolidJS API",
             link: "/api/solidjs",
+          },
+          {
+            text: 'Nuxt API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/nuxt",
+          },
+          {
+            text: 'Remix API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/remix",
+          },
+          {
+            text: 'Astro API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/astro",
           },
           { text: "Global Config", link: "/api/configuration" },
         ],
@@ -135,8 +158,8 @@ export default defineConfig({
         text: "Releases",
         items: [
           {
-            text: 'Latest: v2.0.2 <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
-            link: "/release-notes#v2-0-2-stable-release",
+            text: 'Latest: v3.0.0 <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/release-notes#v3-0-0-stable",
           },
           {
             text: "Previous",
@@ -149,6 +172,10 @@ export default defineConfig({
           {
             text: "Contributing",
             link: "https://github.com/devhimanshuu/asyncflowstate/blob/main/CONTRIBUTING.md",
+          },
+          {
+            text: "Meet the Creator",
+            link: "/creator",
           },
         ],
       },
@@ -166,6 +193,7 @@ export default defineConfig({
           },
           { text: "Why AsyncFlowState?", link: "/guide/why" },
           { text: "FAQ", link: "/guide/faq" },
+          { text: "Meet the Creator", link: "/creator" },
         ],
       },
       {
@@ -188,6 +216,18 @@ export default defineConfig({
             text: "The Purgatory Pattern",
             link: "/guide/tutorials/purgatory-pattern",
           },
+          {
+            text: 'Mastering Flow DNA <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/tutorials/flow-dna",
+          },
+          {
+            text: 'Building Collaborative Apps <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/tutorials/collaborative-apps",
+          },
+          {
+            text: 'Edge-First Data Fetching <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/tutorials/edge-first",
+          },
         ],
       },
       {
@@ -208,56 +248,102 @@ export default defineConfig({
             link: "/guide/retry-error-handling",
           },
           {
-            text: 'Dead Letter Queue <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Dead Letter Queue",
             link: "/guide/dead-letter-queue",
           },
           {
-            text: 'Optimistic UI & Rollbacks <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Optimistic UI & Rollbacks",
             link: "/guide/optimistic-ui",
           },
           {
-            text: 'Global Undo (Purgatory) <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Global Undo (Purgatory)",
             link: "/guide/purgatory",
           },
           {
-            text: 'Concurrency & Quantum <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Concurrency & Quantum",
             link: "/guide/concurrency",
           },
           {
-            text: 'Flow Composition <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Flow Composition",
             link: "/guide/composition",
           },
           {
-            text: 'Worker Offloading <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Worker Offloading",
             link: "/guide/worker-offloading",
           },
           {
-            text: 'Predictive Prefetching <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Predictive Prefetching",
             link: "/guide/predictive",
           },
           {
-            text: 'Ghost Workflows <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Ghost Workflows",
             link: "/guide/ghost-workflows",
           },
           {
-            text: 'Streaming & AI Skeletons <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Streaming & AI Skeletons",
             link: "/guide/streaming",
           },
           {
-            text: 'Cross-Tab Sync <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Cross-Tab Sync",
             link: "/guide/cross-tab-sync",
           },
           { text: "Smart Persistence", link: "/guide/persistence" },
           { text: "Middleware & Interceptors", link: "/guide/middleware" },
           {
-            text: 'Testing & Jitter <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Testing & Jitter",
             link: "/guide/testing",
           },
           {
-            text: 'Visual Debugger & Time-Travel <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: "Visual Debugger & Time-Travel",
             link: "/guide/visual-debugger",
           },
           { text: "Performance", link: "/guide/performance" },
+        ],
+      },
+      {
+        text: '<i class="fa-solid fa-wand-sparkles" style="margin-right: 4px; font-size: 0.9em; opacity: 0.7;"></i> AI & Next-Gen',
+        collapsed: false,
+        items: [
+          {
+            text: 'Flow DNA <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/flow-dna",
+          },
+          {
+            text: 'Ambient Intelligence <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/ambient",
+          },
+          {
+            text: 'Flow Choreography <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/choreography",
+          },
+          {
+            text: 'Speculative Execution <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/speculative",
+          },
+          {
+            text: 'Emotional UX <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/sentiment",
+          },
+          {
+            text: 'Flow Mesh <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/mesh",
+          },
+          {
+            text: 'Collaborative Flows <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/collaborative",
+          },
+          {
+            text: 'Temporal Replay <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/temporal",
+          },
+          {
+            text: 'Edge-First Flows <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/edge",
+          },
+          {
+            text: 'Telemetry Dashboard <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/guide/telemetry",
+          },
         ],
       },
       {
@@ -273,20 +359,32 @@ export default defineConfig({
             link: "/frameworks/next/nextjs",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
             link: "/frameworks/vue/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
             link: "/frameworks/svelte/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
             link: "/frameworks/angular/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
             link: "/frameworks/solidjs/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/nuxt/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/remix/",
+          },
+          {
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/frameworks/astro/",
           },
         ],
       },
@@ -324,6 +422,18 @@ export default defineConfig({
           {
             text: 'SolidJS API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/api/solidjs",
+          },
+          {
+            text: 'Nuxt API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/nuxt",
+          },
+          {
+            text: 'Remix API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/remix",
+          },
+          {
+            text: 'Astro API <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            link: "/api/astro",
           },
           { text: "Configuration", link: "/api/configuration" },
         ],

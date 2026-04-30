@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/solid <span style="font-size: 14px; background: #2c4f7c22; color: #2c4f7c; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/solid <span style="font-size: 14px; background: #2c4f7c22; color: #2c4f7c; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>Official SolidJS bindings for AsyncFlowState — the industry-standard engine for predictable async UI behavior.</b></p>
 
   <p>
@@ -118,14 +118,137 @@ const list = createFlowList(async (id: string) => api.deleteItem(id));
 </For>;
 ```
 
-## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
 
-- **Dead Letter Queue (DLQ):** Recover from failed operations with centralized replays.
-- **Global Purgatory (Undo):** Signals-based delay patterns and programmable undo.
-- **Deep-Diff Rollbacks:** Reliable optimistic state that survives complex failures.
-- **Worker Offloading:** Offload reactive updates to Web Workers seamlessly.
-- **Streaming & AI Ready:** First-class support for `AsyncIterable` and `ReadableStream`.
-- **Cross-Tab Sync:** State consistency across the browser session.
+- **Flow DNA:** Self-healing signals that learn from runtime patterns.
+- **Ambient Intelligence:** Background predictive monitoring for SolidJS.
+- **Speculative Execution:** Zero-latency signal updates via intent prediction.
+- **Emotional UX:** Signal-aware adaptive UI transitions.
+- **Collaborative Primitives:** Multi-user state synchronization with fine-grained reactivity.
+- **Edge-First Flows:** Optimized for high-performance edge execution.
+- **Temporal Replay:** Full time-travel through SolidJS signal states.
+- **Telemetry Dashboard:** Live monitoring of all application reactive flows.
+
+## Comprehensive Examples
+
+### 1. Fine-Grained Optimistic UI
+
+Update your UI instantly and trust AsyncFlowState to revert to the exact previous state if the network fails.
+
+```tsx
+import { createFlow } from "@asyncflowstate/solid";
+
+function LikeButton({ post }) {
+  const flow = createFlow(api.likePost, {
+    // 1. Update state immediately
+    optimisticResult: (prev) => ({
+      ...prev,
+      likes: prev().likes + 1,
+      isLiked: true,
+    }),
+    // 2. Automatically revert on failure
+    rollbackOnError: true,
+    onSuccess: () => toast.success("Liked!"),
+    onError: () => toast.error("Connection failed. Reverting..."),
+  });
+
+  return (
+    <button onClick={() => flow.execute(post.id)} disabled={flow.loading()}>
+      {flow.data()?.isLiked ? "❤️" : "🤍"} {flow.data()?.likes}
+    </button>
+  );
+}
+```
+
+### 2. AI-Powered: Predictive Intent & Flow DNA
+
+Pre-warm your flows before the user even clicks. AsyncFlowState learns from hover patterns to eliminate perceived latency.
+
+```tsx
+import { createFlow } from "@asyncflowstate/solid";
+
+function ProductCard({ productId }) {
+  const flow = createFlow(api.getDetails, {
+    predictive: { prefetchOnHover: true },
+  });
+
+  return (
+    <div onMouseEnter={flow.prewarm} class="card">
+      <button onClick={() => flow.execute(productId)}>
+        {flow.status() === "prewarmed" ? "Instant View" : "View Details"}
+      </button>
+    </div>
+  );
+}
+```
+
+### 3. Enterprise Orchestration: `createFlowSequence`
+
+Manage complex, interdependent async steps with fine-grained progress tracking.
+
+```tsx
+import { createFlowSequence } from "@asyncflowstate/solid";
+
+function SetupWizard() {
+  const sequence = createFlowSequence([
+    { name: "Create Account", flow: accountFlow },
+    { name: "Verify Email", flow: emailFlow },
+    { name: "Sync Data", flow: syncFlow },
+  ]);
+
+  return (
+    <div>
+      <progress value={sequence.progress()} max="100" />
+      <p>Current Step: {sequence.currentStep()?.name}</p>
+      <button onClick={() => sequence.execute()}>Start Setup</button>
+    </div>
+  );
+}
+```
+
+### 4. Real-Time Collaboration: Cross-Tab Mesh
+
+Keep your application state consistent across every open tab automatically.
+
+```tsx
+const flow = createFlow(api.updateSettings, {
+  crossTab: {
+    sync: true,
+    channel: "user-settings",
+  },
+});
+```
+
+### 5. Multi-Keyed Flows: `createFlowList`
+
+Manage multiple keyed flow instances with independent reactive signals.
+
+```tsx
+import { createFlowList } from "@asyncflowstate/solid";
+const list = createFlowList(api.deleteItem);
+
+<For each={items()}>
+  {(item) => (
+    <button
+      onClick={() => list.execute(item.id)}
+      disabled={list.getStatus(item.id).status === "loading"}
+    >
+      Delete {item.name}
+    </button>
+  )}
+</For>;
+```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
+
+- **Flow DNA:** Self-healing signals that learn from runtime patterns.
+- **Ambient Intelligence:** Background predictive monitoring for SolidJS.
+- **Speculative Execution:** Zero-latency signal updates via intent prediction.
+- **Emotional UX:** Signal-aware adaptive UI transitions.
+- **Collaborative Primitives:** Multi-user state synchronization with fine-grained reactivity.
+- **Edge-First Flows:** Optimized for high-performance edge execution.
+- **Temporal Replay:** Full time-travel through SolidJS signal states.
+- **Telemetry Dashboard:** Live monitoring of all application reactive flows.
 
 ## API Reference
 

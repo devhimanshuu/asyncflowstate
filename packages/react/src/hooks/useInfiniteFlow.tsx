@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
-import type { FlowAction, FlowOptions } from "@asyncflowstate/core";
-import { useFlow } from "./useFlow";
+import { useFlow, type ReactFlowOptions } from "./useFlow";
+import type { FlowAction } from "@asyncflowstate/core";
 
 export interface InfiniteFlowOptions<
   TData,
   TError,
   TArgs extends any[],
-> extends FlowOptions<TData, TError, TArgs> {
+> extends ReactFlowOptions<TData, TError, TArgs> {
   /**
    * Function to determine the next page parameter.
    * Return undefined or null to indicate there are no more pages.

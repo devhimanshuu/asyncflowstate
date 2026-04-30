@@ -25,6 +25,14 @@ export default defineConfig({
         "./packages/angular/src",
       ),
       "@asyncflowstate/solid": path.resolve(__dirname, "./packages/solid/src"),
+      "#app": path.resolve(
+        __dirname,
+        "./packages/nuxt/src/__tests__/mocks/app.ts",
+      ),
+      "@remix-run/react": path.resolve(
+        __dirname,
+        "./packages/remix/node_modules/@remix-run/react",
+      ), // Ensure remix is found
     },
   },
 });

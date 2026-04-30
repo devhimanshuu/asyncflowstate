@@ -2,7 +2,7 @@
   <a href="https://github.com/devhimanshuu/asyncflowstate">
     <img src="https://raw.githubusercontent.com/devhimanshuu/asyncflowstate/main/assets/AsyncFlowState_logo.png" width="120" height="120" alt="AsyncFlowState Logo" />
   </a>
-  <h1>@asyncflowstate/next <span style="font-size: 14px; background: #6366f122; color: #6366f1; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v2.0 Stable</span></h1>
+  <h1>@asyncflowstate/next <span style="font-size: 14px; background: #6366f122; color: #6366f1; padding: 4px 10px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">v3.0.0 Stable</span></h1>
   <p><b>Next.js optimized integration for AsyncFlowState.</b></p>
   <p>Handle SSR, Server Actions, and App Router transitions with declarative behavior orchestration.</p>
 
@@ -45,19 +45,94 @@ return (
 );
 ```
 
-### Features
+## Comprehensive Examples
 
-- **Server Action Support**: Seamlessly wrap Next.js Server Actions with `useServerActionFlow`.
-- **SSR Friendly**: Built-in handling for hydration and server-side state.
-- **App Router Integrated**: Works perfectly with `useTransition` and Next.js navigation.
-- **Automatic Revalidation**: Declaratively trigger `revalidatePath` or `revalidateTag` via success hooks.
+### 1. Server Actions with Transitions
 
-### <i class="fa-solid fa-sparkles text-amber-500"></i> New in v2.0
+Native integration with React 19 / Next.js 15 `useTransition` for smooth navigation and automatic cache revalidation.
 
-- **Dead Letter Queue (DLQ):** Failed server operations automatically pooled for replay.
-- **Global Purgatory (Undo):** Centralized delay for destructive Next.js actions.
-- **Worker Offloading:** Move client-side heavy lifting to background threads.
-- **Streaming AI Ready:** Native support for AI streaming results in the browser.
+```tsx
+import { useTransitionFlow } from "@asyncflowstate/next";
+import { updateProfileAction } from "./actions";
+
+function ProfileForm() {
+  const flow = useTransitionFlow(updateProfileAction, {
+    revalidatePath: "/profile", // Automatic revalidation on success
+    onSuccess: () => toast.success("Profile updated!"),
+  });
+
+  return (
+    <form action={flow.execute}>
+      <input name="username" />
+      <button type="submit" disabled={flow.isPending}>
+        {flow.isPending ? "Saving..." : "Save"}
+      </button>
+    </form>
+  );
+}
+```
+
+### 2. Edge-First Architecture
+
+Optimized for the Edge Runtime. AsyncFlowState automatically leverages Edge Cache and detects environmental telemetry.
+
+```tsx
+export const runtime = "edge";
+
+const flow = useServerActionFlow(apiAction, {
+  edge: {
+    cache: "force-cache",
+    ttl: 3600,
+  },
+});
+```
+
+### 3. AI-Powered: Speculative Navigation
+
+Predict user navigation intent and pre-warm server action states before the user clicks.
+
+```tsx
+const flow = useServerActionFlow(detailsAction, {
+  predictive: { prefetchOnHover: true },
+});
+
+return (
+  <Link href="/details" onMouseEnter={flow.prewarm}>
+    View Details
+  </Link>
+);
+```
+
+### 4. Collaborative Server State: Cross-Tab Mesh
+
+Synchronize Server Action results across multiple open tabs for the same user session.
+
+```tsx
+const flow = useServerActionFlow(updateSettings, {
+  crossTab: { sync: true, channel: "user-session-mesh" },
+});
+```
+
+### 5. Multi-Step Server Sequences
+
+Orchestrate complex server-side workflows with individual step tracking and aggregate progress.
+
+```tsx
+const sequence = useFlowSequence([
+  { name: "Auth", flow: loginAction },
+  { name: "Sync", flow: syncAction },
+]);
+```
+
+## <i class="fa-solid fa-sparkles text-amber-500"></i> New in v3.0
+
+- **Flow DNA:** Self-healing Server Actions that optimize based on user patterns.
+- **Speculative Navigation:** Intent-based pre-fetching and execution.
+- **Ambient ISR Monitoring:** Background orchestration for incremental static regeneration.
+- **Collaborative Server State:** Real-time state synchronization across Next.js instances.
+- **Edge-First Flows:** Optimized integration with Next.js Edge Runtime.
+- **Temporal Replay:** Full history replay for complex multi-step Server Action flows.
+- **Telemetry Dashboard:** Live monitoring of Server Action health and performance.
 
 ## License
 

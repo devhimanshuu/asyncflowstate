@@ -99,16 +99,6 @@ export interface ReactFlowOptions<
    * when the network reconnects.
    */
   revalidateOnReconnect?: boolean;
-  /**
-   * Predictive execution options.
-   * Tracks user intent (hover, pointer velocity) to prefetch the action.
-   */
-  predictive?: {
-    /** Whether to enable prefetching on hover. */
-    prefetchOnHover?: boolean;
-    /** Minimum hover duration (ms) before triggering prefetch. Default: 100 */
-    hoverDelay?: number;
-  };
 }
 
 /**
@@ -309,6 +299,17 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
       return {
         disabled: flow.isLoading,
         "aria-busy": flow.isLoading,
+        "data-prewarmed": snapshot.status === "prewarmed",
+        style: {
+          ...(snapshot.status === "prewarmed"
+            ? {
+                boxShadow: "0 0 15px rgba(255, 165, 0, 0.6)",
+                transition: "all 0.3s ease",
+                border: "1px solid orange",
+              }
+            : {}),
+          ...props.style,
+        },
         onClick: async (e: MouseEvent<HTMLButtonElement>) => {
           if (onClick) {
             onClick(e);
@@ -457,6 +458,8 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
       },
       [flow],
     ),
+    /** Pre-warms the flow based on intent */
+    prewarm: useCallback((...args: TArgs) => flow.prewarm(...args), [flow]),
     /** Resets the flow state to idle */
     reset: flow.reset.bind(flow),
     /** Cancels the currently running action */
@@ -485,6 +488,8 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
     flow,
     /** Signals for inter-flow communication */
     signals: flow.signals,
+    /** Ask the AI Debugger a natural language question about the flow's history */
+    askDebugger: flow.askDebugger.bind(flow),
   };
 }
 

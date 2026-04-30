@@ -53,6 +53,7 @@ export function createFlow<
   const isError = createMemo(() => status() === "error");
   const isIdle = createMemo(() => status() === "idle");
   const isStreaming = createMemo(() => status() === "streaming");
+  const isPrewarmed = createMemo(() => status() === "prewarmed");
 
   let lastArgs: TArgs | null = null;
 
@@ -75,12 +76,29 @@ export function createFlow<
     return {
       disabled: loading(),
       "aria-busy": loading(),
+      "data-prewarmed": status() === "prewarmed",
+      style: {
+        ...(status() === "prewarmed"
+          ? {
+              boxShadow: "0 0 15px rgba(255, 165, 0, 0.6)",
+              transition: "all 0.3s ease",
+              border: "1px solid orange",
+            }
+          : {}),
+        ...rest.style,
+      },
       onClick: (e: Event) => {
         if (onClick) {
           onClick(e);
         } else {
           (flow.execute as any)();
         }
+      },
+      onMouseEnter: (e: Event) => {
+        if (mergedOptions.predictive?.prefetchOnHover) {
+          (flow.execute as any)();
+        }
+        if (props.onMouseEnter) props.onMouseEnter(e);
       },
       ...rest,
     };
@@ -177,6 +195,31 @@ export function createFlow<
     flow.dispose();
   });
 
+  const [announcement, setAnnouncement] = createSignal("");
+
+  // Sync options to the flow instance when they change
+  createMemo(() => {
+    flow.setOptions(mergeFlowOptions(globalConfig, options));
+  });
+
+  // ─── A11y Announcements ──────────────────────────────────────────────────
+  createMemo(() => {
+    const s = status();
+    if (s === "success" && options.a11y?.announceSuccess) {
+      setAnnouncement(
+        typeof options.a11y.announceSuccess === "function"
+          ? options.a11y.announceSuccess(data()!)
+          : options.a11y.announceSuccess,
+      );
+    } else if (s === "error" && options.a11y?.announceError) {
+      setAnnouncement(
+        typeof options.a11y.announceError === "function"
+          ? options.a11y.announceError(error()!)
+          : options.a11y.announceError,
+      );
+    }
+  });
+
   return {
     status,
     data,
@@ -189,7 +232,10 @@ export function createFlow<
     isError,
     isIdle,
     isStreaming,
+    isPrewarmed,
     execute,
+    prewarm: flow.prewarm.bind(flow),
+    askDebugger: flow.askDebugger.bind(flow),
     reset: flow.reset.bind(flow),
     cancel: flow.cancel.bind(flow),
     setProgress: flow.setProgress.bind(flow),
@@ -200,6 +246,26 @@ export function createFlow<
     button,
     form,
     fieldErrors,
+    /** ARIA live region component helper */
+    LiveRegion: () => (
+      <div
+        aria-live={options.a11y?.liveRegionRel || "polite"}
+        aria-atomic="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: "0",
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          "white-space": "nowrap",
+          "border-width": "0",
+        }}
+      >
+        {announcement()}
+      </div>
+    ),
     flow,
     signals: flow.signals,
   };

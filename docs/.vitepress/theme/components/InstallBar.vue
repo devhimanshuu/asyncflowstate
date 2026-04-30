@@ -40,6 +40,28 @@ const frameworks = [
     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg",
     command: "npm install @asyncflowstate/solid @asyncflowstate/core",
   },
+  {
+    name: "Nuxt",
+    id: "nuxt",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg",
+    command:
+      "npm install @asyncflowstate/nuxt @asyncflowstate/vue @asyncflowstate/core",
+  },
+  {
+    name: "Remix",
+    id: "remix",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+    command:
+      "npm install @asyncflowstate/remix @asyncflowstate/react @asyncflowstate/core",
+    remixTint: true,
+  },
+  {
+    name: "Astro",
+    id: "astro",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg",
+    command: "npm install @asyncflowstate/astro @asyncflowstate/core",
+    darkInvert: true,
+  },
 ];
 
 const activeFramework = ref(frameworks[0]);
@@ -69,7 +91,7 @@ const copyCommand = () => {
         <img
           :src="fw.icon"
           :alt="fw.name"
-          :class="{ 'dark-invert': fw.darkInvert }"
+          :class="{ 'dark-invert': fw.darkInvert, 'remix-tint': fw.remixTint }"
         />
       </button>
     </div>
@@ -153,6 +175,10 @@ const copyCommand = () => {
   filter: invert(1);
 }
 
+.remix-tint {
+  filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);
+}
+
 .afs-install-bar {
   display: flex;
   flex-direction: column;
@@ -162,7 +188,7 @@ const copyCommand = () => {
   border: 1px solid var(--vp-c-divider);
   border-radius: 20px;
   width: 100%;
-  max-width: 580px;
+  max-width: 660px;
   margin: 0 auto;
   cursor: pointer;
   transition: all 0.2s ease;
