@@ -333,7 +333,7 @@ export function useFlow<TData = any, TError = any, TArgs extends any[] = any[]>(
         ...rest,
       };
     },
-    [flow, options.predictive?.prefetchOnHover],
+    [flow, options.predictive?.prefetchOnHover, snapshot.status],
   );
 
   /**

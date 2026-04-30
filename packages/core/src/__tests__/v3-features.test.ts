@@ -187,9 +187,7 @@ describe("AsyncFlowState v3.0 Next-Gen Features", () => {
 
       vi.stubGlobal(
         "Worker",
-        vi.fn().mockImplementation(function () {
-          return mockWorker;
-        }),
+        vi.fn().mockImplementation(() => mockWorker),
       );
       vi.stubGlobal("URL", {
         createObjectURL: vi.fn().mockReturnValue("blob-url"),

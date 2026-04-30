@@ -96,7 +96,7 @@ export class AmbientSensor {
         battery.addEventListener("chargingchange", () => {
           this.state.charging = battery.charging;
         });
-      } catch (_e) {
+      } catch {
         /* Battery API not available */
       }
     }

@@ -90,8 +90,6 @@ export class FlowDNA {
     // Calculate population statistics
     const latencies = recent.filter((g) => g.success).map((g) => g.latency);
     const successRate = recent.filter((g) => g.success).length / recent.length;
-    const avgRetries =
-      recent.reduce((sum, g) => sum + g.retries, 0) / recent.length;
     const avgLatency =
       latencies.length > 0
         ? latencies.reduce((a, b) => a + b, 0) / latencies.length
@@ -147,11 +145,12 @@ export class FlowDNA {
       case "reliability":
         fitnessScore = successRate;
         break;
-      case "bandwidth":
+      case "bandwidth": {
         const avgPayload =
           recent.reduce((sum, g) => sum + g.payloadSize, 0) / recent.length;
         fitnessScore = Math.max(0, 1 - avgPayload / 1_000_000);
         break;
+      }
     }
 
     this.evolved = {
@@ -186,7 +185,7 @@ export class FlowDNA {
         `${DNA_STORE_PREFIX}${this.flowKey}`,
         JSON.stringify(this.genomes.slice(-200)),
       );
-    } catch (_e) {
+    } catch {
       /* quota exceeded — ignore */
     }
   }
@@ -199,7 +198,7 @@ export class FlowDNA {
       if (saved) {
         this.genomes = JSON.parse(saved);
       }
-    } catch (_e) {
+    } catch {
       /* ignore */
     }
   }

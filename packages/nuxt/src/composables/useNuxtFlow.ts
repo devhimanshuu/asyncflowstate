@@ -1,5 +1,4 @@
 import { useFlow, type VueFlowOptions } from "@asyncflowstate/vue";
-import { useNuxtApp } from "#app";
 
 /**
  * Nuxt-specific flow options.
@@ -26,19 +25,12 @@ export function useNuxtFlow<
   action: (...args: TArgs) => Promise<TData>,
   options: NuxtFlowOptions<TData, TError, TArgs> = {},
 ) {
-  const nuxtApp = useNuxtApp();
   const flow = useFlow(action, options);
 
-  // We can add Nuxt-specific logic here, like integrating with Nuxt's error handling
   const originalExecute = flow.execute;
 
   flow.execute = async (...args: TArgs) => {
-    try {
-      return await originalExecute(...args);
-    } catch (err: any) {
-      // Potentially trigger clearError() or other Nuxt patterns
-      throw err;
-    }
+    return await originalExecute(...args);
   };
 
   return flow;

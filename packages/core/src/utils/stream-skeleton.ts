@@ -34,7 +34,7 @@ export async function* streamAISkeleton(
     try {
       const saved = localStorage.getItem(`af_ghost_${persistenceKey}`);
       if (saved) historicalData = JSON.parse(saved);
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }
@@ -75,7 +75,7 @@ export function recordGhostData(key: string, data: any): void {
   if (typeof localStorage === "undefined" || !data) return;
   try {
     localStorage.setItem(`af_ghost_${key}`, JSON.stringify(data));
-  } catch (e) {
+  } catch {
     /* ignore */
   }
 }
