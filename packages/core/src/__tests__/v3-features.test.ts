@@ -187,7 +187,10 @@ describe("AsyncFlowState v3.0 Next-Gen Features", () => {
 
       vi.stubGlobal(
         "Worker",
-        vi.fn().mockImplementation(() => mockWorker),
+        // eslint-disable-next-line prefer-arrow-callback
+        vi.fn().mockImplementation(function () {
+          return mockWorker;
+        }),
       );
       vi.stubGlobal("URL", {
         createObjectURL: vi.fn().mockReturnValue("blob-url"),
