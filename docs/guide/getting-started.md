@@ -1,3 +1,7 @@
+---
+description: Learn how to install and set up AsyncFlowState in React, Next.js, Vue, Svelte, Angular, and SolidJS. Start building predictable async flows in minutes.
+---
+
 # Getting Started
 
 <StateAnimation />

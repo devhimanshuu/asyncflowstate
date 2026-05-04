@@ -1,3 +1,7 @@
+---
+description: Reference for the core AsyncFlowState engine. Learn about the framework-agnostic API, state machine logic, and orchestration features.
+---
+
 # Core API Reference
 
 Complete API reference for `@asyncflowstate/core`.

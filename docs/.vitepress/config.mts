@@ -1,16 +1,25 @@
-import { defineConfig } from "vitepress";
+import { defineConfig, type HeadConfig } from "vitepress";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  lang: "en-US",
+  sitemap: {
+    hostname: "https://asyncflowstate-js.pages.dev",
+  },
   vite: {
     plugins: [tailwindcss()],
   },
   title: "AsyncFlowState",
+  titleTemplate: ":title | AsyncFlowState",
   description:
     "The industry-standard engine for predictable async UI behavior. Eliminate boilerplate in React, Vue, Svelte, Angular, Solid, Next.js, Nuxt, Remix & Astro.",
 
   head: [
     ["link", { rel: "icon", href: "/logo.png", type: "image/png" }],
+    ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
+    ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
+    ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
+    ["link", { rel: "dns-prefetch", href: "https://fonts.gstatic.com" }],
     [
       "link",
       {
@@ -64,8 +73,44 @@ export default defineConfig({
       },
     ],
     ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:url", content: "https://asyncflowstate-js.pages.dev/" }],
+    ["meta", { property: "og:image", content: "https://asyncflowstate-js.pages.dev/logo.png" }],
+    ["meta", { property: "og:image:alt", content: "AsyncFlowState - The Predictable Async UI Engine" }],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:site", content: "@asyncflowstate" }],
+    ["meta", { name: "twitter:image", content: "https://asyncflowstate-js.pages.dev/logo.png" }],
+    ["meta", { name: "theme-color", content: "#6366f1" }],
+    ["link", { rel: "apple-touch-icon", href: "/logo.png" }],
+    ["meta", { name: "google-site-verification", content: "ADD_YOUR_VERIFICATION_TOKEN_HERE" }],
+    [
+      "script",
+      { type: "application/ld+json" },
+      JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "AsyncFlowState",
+        "operatingSystem": "Web, Node.js",
+        "applicationCategory": "DeveloperApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "The industry-standard engine for predictable async UI behavior. Eliminate boilerplate in React, Vue, Svelte, Angular, Solid, Next.js, Nuxt, Remix & Astro.",
+        "author": {
+          "@type": "Organization",
+          "name": "AsyncFlowState"
+        }
+      })
+    ]
   ],
+
+  transformHead: ({ pageData }) => {
+    const head: HeadConfig[] = [];
+    const url = `https://asyncflowstate-js.pages.dev/${pageData.relativePath.replace(/index\.md$/, "").replace(/\.md$/, "")}`;
+    head.push(["link", { rel: "canonical", href: url }]);
+    return head;
+  },
 
   cleanUrls: true,
   lastUpdated: true,
@@ -80,39 +125,39 @@ export default defineConfig({
         text: "Frameworks",
         items: [
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> React',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" alt="React" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> React',
             link: "/frameworks/react/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" class="dark:invert" /> Next.js',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" alt="Next.js" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" class="dark:invert" /> Next.js',
             link: "/frameworks/next/nextjs",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" alt="Vue" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
             link: "/frameworks/vue/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="Svelte" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
             link: "/frameworks/svelte/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" alt="Angular" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
             link: "/frameworks/angular/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" alt="SolidJS" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
             link: "/frameworks/solidjs/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" alt="Nuxt" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/nuxt/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" alt="Remix" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/remix/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" alt="Astro" style="width: 16px; height: 16px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/astro/",
           },
         ],
@@ -351,39 +396,39 @@ export default defineConfig({
         collapsed: false,
         items: [
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> React',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" alt="React" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> React',
             link: "/frameworks/react/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" class="dark:invert" /> Next.js',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" alt="Next.js" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" class="dark:invert" /> Next.js',
             link: "/frameworks/next/nextjs",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" alt="Vue" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Vue',
             link: "/frameworks/vue/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="Svelte" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Svelte',
             link: "/frameworks/svelte/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg" alt="Angular" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Angular',
             link: "/frameworks/angular/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidjs/solidjs-original.svg" alt="SolidJS" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> SolidJS',
             link: "/frameworks/solidjs/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg" alt="Nuxt" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Nuxt <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/nuxt/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" alt="Remix" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle; filter: grayscale(1) invert(0.5) sepia(1) hue-rotate(180deg) saturate(3);" /> Remix <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/remix/",
           },
           {
-            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
+            text: '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original.svg" alt="Astro" style="width: 14px; height: 14px; display: inline-block; margin-right: 8px; vertical-align: middle;" /> Astro <span class="text-[10px] uppercase font-bold text-emerald-500 ml-1">New</span>',
             link: "/frameworks/astro/",
           },
         ],

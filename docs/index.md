@@ -146,7 +146,7 @@ function SaveButton({ data }) {
 
 <div class="text-center mb-16">
 <p class="afs-label">Core Engine — v3.0</p>
-<h1 class="afs-heading">Everything your async flows <span class="text-brand italic">need.</span></h1>
+<h2 class="afs-heading">Everything your async flows <span class="text-brand italic">need.</span></h2>
 <p class="afs-subheading">30+ production-grade features. AI-powered debugging. Zero runtime dependencies. One API surface across nine frameworks.</p>
 </div>
 
@@ -331,7 +331,7 @@ function SaveButton({ data }) {
 <div class="flex flex-col lg:flex-row items-center gap-16">
 <div class="lg:w-1/2 space-y-6">
 <p class="afs-label">See It In Action</p>
-<h1 class="text-4xl lg:text-5xl font-black tracking-tighter leading-[1.1]">Concurrency strategies, <span class="text-brand italic">visualized.</span></h1>
+<h2 class="text-4xl lg:text-5xl font-black tracking-tighter leading-[1.1]">Concurrency strategies, <span class="text-brand italic">visualized.</span></h2>
 <p class="text-lg opacity-50 leading-relaxed font-medium max-w-[480px]">Watch how <code>exhaust</code>, <code>switch</code>, and <code>enqueue</code> handle overlapping user clicks in real time. No custom logic required.</p>
 
 <div class="space-y-3 pt-2">
@@ -373,7 +373,7 @@ function SaveButton({ data }) {
 <div class="flex flex-col lg:flex-row-reverse items-center gap-16">
 <div class="lg:w-1/2 space-y-6 text-center lg:text-left">
 <p class="afs-label" style="color: var(--afs-accent);">Resilience Engineering</p>
-<h1 class="text-4xl lg:text-5xl font-black tracking-tighter leading-[1.1]">Failed requests <span class="text-accent italic">recover.</span></h1>
+<h2 class="text-4xl lg:text-5xl font-black tracking-tighter leading-[1.1]">Failed requests <span class="text-accent italic">recover.</span></h2>
 <p class="text-lg opacity-50 leading-relaxed font-medium max-w-[480px]">Network failures are inevitable. AsyncFlowState retries intelligently with backoff, jitter, and circuit breakers — so your users never see a broken state.</p>
 
 <div class="space-y-3 pt-2 text-left">
@@ -414,7 +414,7 @@ function SaveButton({ data }) {
 
 <div class="text-center mb-16">
 <p class="afs-label">Package Ecosystem</p>
-<h1 class="afs-heading">One core. <span class="text-brand italic">Nine adapters.</span></h1>
+<h2 class="afs-heading">One core. <span class="text-brand italic">Nine adapters.</span></h2>
 <p class="afs-subheading">A framework-agnostic engine with native bindings that speak each framework's idiom — hooks, composables, stores, services, and signals.</p>
 </div>
 
@@ -532,7 +532,7 @@ function SaveButton({ data }) {
 <div class="relative afs-container">
 
 <p class="afs-label mb-6">Get started in 30 seconds</p>
-<h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-5 ">Ship flawless async UX<br/><span class="text-brand italic">in record time.</span></h1>
+<h2 class="text-7xl lg:text-9xl font-black tracking-tighter mb-5 ">Ship flawless async UX<br/><span class="text-brand italic">in record time.</span></h2>
 <p class="afs-subheading">Replace fragile state logic with a robust orchestration engine. Experience built-in concurrency control, optimistic updates, and automatic error recovery out-of-the-box.</p>
 
 <div class="mb-10 mt-10">

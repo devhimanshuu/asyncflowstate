@@ -18,6 +18,7 @@ import LogoDots from "./components/LogoDots.vue";
 import HeroOrbital from "./components/HeroOrbital.vue";
 import InstallBar from "./components/InstallBar.vue";
 import ReleaseBanner from "./components/ReleaseBanner.vue";
+import Breadcrumbs from "./components/Breadcrumbs.vue";
 
 import PurgatoryAnimation from "./components/PurgatoryAnimation.vue";
 import DLQAnimation from "./components/DLQAnimation.vue";
@@ -47,6 +48,7 @@ export default {
     return h(DefaultTheme.Layout, null, {
       "home-hero-image-after": () => h(LogoDots),
       "layout-top": () => [h(HeroOrbital), h(ReleaseBanner)],
+      "doc-before": () => h(Breadcrumbs),
       "not-found": () => h(NotFound),
     });
   },

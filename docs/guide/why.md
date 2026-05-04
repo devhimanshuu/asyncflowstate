@@ -1,3 +1,7 @@
+---
+description: Discover why AsyncFlowState is the ultimate tool for managing async UI behavior. Compare it with React Query, Redux, and manual state management.
+---
+
 # Why AsyncFlowState?
 
 ## The Before & After
